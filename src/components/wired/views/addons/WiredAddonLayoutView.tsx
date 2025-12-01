@@ -12,6 +12,7 @@ import { WiredAddonFilterUserView } from './WiredAddonFilterUserView';
 import { WiredAddonVariableTextView } from './WiredAddonVariableTextView';
 import { WiredAddonTextOutputUsernameView } from './WiredAddonTextOutputUsernameView';
 import { WiredAddonTextOutputVariableView } from './WiredAddonTextOutputVariableView';
+import { WiredAddonReferenceVariableView } from './WiredAddonReferenceVariableView';
 
 
 
@@ -46,6 +47,8 @@ export const WiredAddonLayoutView = (code: number) =>
             return <WiredAddonTextOutputUsernameView />;
         case WiredAddonLayoutCode.TEXT_OUTPUT_VARIABLE:
             return <WiredAddonTextOutputVariableView />;
+        case WiredAddonLayoutCode.REFERENCE_VARIABLE:
+            return <WiredAddonReferenceVariableView />;
 
 
 

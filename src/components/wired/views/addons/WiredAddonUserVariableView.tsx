@@ -9,10 +9,26 @@ export const WiredAddonUserVariableView: FC = () =>
     const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
     const [varName, setVarName] = useState('');
     const [hasValue, setHasValue] = useState(0);
-    const [permanent, setPermanent] = useState(0);
+    const [availabilityMode, setAvailabilityMode] = useState(0);
+
+    const resolveAvailabilityLabel = (mode: number) =>
+    {
+        if(mode === 2)
+        {
+            const shared = LocalizeText('wired_var_user_shared_rooms');
+            return (shared && (shared !== 'wired_var_user_shared_rooms')) ? shared : 'Permanente compartida entre salas';
+        }
+
+        const key = `wired_var_user_${ mode }`;
+        const localized = LocalizeText(key);
+
+        if(localized && (localized !== key)) return localized;
+
+        return (mode === 0) ? 'Mientras la sala está activa' : 'Permanente';
+    };
 
     const save = () => {
-        setIntParams([hasValue, permanent]);
+        setIntParams([hasValue, availabilityMode]);
         setStringParam(varName);
     };
 
@@ -20,7 +36,7 @@ export const WiredAddonUserVariableView: FC = () =>
     {
         setVarName(trigger.stringData || '');
         setHasValue((trigger.intData.length > 0) ? trigger.intData[0] : 0);
-        setPermanent((trigger.intData.length > 1) ? trigger.intData[1] : 0);
+        setAvailabilityMode((trigger.intData.length > 1) ? trigger.intData[1] : 0);
     }, [trigger]);
 
     return (
@@ -35,7 +51,7 @@ export const WiredAddonUserVariableView: FC = () =>
                     <Text>{ LocalizeText('wired_var_user_has_value') }</Text>
                 </Flex>
             <Text bold>Opciones de disponibilidad:</Text>
-            {[0, 1].map(mode =>
+            {[0, 1, 2].map(mode =>
             {
                 return (
                     <Flex key={mode} gap={1}>
@@ -44,10 +60,10 @@ export const WiredAddonUserVariableView: FC = () =>
                             type="radio"
                             name="wiredMode"
                             id={`wiredMode${mode}`}
-                            checked={(permanent === mode)}
-                            onChange={() => setPermanent(mode)} />
+                            checked={(availabilityMode === mode)}
+                            onChange={() => setAvailabilityMode(mode)} />
 
-                        <Text>{LocalizeText('wired_var_user_' + mode)}</Text>
+                        <Text>{resolveAvailabilityLabel(mode)}</Text>
                     </Flex>
                 )
             })}

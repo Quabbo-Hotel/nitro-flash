@@ -23,6 +23,7 @@ export class IncomingHeader
     public static GET_FURNI_VARIABLE_BY_CLICK = 6012;
     public static GET_USER_VARIABLE_BY_CLICK = 6043;
     public static GET_GLOBAL_VARIABLES_AND_VALUES = 6044;
+    public static SHARED_ROOM_VARIABLES = 6046;
 
     //blackjack
     public static BLACKJACK_SESSION_STATUS = 6013;
