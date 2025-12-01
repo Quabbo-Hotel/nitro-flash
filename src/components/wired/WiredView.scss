@@ -1,0 +1,366 @@
+.nitro-wired {
+    width: 240px;
+
+	input {
+		font-size: 9px;
+	}
+
+    .icon {
+		background-repeat: no-repeat;
+		background-position: center;
+
+		&.icon-mv-1 {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_around.png');
+		}
+		&.icon-mv-2 {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_up_down.png');
+		}
+		&.icon-mv-3 {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_left_right.png');
+		}
+		&.icon-ne {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_north_east.png');
+		}
+		&.icon-se {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_south_east.png');
+		}
+		&.icon-sw {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_south_west.png');
+		}
+		&.icon-nw {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_north_west.png');
+		}
+		&.icon-rot-1 {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_rotate_clockwise.png');
+		}
+		&.icon-rot-2 {
+            width: 16px;
+            height: 9px;
+			background-image: url('@/assets/images/wired/icon_wired_rotate_counter_clockwise.png');
+		}
+	}
+
+	.nitro-wired-header {
+		color: #000;
+		margin-bottom:3px;
+
+		.nitro-wired-title, .nitro-wired-close {
+			border:1px solid rgba($black,.8);
+			background-image: linear-gradient(45deg, #00d9cb 25%, #00bdb0 25%, #00bdb0 50%, #00d9cb 50%, #00d9cb 75%, #00bdb0 75%, #00bdb0 100%);
+			background-size: 197.99px 197.99px;
+			animation: wiredSlider 3s linear infinite;
+			text-align: center;
+			box-shadow:inset 0 0 0 2px rgba($white,.6), 0 2px rgba($black,.4);
+		}
+
+		.nitro-wired-title {
+			margin-right:3px;
+		}
+
+		.nitro-wired-close {
+			min-width: 23px;
+		}
+	}
+
+	&.nitro-wired-trigger {
+		background-color: #3b2516 !important;
+		border: 1px solid #000 !important;
+		box-shadow: inset 0px -2px #50321f,
+					inset 0px -3px #86583b,
+					inset 0 0 0 1px #86583b,
+					inset 0 0 0 3px #644029,
+					inset 0 0 0 4px rgba($black,.4) !important;
+
+		.bg-light,.bg-primary {
+			background-color: transparent !important;
+		}
+
+		.bg-dark {
+			background-color: #000 !important;
+		}
+	}
+
+	&.nitro-wired-action {
+		background-color: #686868 !important;
+		border: 1px solid #000 !important;
+		box-shadow: inset 0px -2px #9d9d9d,
+					inset 0px -3px #c5c5c5,
+					inset 0 0 0 1px #c5c5c5,
+					inset 0 0 0 3px #9d9d9d,
+					inset 0 0 0 4px rgba($black,.4) !important;
+
+		.bg-light,.bg-primary {
+			background-color: transparent !important;
+		}
+
+		.bg-dark {
+			background-color: #000 !important;
+		}
+
+		&::before,
+		&::after,
+		.content-area::before,
+		.content-area::after {
+			content: '';
+			height: 6px;
+			width: 6px;
+			position: absolute;
+			background-image: url('@/assets/images/wired/card-action-corners.png');
+		}
+
+		&::before {
+			background-position: 0 0;
+			top: 0;
+			left: 0;
+		}
+
+		&::after {
+			background-position: 6px 0;
+			top: 0;
+			right: 0;
+		}
+
+		.content-area {
+			&::before {
+				background-position: 0 6px;
+				bottom: 0;
+				left: 0;
+			}
+	
+			&::after {
+				background-position: 6px 6px;
+				bottom: 0;
+				right: 0;
+			}
+		}
+	}
+
+	&.nitro-wired-condition {
+		background-color: #cfd2dd !important;
+		border: 1px solid #000 !important;
+		box-shadow: inset 0 0 0 3px #efefef, inset 4px 4px #abaeb9 !important;
+		color: #000;
+
+		.bg-light,.bg-primary {
+			background-color: transparent !important;
+		}
+
+		.bg-dark {
+			background-color: #000 !important;
+		}
+	}
+}
+
+
+@keyframes wiredSlider {
+	0% {
+		background-position: 0 0;
+	}
+	
+	100% {
+		background-position: 0 -197.99px;
+	}
+}
+.global-neighbor {
+	margin-bottom: 10px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+%button-tile {
+	background-position: center;
+	background-repeat: no-repeat;
+	width: 29px;
+	height: 29px;
+	background-color: rgb(205, 211, 217);
+	border: 2px solid rgb(182, 190, 197);
+	border-radius: 5px;
+}
+
+.button-add-tile {
+	@extend %button-tile;
+	background-image: url("@/assets/images/wired/selectors/add_tile.png");
+}
+
+.button-remove-tile {
+	@extend %button-tile;
+	background-image: url("@/assets/images/wired/selectors/remove_tile.png");
+}
+
+.button-select-tile {
+	@extend %button-tile;
+	background-image: url("@/assets/images/wired/selectors/select_tile.png");
+}
+
+
+.divisor-buttons-neighbor {
+	margin-left: 5px;
+	margin-right: 5px;
+	display: flex;
+	height: 21px;
+	width: 1px;
+	background-color: #828280;
+}
+
+.container-button-user-furni {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.icon-neighbor-0 {
+	background-image: url("@/assets/images/wired/selectors/thunder-icon.png");
+}
+
+.icon-neighbor-1 {
+	background-image: url("@/assets/images/wired/selectors/click-icon.png");
+}
+
+.icon-neighbor-2 {
+	background-image: url("@/assets/images/wired/selectors/signal-icon.png");
+}
+
+.icon-neighbor-3 {
+	background-image: url("@/assets/images/wired/selectors/thunder-icon.png");
+}
+
+.icon-neighbor-4 {
+	background-image: url("@/assets/images/wired/selectors/signal-icon.png");
+}
+
+.icon-neighbor-5 {
+	background-image: url("@/assets/images/wired/selectors/box-icon.png");
+}
+.icon-neighbor-6 {
+	background-image: url("@/assets/images/wired/group-icon.png");
+}
+.icon-neighbor-7 {
+	background-image: url("@/assets/images/wired/room-icon.png");
+}
+
+.icon-users-neighbor {
+	width: 20px;
+	height: 20px;
+	background-image: url("@/assets/images/wired/selectors/user-icon.png");
+	background-repeat: no-repeat;
+	background-position-x: 3px;
+}
+
+.icon-furnis-neighbor {
+	width: 20px;
+	height: 20px;
+	background-image: url("@/assets/images/wired/selectors/furni-icon.png");
+	background-repeat: no-repeat;
+	background-position-x: 5px;
+}
+
+.button-group {
+	display: flex;
+	gap: 5px;
+}
+
+.button-icons-selector-general {
+	background-position: center;
+	background-repeat: no-repeat;
+	width: 32px;
+	height: 32px;
+	background-color: rgb(205, 211, 217);
+	border: 2px solid rgb(182, 190, 197);
+	border-radius: 5px;
+}
+
+.button-signal {
+	width: 29px;
+	height: 29px;
+}
+
+.button-icons-selector-general-selected {
+	background-position: center;
+	background-repeat: no-repeat;
+	width: 32px;
+	height: 32px;
+	background-color: #ececec;
+	border: 2px solid rgb(255, 255, 255);
+	border-radius: 5px;
+}
+
+.align-advancedoptionsone {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+.icon-signal-1 {
+	background-image: url("@/assets/images/wired/selectors/click-icon.png");
+}
+
+.icon-signal-0 {
+	background-image: url("@/assets/images/wired/selectors/thunder-icon.png");
+}
+
+.icon-signal-3 {
+	background-image: url("@/assets/images/wired/selectors/signal-icon.png");
+}
+
+.icon-signal-2 {
+	background-image: url("@/assets/images/wired/selectors/box-icon.png");
+}
+.icon-furnis-0{
+	background-image: url("@/assets/images/wired/selectors/thunder-icon.png");
+}
+.icon-furnis-1{
+	background-image: url("@/assets/images/wired/selectors/box-icon.png");
+}
+.icon-furnis-2{
+	background-image: url("@/assets/images/wired/selectors/signal-icon.png");
+}
+//custom
+.icon-var-furni{
+	background-image: url("@/assets/images/vars/furni.png");
+}
+.icon-var-user{
+	background-image: url("@/assets/images/vars/user.png");
+}
+.icon-var-global{
+	background-image: url("@/assets/images/vars/room.png");
+}
+.icon-var-context{
+	background-image: url("@/assets/images/vars/context.png");
+}
+.red{
+	
+	justify-content: space-between;
+}
+.button-icon{
+	width: 10px;
+	height: 11px;
+	cursor: pointer;
+	padding: 9px;
+	background-repeat: no-repeat;
+	background-position: center;
+	
+}
+.container-buttons-var {
+	
+	background-color: rgb(41, 41, 41);
+	border-radius: 2px;
+}

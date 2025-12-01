@@ -1,0 +1,53 @@
+.global-grid{
+    width: 100%;
+    height: 100%;
+}
+
+.button-var{
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-furni-var{
+    background-image: url("@/assets/images/wired/variables/furni.png");
+}
+.icon-user-var{
+    background-image: url("@/assets/images/wired/variables/user.png");
+}
+.icon-global-var{
+    background-image: url("@/assets/images/wired/variables/global.png");
+}
+.icon-context-var{
+    background-image: url("@/assets/images/wired/variables/context.png");
+}
+.container-buttons-var{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.container-var-selector{
+    height: 232px;
+    width: 100%;
+}
+.container-selector{
+    margin-bottom: 10px;
+}
+.container-values-prop {
+    border: 2px solid black;
+    width: 100%;
+    height: 200px;
+    overflow-y: auto; /* Habilita el scroll vertical */
+}
+
+.grid-container-props {
+    display: grid;
+    width: 100%;
+    grid-auto-rows: min-content; /* Para que las filas se adapten al contenido */
+}
+
+.grid-container2-props{
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 1fr 0.5fr 1fr;
+}

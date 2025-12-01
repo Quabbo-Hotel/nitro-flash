@@ -1,0 +1,64 @@
+.nitro-loading {
+    position: relative;
+    background: #09161f;
+  
+    .percent {
+      font-size: 17px;
+      color: #999999;
+    }
+  
+    .loading-stories {
+      background-image: url("@/assets/flash/loadingscreen/background.png");
+      width: 500px;
+      height: 434px;
+      position: relative;
+      filter: drop-shadow(1px 3px 20px #36445d);
+  
+      .loadingPhoto {
+        width: 320px;
+        height: 320px;
+        top: 51px;
+        left: 94px;
+  
+        @for $i from 1 through 30 {
+          &[data-image="#{$i}"] {
+            background-image: url("@/assets/flash/loadingscreen/image-#{$i}.png");
+          }
+        }
+      }
+  
+      .imageOverlay {
+        background-image: url("@/assets/flash/loadingscreen/overlay.png");
+        width: 500px;
+        height: 434px;
+      }
+    }
+  
+    .nitro-loading-bar {
+      border: 1px solid white;
+      padding: 3px;
+      height: 25px;
+      width: 400px;
+      border-radius: 3px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+  
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: 3px;
+        border-radius: 4px;
+        background: #000;
+        z-index: 0;
+      }
+  
+      .nitro-loading-bar-inner {
+        height: 100%;
+        z-index: 4;
+        transition: width 1s;
+        background: linear-gradient(#bfd1d9 50%, #93acb7 50%);
+      }
+    }
+  }  

@@ -1,0 +1,316 @@
+.aboutAlertOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(28,28,32, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Source Code Pro', monospace;
+  opacity: 0;
+  transition: opacity 0.65s cubic-bezier(.74, 1.38, .94, 1);
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.aboutAlertCard {
+  width: 800px;
+  height: 600px;
+  background: rgba(26,26,30,0.76);
+  color: #eee;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow:
+    0 8px 64px 24px rgba(20, 20, 24, 0.60),
+    0 0 240px 80px rgba(0,0,0,0.07);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 18px;
+  user-select: text;
+  white-space: pre-wrap;
+  overflow: hidden;
+
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  transform: scale(0.98) translateY(48px);
+  opacity: 1;
+  transition: all 0.55s cubic-bezier(.8,2,.6,1);
+
+  &.closing {
+    transform: scale(0.92) translateY(54px);
+    opacity: 0;
+  }
+
+  &.mounted {
+    transform: scale(1);
+  }
+}
+
+.terminalHeader {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  &.red {
+    background-color: #ff5f56;
+  }
+  &.yellow {
+    background-color: #ffbd2e;
+  }
+  &.green {
+    background-color: #27c93f;
+  }
+}
+
+.terminalPrompt {
+  color: #888;
+  font-style: italic;
+}
+
+.terminalOutput {
+  flex: 1;
+  overflow-y: auto;
+  word-break: break-word;
+  margin: 0;
+  padding-right: 10px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 14px;
+  background: rgba(20, 22, 26, 0.16);
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 17px 0 rgba(0,0,0,0.05);
+  &.preWrap {
+    white-space: pre-wrap;
+    user-select: text;
+  }
+  &.preMode {
+    white-space: pre;
+    user-select: none;
+  }
+  &.noSelect {
+    user-select: none;
+  }
+}
+
+.commandLine {
+  margin-top: 5px;
+  .terminalPrompt {
+    color: #5fc395;
+    margin-right: 3px;
+  }
+}
+
+.outputLine {
+  margin-top: 5px;
+}
+
+.neofetchContainer {
+  display: flex;
+  margin-top: 10px;
+  opacity: 1;
+  animation: none;
+
+  .neofetchLogo {
+    min-width: 200px;
+    font-family: monospace;
+    white-space: pre;
+    border-right: 1px solid rgba(100,110,140,0.25);
+    padding-right: 20px;
+    margin-right: 20px;
+    color: #4fa;
+    font-size: 7px;
+    line-height: 1;
+    letter-spacing: 1.3px;
+    transition: font-size 0.3s cubic-bezier(.8,2,.6,1);
+  }
+
+  .neofetchInfo {
+    flex: 1;
+  }
+}
+
+.serverInfo {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #f2f2f6;
+
+  div {
+    &:not(:last-child) {
+      margin-bottom: 3px;
+    }
+  }
+
+  .label {
+    color: #5fc395;
+    font-weight: bold;
+  }
+}
+
+.credits {
+  margin-top: 10px;
+  opacity: 1;
+  animation-fill-mode: forwards;
+
+  &.animating {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+  }
+
+  .creditsTitle {
+    color: #f0f;
+    font-weight: bold;
+    font-size: 16px;
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.7);
+  }
+
+  .creditsContent {
+    margin-top: 10px;
+
+    .creditsText {
+      margin-top: 8px;
+      padding: 14px 17px;
+      background: rgba(35,38,60,0.22);
+      border-radius: 8px;
+      border: 1px solid rgba(180,160,255,0.07);
+      font-size: 13px;
+      color: #C5CBFE;
+      line-height: 1.8;
+      font-family: 'Source Code Pro', monospace;
+
+      .thanks {
+        color: #efe7f7;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      ul {
+        margin: 7px 0 0 14px;
+        padding: 0;
+        list-style-position: inside;
+
+        li {
+          margin-bottom: 3px;
+        }
+      }
+
+      .creditName {
+        color: #6FFFBF;
+      }
+      .highlightCommunity {
+        color: #f0f;
+      }
+      .personalThanks {
+        margin: 13px 0 2px 0;
+        color: #fff;
+        font-weight: 500;
+        font-size: 14px;
+      }
+      .usernameHighlight {
+        color: #4fa;
+      }
+      .heart {
+        color: #ff82b2;
+      }
+    }
+  }
+}
+
+.welcomeMessage {
+  margin-bottom: 10px;
+  .highlight {
+    color: #0f0;
+  }
+}
+
+.helpOutput {
+  margin-top: 10px;
+  ul {
+    padding-left: 20px;
+    margin-top: 5px;
+    list-style: disc;
+    li {
+      .commandHighlight {
+        color: #5fc395;
+      }
+    }
+  }
+}
+
+.notFound {
+  margin-top: 10px;
+  .errorText {
+    color: #f00;
+  }
+  .commandHighlight {
+    color: #5fc395;
+  }
+}
+
+.inputLine {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+
+  .terminalPrompt {
+    color: #5fc395;
+    margin-right: 8px;
+  }
+
+  .terminalInput {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    outline: none;
+    flex: 1;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 14px;
+  }
+}
+
+.gameInstructions {
+  margin-top: 10px;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #eee;
+  font-size: 24px;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+  line-height: 1;
+  border-radius: 50%;
+  padding: 1px 4px 0 4px;
+  box-shadow: 0 0 0 0 transparent;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #f55;
+  }
+}
+
+.gameScreen {
+  margin-top: 5px;
+  font-family: 'Source Code Pro', monospace;
+  white-space: pre;
+}
