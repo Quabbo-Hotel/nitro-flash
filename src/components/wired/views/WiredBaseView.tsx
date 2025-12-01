@@ -128,26 +128,26 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props =>
     }, [trigger, hasSpecialInput, requiresFurni, setIntParams, setStringParam, setFurniIds, setAllowsFurni]);
 
     return (
-        <NitroCardView uniqueKey="nitro-wired" className="nitro-wired" theme="primary-slim">
-            <NitroCardHeaderView headerText={LocalizeText('wiredfurni.title')} onCloseClick={onClose} />
+        <NitroCardView uniqueKey="nitro-wired" className="nitro-wired" theme="wired">
+            <NitroCardHeaderView headerText={ LocalizeText('wiredfurni.title') } onCloseClick={ onClose } />
             <NitroCardContentView>
-                <Column gap={1}>
-                    <Flex alignItems="center" gap={1}>
-                        <i className={`icon icon-wired-${wiredType}`} />
-                        <Text bold>{wiredName}</Text>
+                <Column gap={ 1 }>
+                    <Flex alignItems="center" gap={ 1 }>
+                        <i className={ `icon icon-wired-${ wiredType }` } />
+                        <Text gfbold>{ wiredName }</Text>
                     </Flex>
-                    <Text small>{wiredDescription}</Text>
+                    <Text>{ wiredDescription }</Text>
                 </Column>
-                {!!children && <hr className="m-0 bg-dark" />}
-                {children}
-                {(requiresFurni > WiredFurniType.STUFF_SELECTION_OPTION_NONE) &&
+                { !!children && <hr className="m-0 bg-dark" /> }
+                { children }
+                { (requiresFurni > WiredFurniType.STUFF_SELECTION_OPTION_NONE) &&
                     <>
                         <hr className="m-0 bg-dark" />
                         <WiredFurniSelectorView />
-                    </>}
-                <Flex alignItems="center" gap={1}>
-                    <Button fullWidth variant="success" onClick={onSave}>{LocalizeText('wiredfurni.ready')}</Button>
-                    <Button fullWidth variant="secondary" onClick={onClose}>{LocalizeText('cancel')}</Button>
+                    </> }
+                <Flex alignItems="center" gap={ 1 }>
+                    <button type="button" className="btn btn-primary notification-buttons w-100" onClick={ onSave }>{ LocalizeText('wiredfurni.ready') }</button>
+                    <button type="button" className="btn btn-primary notification-buttons w-100" onClick={ onClose }>{ LocalizeText('cancel') }</button>
                 </Flex>
             </NitroCardContentView>
         </NitroCardView>

@@ -1,4 +1,4 @@
-import { Dispose, DropBounce, EaseOut, JumpBy, Motions, NitroToolbarAnimateIconEvent, PerkAllowancesMessageEvent, PerkEnum, Queue, RoomControllerLevel, RoomEngineEvent, RoomEngineObjectEvent, RoomObjectCategory, RoomRightsClearEvent, RoomRightsEvent, RoomRightsOwnerEvent, Wait } from '@nitrots/nitro-renderer';
+import { Dispose, DropBounce, EaseOut, JumpBy, Motions, NitroToolbarAnimateIconEvent, PerkAllowancesMessageEvent, PerkEnum, Queue, RoomControllerLevel, RoomEngineEvent, RoomEngineObjectEvent, RoomObjectCategory, RoomRightsClearEvent, RoomRightsEvent, RoomRightsOwnerEvent, Wait, PlayerWalkKeysEvent, PlayerVimKeysEvent } from '@nitrots/nitro-renderer';
 import { KeyboardInputMessageComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/engine/KeyboardInputMessageComposer';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { CreateLinkEvent, GetConfiguration, GetRoomEngine, GetSessionDataManager, MessengerIconState, OpenMessengerChat, SendMessageComposer, VisitDesktop } from '../../api';
@@ -65,7 +65,8 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
         }
 
         keyboardTriggerIdsRef.current = trackedIds;
-        setCanSendKeyboardInput(trackedIds.size > 0);
+        const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
+        setCanSendKeyboardInput(trackedIds.size > 0 || enabledFromWindow);
     }, [ roomSession ]);
 
     useEffect(() =>
@@ -168,7 +169,8 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
 
             if(!keyboardTriggerIdsRef.current.size)
             {
-                setCanSendKeyboardInput(false);
+                const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
+                setCanSendKeyboardInput(enabledFromWindow);
             }
         }
     });
@@ -203,6 +205,22 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
         }
         setCanUseWiredMonitor(roomSession.isRoomOwner || isMod || (roomSession.controllerLevel >= RoomControllerLevel.GUEST));
     }, [roomSession, isMod]);
+    // Actualizar estado de canSendKeyboardInput si el servidor activa walk/vim keys
+    useMessageEvent<PlayerWalkKeysEvent>(PlayerWalkKeysEvent, event =>
+    {
+        const parser = event.getParser();
+
+        const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
+        setCanSendKeyboardInput((keyboardTriggerIdsRef.current.size > 0) || parser.isEnabled || enabledFromWindow);
+    });
+
+    useMessageEvent<PlayerVimKeysEvent>(PlayerVimKeysEvent, event =>
+    {
+        const parser = event.getParser();
+
+        const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
+        setCanSendKeyboardInput((keyboardTriggerIdsRef.current.size > 0) || parser.isEnabled || enabledFromWindow);
+    });
     // ------------------------------
 
     // Controles del teclado

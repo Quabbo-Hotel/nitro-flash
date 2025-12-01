@@ -61,6 +61,15 @@ export class MusicPlayer
         this._currentPos = 0;
     }
 
+    public clearCache(): void
+    {
+        for(const howl of this._cache.values())
+        {
+            if(howl) howl.unload();
+        }
+        this._cache.clear();
+    }
+
     public pause(): void
     {
         this._isPlaying = false;
@@ -79,6 +88,7 @@ export class MusicPlayer
     {
         const songId = this._currentSongId;
         this.reset();
+        this.clearCache();
         Nitro.instance.soundManager.events.dispatchEvent(new SoundManagerEvent(SoundManagerEvent.TRAX_SONG_COMPLETE, songId));
         //this.emit('stopped');
     }

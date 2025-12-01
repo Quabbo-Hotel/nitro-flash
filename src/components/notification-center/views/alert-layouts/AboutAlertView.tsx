@@ -121,10 +121,46 @@ export const AboutAlertView: React.FC<AboutAlertViewProps> = ({ item, onClose })
   const inputRef = useRef<HTMLInputElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
   const nextId = useRef(1);
+  
+  // Track all timeouts for cleanup
+  const timeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set());
+  const isMountedRef = useRef(true);
+
+  // Safe setTimeout wrapper that tracks and cleans up
+  const safeTimeout = (callback: () => void, delay: number): NodeJS.Timeout => {
+    const timeoutId = setTimeout(() => {
+      timeoutsRef.current.delete(timeoutId);
+      if (isMountedRef.current) {
+        callback();
+      }
+    }, delay);
+    timeoutsRef.current.add(timeoutId);
+    return timeoutId;
+  };
+
+  // Cleanup all intervals and timeouts on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      // Clear all tracked timeouts
+      timeoutsRef.current.forEach(id => clearTimeout(id));
+      timeoutsRef.current.clear();
+      // Clear game intervals
+      if (pongIntervalRef.current) {
+        clearInterval(pongIntervalRef.current);
+        pongIntervalRef.current = null;
+      }
+      if (snakeIntervalRef.current) {
+        clearInterval(snakeIntervalRef.current);
+        snakeIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     startInitialSequence();
-    setTimeout(() => setHasMounted(true), 20);
+    safeTimeout(() => setHasMounted(true), 20);
   }, []);
 
   // Captura global de teclas para Pong y Snake
@@ -550,7 +586,7 @@ export const AboutAlertView: React.FC<AboutAlertViewProps> = ({ item, onClose })
       content: creditsOutput,
       isAnimating: true
     }]);
-    setTimeout(() => {
+    safeTimeout(() => {
       setHistory(prev =>
         prev.map(item =>
           item.id === creditsId ? { ...item, isAnimating: false } : item
@@ -572,16 +608,16 @@ export const AboutAlertView: React.FC<AboutAlertViewProps> = ({ item, onClose })
       type: 'welcome',
       content: welcomeMessage
     }]);
-    setTimeout(callback, 1500);
+    safeTimeout(callback, 1500);
   };
 
   const startInitialSequence = () => {
     setIsAutoTyping(true);
     showWelcomeMessage(() => {
       executeCommand("neofetch", true, () => {
-        setTimeout(() => {
+        safeTimeout(() => {
           showCredits();
-          setTimeout(() => {
+          safeTimeout(() => {
             setIsReady(true);
             setIsAutoTyping(false);
             if (inputRef.current) inputRef.current.focus();
@@ -634,7 +670,7 @@ export const AboutAlertView: React.FC<AboutAlertViewProps> = ({ item, onClose })
         completed = true;
         onComplete();
       } else {
-        setTimeout(animate, 30);
+        safeTimeout(animate, 30);
       }
     };
     animate();
@@ -675,7 +711,7 @@ export const AboutAlertView: React.FC<AboutAlertViewProps> = ({ item, onClose })
           })
         );
         index++;
-        setTimeout(animate, 5);
+        safeTimeout(animate, 5);
       } else {
         completed = true;
         onComplete();
@@ -871,7 +907,7 @@ export const AboutAlertView: React.FC<AboutAlertViewProps> = ({ item, onClose })
       snakeIntervalRef.current = null;
     }
 
-    setTimeout(() => {
+    safeTimeout(() => {
       onClose();
     }, 550);
   };

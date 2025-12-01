@@ -35,6 +35,10 @@ export class FloorplanEditor extends PixiApplicationProxy
     private _redoStack: TilemapState[] = [];
     private _maxHistoryLength: number = 50;
 
+    // Bound listeners for cleanup
+    private _boundKeyDown: (event: KeyboardEvent) => void = null;
+    private _boundKeyUp: (event: KeyboardEvent) => void = null;
+
     constructor()
     {
         const width = TILE_SIZE * MAX_NUM_TILE_PER_AXIS + 20;
@@ -81,7 +85,7 @@ export class FloorplanEditor extends PixiApplicationProxy
 
     private registerKeyboardListeners(): void
     {
-        window.addEventListener('keydown', (event) => {
+        this._boundKeyDown = (event: KeyboardEvent) => {
             if(event.key === 'Shift') this._isShiftPressed = true;
 
             // Undo (Ctrl+Z)
@@ -99,9 +103,9 @@ export class FloorplanEditor extends PixiApplicationProxy
                 event.preventDefault();
                 this.redo();
             }
-        });
+        };
 
-        window.addEventListener('keyup', (event) => {
+        this._boundKeyUp = (event: KeyboardEvent) => {
             if(event.key === 'Shift') 
             {
                 this._isShiftPressed = false;
@@ -109,7 +113,24 @@ export class FloorplanEditor extends PixiApplicationProxy
                 this._selectionEnd = null;
                 this.renderTiles();
             }
-        });
+        };
+
+        window.addEventListener('keydown', this._boundKeyDown);
+        window.addEventListener('keyup', this._boundKeyUp);
+    }
+
+    private removeKeyboardListeners(): void
+    {
+        if(this._boundKeyDown)
+        {
+            window.removeEventListener('keydown', this._boundKeyDown);
+            this._boundKeyDown = null;
+        }
+        if(this._boundKeyUp)
+        {
+            window.removeEventListener('keyup', this._boundKeyUp);
+            this._boundKeyUp = null;
+        }
     }
 
     private registerEventListeners(): void
@@ -572,6 +593,18 @@ export class FloorplanEditor extends PixiApplicationProxy
 
         this._undoStack = [];
         this._redoStack = [];
+
+        // Remove event listeners to prevent memory leaks
+        this.removeKeyboardListeners();
+        
+        // Remove Pixi event listeners
+        if(this._tilemapRenderer)
+        {
+            this._tilemapRenderer.off('pointerup');
+            this._tilemapRenderer.off('pointerout');
+            this._tilemapRenderer.off('pointerdown');
+            this._tilemapRenderer.off('pointermove');
+        }
     }
 
     public get tilemapRenderer(): NitroTilemap

@@ -46,6 +46,7 @@ export class Nitro implements INitro
     private _cameraManager: IRoomCameraWidgetManager;
     private _soundManager: ISoundManager;
     private _linkTrackers: ILinkEventTracker[];
+    private _heartBeatInterval: number = null;
 
     private _isReady: boolean;
     private _isDisposed: boolean;
@@ -130,6 +131,8 @@ export class Nitro implements INitro
     public dispose(): void
     {
         if(this._isDisposed) return;
+
+        this.stopSendingHeartBeat();
 
         if(this._roomManager)
         {
@@ -270,7 +273,16 @@ export class Nitro implements INitro
     {
         this.sendHeartBeat();
 
-        setInterval(this.sendHeartBeat, 10000);
+        this._heartBeatInterval = window.setInterval(this.sendHeartBeat, 10000);
+    }
+
+    private stopSendingHeartBeat(): void
+    {
+        if(this._heartBeatInterval !== null)
+        {
+            window.clearInterval(this._heartBeatInterval);
+            this._heartBeatInterval = null;
+        }
     }
 
     private sendHeartBeat(): void

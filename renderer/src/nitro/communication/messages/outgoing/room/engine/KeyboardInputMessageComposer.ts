@@ -5,7 +5,7 @@ export class KeyboardInputMessageComposer implements IMessageComposer<Constructo
 {
     private _data: ConstructorParameters<typeof KeyboardInputMessageComposer>;
 
-    constructor(keypressed: String)
+    constructor(keypressed: string)
     {
         this._data = [keypressed];
     }
