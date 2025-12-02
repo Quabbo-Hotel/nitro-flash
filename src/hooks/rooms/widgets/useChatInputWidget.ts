@@ -1,6 +1,7 @@
 import { AvatarExpressionEnum, GetTicker, HabboClubLevelEnum, RoomControllerLevel, RoomEngineObjectEvent, RoomObjectCategory, RoomRotatingEffect, RoomSessionChatEvent, RoomSettingsComposer, RoomShakingEffect, RoomZoomEvent, TextureUtils } from '@nitrots/nitro-renderer';
 import { useEffect, useState } from 'react';
-import { ChatMessageTypeEnum, CreateLinkEvent, GetClubMemberLevel, GetConfiguration, GetRoomEngine, GetSessionDataManager, LocalizeText, SendMessageComposer } from '../../../api';
+import { ChatMessageTypeEnum, CreateLinkEvent, DispatchUiEvent, GetClubMemberLevel, GetConfiguration, GetRoomEngine, GetSessionDataManager, LocalizeText, SendMessageComposer } from '../../../api';
+import { FpsCounterEvent } from '../../../events';
 import { useRoomEngineEvent, useRoomSessionManagerEvent } from '../../events';
 import { useNotification } from '../../notification';
 import { useObjectSelectedEvent } from '../engine';
@@ -159,6 +160,9 @@ const useChatInputWidgetState = () =>
 
                     return null;
                 }
+                case ':fps':
+                    DispatchUiEvent(new FpsCounterEvent(FpsCounterEvent.TOGGLE));
+                    return null;
                 case ':client':
                 case ':nitro':
                 case ':billsonnn':

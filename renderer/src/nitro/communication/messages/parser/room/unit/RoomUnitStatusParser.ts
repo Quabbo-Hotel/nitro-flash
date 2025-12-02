@@ -34,7 +34,7 @@ export class RoomUnitStatusParser implements IMessageParser {
         const headDirection = (wrapper.readInt() % 8) * 45;
         const direction = (wrapper.readInt() % 8) * 45;
         const actions = wrapper.readString();
-        const animationTime = wrapper.readInt(); // Leer animationTime
+        wrapper.readInt(); // animationTime (ignored for users)
 
         let targetX = 0;
         let targetY = 0;
@@ -95,7 +95,6 @@ export class RoomUnitStatusParser implements IMessageParser {
             targetZ,
             didMove,
             canStandUp,
-            animationTime, // Añadir animationTime
             statusActions
         );
     }

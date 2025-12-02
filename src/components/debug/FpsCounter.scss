@@ -1,0 +1,26 @@
+.fps-counter {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #c8ffc8;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(200, 255, 200, 0.4);
+    border-radius: 4px;
+    z-index: 999;
+    pointer-events: auto;
+    cursor: pointer;
+    user-select: none;
+    text-shadow: 0 0 4px #000;
+}
+
+.fps-counter:after {
+    content: ' (click to hide)';
+    font-weight: 400;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 4px;
+}

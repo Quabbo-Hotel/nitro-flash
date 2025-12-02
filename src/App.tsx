@@ -2,6 +2,7 @@ import { ConfigurationEvent, GetAssetManager, HabboWebTools, LegacyExternalInter
 import { FC, useCallback, useEffect, useState } from 'react';
 import { GetCommunication, GetConfiguration, GetNitroInstance, GetUIVersion } from './api';
 import { Base, TransitionAnimation, TransitionAnimationTypes } from './common';
+import { FpsCounter } from './components/debug/FpsCounter';
 import { LoadingView } from './components/loading/LoadingView';
 import { MainView } from './components/main/MainView';
 import { useConfigurationEvent, useLocalizationEvent, useMainEvent, useRoomEngineEvent } from './hooks';
@@ -136,6 +137,7 @@ export const App: FC<{}> = props =>
             <TransitionAnimation type={ TransitionAnimationTypes.FADE_IN } inProp={ (isReady) }>
                 <MainView />
             </TransitionAnimation>
+            <FpsCounter />
             <Base id="draggable-windows-container" />
         </Base>
     );
