@@ -348,6 +348,7 @@ export class RoomPlane implements IRoomPlane
     
             if (bitmapData) {
                 this.updateMask(bitmapData.texture, geometry);
+                this._activeTexture = bitmapData;
             } else {
                 console.warn(`No se pudo generar bitmapData para ${this._id}`);
             }
