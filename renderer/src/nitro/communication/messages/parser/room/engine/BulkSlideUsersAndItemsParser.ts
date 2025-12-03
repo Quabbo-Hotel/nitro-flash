@@ -3,7 +3,6 @@ import { IMessageDataWrapper, IMessageParser } from '../../../../../../api';
 
 export class BulkSlideUsersAndItemsParser implements IMessageParser
 {
-    private _animationTime: number;
     private _itemSlides: Array<{
         virtualId: number;
         fromX: number;
@@ -28,13 +27,11 @@ export class BulkSlideUsersAndItemsParser implements IMessageParser
 
     constructor()
     {
-        this._animationTime = 0;
         this._itemSlides = [];
         this._userSlides = [];
     }
 
     public flush(): boolean {
-        this._animationTime = 0;
         this._itemSlides = [];
         this._userSlides = [];
         return true;
@@ -45,7 +42,6 @@ export class BulkSlideUsersAndItemsParser implements IMessageParser
 
         const itemCount = wrapper.readInt();
         const userCount = wrapper.readInt();
-        this._animationTime = wrapper.readInt();
         this._itemSlides = [];
 
         for(let i = 0; i < itemCount; i++) {
@@ -95,11 +91,6 @@ export class BulkSlideUsersAndItemsParser implements IMessageParser
         }
 
         return true;
-    }
-
-    public get animationTime(): number
-    {
-        return this._animationTime;
     }
 
     public get itemSlides(): Array<{

@@ -857,9 +857,8 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         }
 
         const startTime = new Date().valueOf();
-        const furniturePerTick = 3; // Reducido de 5 a 3 para menos carga por frame
+        const furniturePerTick = 5;
         const hasTickLimit = true;
-        const maxTimePerTick = 15; // Reducido de 40ms a 15ms para evitar skips de frames
 
         for(const instanceData of this._roomInstanceDatas.values())
         {
@@ -879,7 +878,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
                     {
                         const time = new Date().valueOf();
 
-                        if((time - startTime) >= maxTimePerTick)
+                        if((time - startTime) >= 40)
                         {
                             this._skipFurnitureCreationForNextFrame = true;
 
@@ -899,7 +898,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
                     {
                         const time = new Date().valueOf();
 
-                        if((time - startTime) >= maxTimePerTick)
+                        if((time - startTime) >= 40)
                         {
                             this._skipFurnitureCreationForNextFrame = true;
 
@@ -1080,9 +1079,6 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
     private updateRoomCameras(time: number): void
     {
-        const startTime = new Date().valueOf();
-        const maxTimePerTick = 10; // Limit camera updates to 10ms per frame to prevent lag
-
         for(const instanceData of this._roomInstanceDatas.values())
         {
             if(!instanceData) continue;
@@ -1102,14 +1098,6 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
             if((instanceData.roomId !== this._activeRoomId) || !this._activeRoomIsDragged)
             {
                 this.updateRoomCamera(instanceData.roomId, 1, location, time);
-            }
-
-            // Check time after each camera update to avoid frame drops
-            const currentTime = new Date().valueOf();
-            if((currentTime - startTime) >= maxTimePerTick)
-            {
-                // Skip remaining cameras if taking too long
-                break;
             }
         }
 
@@ -1998,13 +1986,13 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         if(roomOwnObject && roomOwnObject.logic && maskUpdate) roomOwnObject.logic.processUpdateMessage(maskUpdate);
     }
 
-    public rollRoomObjectFloor(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, animationTime: number): void
+    public rollRoomObjectFloor(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D): void
     {
         const object = this.getRoomObjectFloor(roomId, objectId);
 
         if(!object) return;
 
-        object.processUpdateMessage(new ObjectMoveUpdateMessage(location, targetLocation, null, !!targetLocation, animationTime));
+        object.processUpdateMessage(new ObjectMoveUpdateMessage(location, targetLocation, null, !!targetLocation));
     }
 
     public updateRoomObjectWallLocation(roomId: number, objectId: number, location: IVector3D): boolean
@@ -2062,7 +2050,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         return true;
     }
 
-    public updateRoomObjectUserLocation(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, canStandUp: boolean = false, baseY: number = 0, direction: IVector3D = null, headDirection: number = NaN, animationTime: number = 500): boolean
+    public updateRoomObjectUserLocation(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, canStandUp: boolean = false, baseY: number = 0, direction: IVector3D = null, headDirection: number = NaN): boolean
     {
         const object = this.getRoomObjectUser(roomId, objectId);
 
@@ -2074,7 +2062,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
         if(isNaN(headDirection)) headDirection = object.model.getValue<number>(RoomObjectVariable.HEAD_DIRECTION);
 
-        object.processUpdateMessage(new ObjectAvatarUpdateMessage(this.fixedUserLocation(roomId, location), this.fixedUserLocation(roomId, targetLocation), direction, headDirection, canStandUp, baseY, animationTime));
+        object.processUpdateMessage(new ObjectAvatarUpdateMessage(this.fixedUserLocation(roomId, location), this.fixedUserLocation(roomId, targetLocation), direction, headDirection, canStandUp, baseY));
 
         const roomSession = ((this._roomSessionManager && this._roomSessionManager.getSession(roomId)) || null);
 
@@ -2107,20 +2095,8 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         return new Vector3d(location.x, location.y, _local_5);
     }
 
-    private _updateThrottleCount: number = 0;
-    private _lastUpdateTime: number = 0;
-
     public updateRoomObjectUserAction(roomId: number, objectId: number, action: string, value: number, parameter: string = null): boolean
     {
-        const currentTime = GetTickerTime();
-        if (currentTime - this._lastUpdateTime < 33) { // Throttle to ~30 FPS
-            if (this._updateThrottleCount >= 5) return false; // Máximo 5 updates por frame
-            this._updateThrottleCount++;
-        } else {
-            this._updateThrottleCount = 1;
-            this._lastUpdateTime = currentTime;
-        }
-
         const instanceData = this.getRoomInstanceData(roomId);
         const object = this.getRoomObjectUser(roomId, objectId);
 
