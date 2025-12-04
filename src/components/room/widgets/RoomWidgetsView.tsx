@@ -21,7 +21,25 @@ export const RoomWidgetsView: FC<{}> = props =>
     const { roomSession = null } = useRoom();
     const { simpleAlert = null } = useNotification();
 
-    useRoomEngineEvent<RoomZoomEvent>(RoomZoomEvent.ROOM_ZOOM, event => GetRoomEngine().setRoomInstanceRenderingCanvasScale(event.roomId, 1, event.level, null, null, false, event.asDelta));
+    useRoomEngineEvent<RoomZoomEvent>(RoomZoomEvent.ROOM_ZOOM, event =>
+    {
+        const roomEngine = GetRoomEngine();
+
+        if(!roomEngine) return;
+
+        if(event.asDelta)
+        {
+            roomEngine.setRoomInstanceRenderingCanvasScale(event.roomId, 1, event.level, null, null, false, true);
+
+            return;
+        }
+
+        if((event.level === undefined) || Number.isNaN(event.level)) return;
+
+        const clampedLevel = Math.max(1, Math.min(5, event.level));
+
+        roomEngine.setRoomInstanceRenderingCanvasScale(event.roomId, 1, clampedLevel);
+    });
 
     useRoomEngineEvent<RoomEngineObjectEvent>(
         [

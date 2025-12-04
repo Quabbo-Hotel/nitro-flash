@@ -12,6 +12,7 @@ export class NitroSettingsEvent extends NitroEvent
     private _roomInvites: boolean;
     private _cameraFollow: boolean;
     private _wiredAnimations: boolean;
+    private _mouseWheelZoom: boolean;
     private _flags: number;
     private _chatType: number;
 
@@ -32,6 +33,7 @@ export class NitroSettingsEvent extends NitroEvent
         clone._roomInvites = this._roomInvites;
         clone._cameraFollow = this._cameraFollow;
         clone._wiredAnimations = this._wiredAnimations;
+        clone._mouseWheelZoom = this._mouseWheelZoom;
         clone._flags = this._flags;
         clone._chatType = this._chatType;
 
@@ -116,6 +118,16 @@ export class NitroSettingsEvent extends NitroEvent
     public set wiredAnimations(value: boolean)
     {
         this._wiredAnimations = value;
+    }
+
+    public get mouseWheelZoom(): boolean
+    {
+        return this._mouseWheelZoom;
+    }
+
+    public set mouseWheelZoom(value: boolean)
+    {
+        this._mouseWheelZoom = value;
     }
 
     public get flags(): number

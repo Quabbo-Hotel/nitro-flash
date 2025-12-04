@@ -1,4 +1,4 @@
-import { ILinkEventTracker, NitroSettingsEvent, UserSettingsCameraFollowComposer, UserSettingsEvent, UserSettingsOldChatComposer, UserSettingsOldRotationsComposer, UserSettingsRoomInvitesComposer, UserSettingsSoundComposer, UserSettingsWiredAnimationsComposer } from '@nitrots/nitro-renderer';
+import { ILinkEventTracker, NitroSettingsEvent, UserSettingsCameraFollowComposer, UserSettingsEvent, UserSettingsMouseWheelZoomComposer, UserSettingsOldChatComposer, UserSettingsOldRotationsComposer, UserSettingsRoomInvitesComposer, UserSettingsSoundComposer, UserSettingsWiredAnimationsComposer } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useState } from 'react';
 import { AddEventLinkTracker, DispatchMainEvent, DispatchUiEvent, LocalizeText, RemoveLinkEventTracker, SendMessageComposer } from '../../api';
 import { Button, Column, Flex, NitroCardContentView, NitroCardHeaderView, NitroCardView, Text } from '../../common';
@@ -42,6 +42,10 @@ export const UserSettingsView: FC<{}> = props =>
             case 'wired_animations':
                 clone.wiredAnimations = value as boolean;
                 SendMessageComposer(new UserSettingsWiredAnimationsComposer(clone.wiredAnimations));
+                break;
+            case 'mouse_wheel_zoom':
+                clone.mouseWheelZoom = value as boolean;
+                SendMessageComposer(new UserSettingsMouseWheelZoomComposer(clone.mouseWheelZoom));
                 break;
             case 'system_volume':
                 clone.volumeSystem = value as number;
@@ -88,6 +92,7 @@ export const UserSettingsView: FC<{}> = props =>
         settingsEvent.roomInvites = parser.roomInvites;
         settingsEvent.cameraFollow = parser.cameraFollow;
         settingsEvent.wiredAnimations = parser.wiredAnimations;
+        settingsEvent.mouseWheelZoom = parser.mouseWheelZoom;
         settingsEvent.flags = parser.flags;
         settingsEvent.chatType = parser.chatType;
 
@@ -158,6 +163,10 @@ export const UserSettingsView: FC<{}> = props =>
                     <Flex alignItems="center" gap={1}>
                         <input className="flash-form-check-input" type="checkbox" checked={catalogSkipPurchaseConfirmation} onChange={event => setCatalogSkipPurchaseConfirmation(event.target.checked)} />
                         <Text>{LocalizeText('memenu.settings.other.skip.purchase.confirmation')}</Text>
+                    </Flex>
+                    <Flex alignItems="center" gap={1}>
+                        <input className="flash-form-check-input" type="checkbox" checked={ !!userSettings.mouseWheelZoom } onChange={ event => processAction('mouse_wheel_zoom', event.target.checked) } />
+                        <Text>{ LocalizeText('memenu.settings.other.mousewheel.zoom') }</Text>
                     </Flex>
                     <Flex alignItems="center" gap={1}>
                         <input className="flash-form-check-input" type="checkbox" checked={ userSettings.oldRotations } onChange={ event => processAction('oldrotations', event.target.checked) } />

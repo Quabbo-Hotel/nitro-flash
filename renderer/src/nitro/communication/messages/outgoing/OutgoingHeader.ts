@@ -290,6 +290,7 @@ export class OutgoingHeader
     public static USER_SETTINGS_OLD_CHAT = 1262;
     public static USER_SETTINGS_ROTATIONS = 4463;
     public static USER_SETTINGS_WIRED_ANIMATIONS = 6045;
+    public static USER_SETTINGS_MOUSE_WHEEL_ZOOM = 6048;
     public static USER_SETTINGS_VOLUME = 1367;
     public static USER_SUBSCRIPTION = 3166;
     public static GET_WARDROBE = 2742;

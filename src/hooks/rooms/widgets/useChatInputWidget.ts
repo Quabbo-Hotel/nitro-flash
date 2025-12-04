@@ -107,10 +107,17 @@ const useChatInputWidgetState = () =>
                     GetRoomEngine().events.dispatchEvent(new RoomZoomEvent(roomSession.roomId, -1, true));
 
                     return null;
-                case ':zoom':
-                    GetRoomEngine().events.dispatchEvent(new RoomZoomEvent(roomSession.roomId, parseFloat(secondPart), false));
+                case ':zoom': {
+                    const parsedZoom = parseFloat(secondPart);
+
+                    if(Number.isNaN(parsedZoom)) return null;
+
+                    const clampedZoom = Math.max(1, Math.min(5, parsedZoom));
+
+                    GetRoomEngine().events.dispatchEvent(new RoomZoomEvent(roomSession.roomId, clampedZoom, false));
 
                     return null;
+                }
                 case ':screenshot':
                     const texture = GetRoomEngine().createTextureFromRoom(roomSession.roomId, 1);
 

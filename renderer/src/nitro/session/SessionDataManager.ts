@@ -39,6 +39,7 @@ export class SessionDataManager extends NitroManager implements ISessionDataMana
     private _systemShutdown: boolean;
     private _isAuthenticHabbo: boolean;
     private _isRoomCameraFollowDisabled: boolean;
+    private _isMouseWheelZoomEnabled: boolean;
     private _uiFlags: number;
 
     private _floorItems: Map<number, IFurnitureData>;
@@ -77,6 +78,7 @@ export class SessionDataManager extends NitroManager implements ISessionDataMana
         this._systemShutdown = false;
         this._isAuthenticHabbo = false;
         this._isRoomCameraFollowDisabled = false;
+        this._isMouseWheelZoomEnabled = false;
         this._uiFlags = 0;
 
         this._floorItems = new Map();
@@ -440,6 +442,7 @@ export class SessionDataManager extends NitroManager implements ISessionDataMana
     private onNitroSettingsEvent(event: NitroSettingsEvent): void
     {
         this._isRoomCameraFollowDisabled = event.cameraFollow;
+        this._isMouseWheelZoomEnabled = !!event.mouseWheelZoom;
         this._uiFlags = event.flags;
 
         this.events.dispatchEvent(new SessionDataPreferencesEvent(this._uiFlags));
@@ -715,6 +718,11 @@ export class SessionDataManager extends NitroManager implements ISessionDataMana
     public get isCameraFollowDisabled(): boolean
     {
         return this._isRoomCameraFollowDisabled;
+    }
+
+    public get isMouseWheelZoomEnabled(): boolean
+    {
+        return this._isMouseWheelZoomEnabled;
     }
 
     public get uiFlags(): number

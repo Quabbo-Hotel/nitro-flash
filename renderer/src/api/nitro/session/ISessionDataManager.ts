@@ -53,6 +53,7 @@ export interface ISessionDataManager extends INitroManager
     isAuthenticHabbo: boolean;
     isModerator: boolean;
     isCameraFollowDisabled: boolean;
+    isMouseWheelZoomEnabled: boolean;
     uiFlags: number;
     tags: string[];
 }
