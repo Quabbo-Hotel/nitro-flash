@@ -2,7 +2,7 @@ import { RelationshipStatusInfoEvent, RelationshipStatusInfoMessageParser, RoomS
 import { Dispatch, FC, FocusEvent, KeyboardEvent, SetStateAction, useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { AvatarInfoUser, CloneObject, GetConfiguration, GetGroupInformation, GetSessionDataManager, GetUserProfile, LocalizeText, SendMessageComposer } from '../../../../../api';
-import { Column, Flex, LayoutAvatarImageView, LayoutBadgeImageView, Text, UserProfileIconView } from '../../../../../common';
+import { Base, Column, Flex, LayoutAvatarImageView, LayoutBadgeImageView, Text } from '../../../../../common';
 import { useMessageEvent, useRoom, useRoomSessionManagerEvent } from '../../../../../hooks';
 import { InfoStandWidgetUserRelationshipsView } from './InfoStandWidgetUserRelationshipsView';
 import { InfoStandWidgetUserTagsView } from './InfoStandWidgetUserTagsView';
@@ -128,60 +128,60 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
                 <Column gap={ 1 }>
                     <Flex alignItems="center" justifyContent="between">
                         <Flex alignItems="center" gap={ 1 }>
-                            <UserProfileIconView userId={ avatarInfo.webID } />
-                            <Text variant="white" small wrap>{ avatarInfo.name }</Text>
+                            <i className="icon icon-profile-house cursor-pointer" onClick={ event => GetUserProfile(avatarInfo.webID) }/>
+                            <Text gfbold variant="white" className="infostand-name" onClick={ event => GetUserProfile(avatarInfo.webID) }>{ avatarInfo.name }</Text>
                         </Flex>
-                        <FaTimes className="cursor-pointer fa-icon" onClick={ onClose } />
+                        <i onClick={onClose} className="infostand-close"></i>
                     </Flex>
                     <hr className="m-0" />
                 </Column>
                 <Column gap={ 1 }>
                     <Flex gap={ 1 }>
-                        <Column fullWidth className="body-image" onClick={ event => GetUserProfile(avatarInfo.webID) }>
+                        <Column fullWidth className="body-image infostand-thumb-bg" onClick={ event => GetUserProfile(avatarInfo.webID) }>
                             <LayoutAvatarImageView figure={ avatarInfo.figure } direction={ 4 } />
                         </Column>
                         <Column grow alignItems="center" gap={ 0 }>
                             <Flex gap={ 1 }>
-                                <Flex center className="badge-image">
+                                <Base className="badge-image">
                                     { avatarInfo.badges[0] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[0] } showInfo={ true } /> }
-                                </Flex>
-                                <Flex center pointer={ ( avatarInfo.groupId > 0) } className="badge-image" onClick={ event => GetGroupInformation(avatarInfo.groupId) }>
+                                </Base>
+                                <Base pointer={ ( avatarInfo.groupId > 0) } className="badge-image" onClick={ event => GetGroupInformation(avatarInfo.groupId) }>
                                     { avatarInfo.groupId > 0 &&
                                         <LayoutBadgeImageView badgeCode={ avatarInfo.groupBadgeId } isGroup={ true } showInfo={ true } customTitle={ avatarInfo.groupName } /> }
-                                </Flex>
+                                </Base>
                             </Flex>
-                            <Flex center gap={ 1 }>
-                                <Flex center className="badge-image">
+                            <Flex gap={ 1 }>
+                                <Base className="badge-image">
                                     { avatarInfo.badges[1] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[1] } showInfo={ true } /> }
-                                </Flex>
-                                <Flex center className="badge-image">
+                                </Base>
+                                <Base className="badge-image">
                                     { avatarInfo.badges[2] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[2] } showInfo={ true } /> }
-                                </Flex>
+                                </Base>
                             </Flex>
-                            <Flex center gap={ 1 }>
-                                <Flex center className="badge-image">
+                            <Flex gap={ 1 }>
+                                <Base className="badge-image">
                                     { avatarInfo.badges[3] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[3] } showInfo={ true } /> }
-                                </Flex>
-                                <Flex center className="badge-image">
+                                </Base>
+                                <Base className="badge-image">
                                     { avatarInfo.badges[4] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[4] } showInfo={ true } /> }
-                                </Flex>
+                                </Base>
                             </Flex>
                         </Column>
                     </Flex>
                     <hr className="m-0" />
                 </Column>
                 <Column gap={ 1 }>
-                    <Flex alignItems="center" className="bg-light-dark rounded py-1 px-2">
+                    <Flex alignItems="center" className="infostand-thumb-bg py-1 px-2">
                         { (avatarInfo.type !== AvatarInfoUser.OWN_USER) &&
                             <Flex grow alignItems="center" className="motto-content">
-                                <Text fullWidth pointer wrap textBreak small variant="white">{ motto }</Text>
+                                <Text fullWidth pointer wrap textBreak variant="white">{ motto }</Text>
                             </Flex> }
                         { avatarInfo.type === AvatarInfoUser.OWN_USER &&
                             <Flex grow alignItems="center" gap={ 2 }>
                                 <FaPencilAlt className="small fa-icon" />
                                 <Flex grow alignItems="center" className="motto-content">
                                     { !isEditingMotto &&
-                                        <Text fullWidth pointer wrap textBreak small variant="white" onClick={ event => setIsEditingMotto(true) }>{ motto }&nbsp;</Text> }
+                                        <Text fullWidth pointer wrap textBreak variant="white" onClick={ event => setIsEditingMotto(true) }>{ motto }&nbsp;</Text> }
                                     { isEditingMotto &&
                                         <input type="text" className="motto-input" maxLength={ GetConfiguration<number>('motto.max.length', 38) } value={ motto } onChange={ event => setMotto(event.target.value) } onBlur={ onMottoBlur } onKeyDown={ onMottoKeyDown } autoFocus={ true } /> }
                                 </Flex>
@@ -190,13 +190,13 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
                     <hr className="m-0" />
                 </Column>
                 <Column gap={ 1 }>
-                    <Text variant="white" small wrap>
+                    <Text gfbold variant="white" wrap>
                         { LocalizeText('infostand.text.achievement_score') + ' ' + avatarInfo.achievementScore }
                     </Text>
                     { (avatarInfo.carryItem > 0) &&
                         <>
                             <hr className="m-0" />
-                            <Text variant="white" small wrap>
+                            <Text gfbold variant="white" wrap>
                                 { LocalizeText('infostand.text.handitem', [ 'item' ], [ LocalizeText('handitem' + avatarInfo.carryItem) ]) }
                             </Text>
                         </> }

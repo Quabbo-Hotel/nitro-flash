@@ -8,8 +8,9 @@ export const ChatHistoryView: FC<{}> = props =>
 {
     const [ isVisible, setIsVisible ] = useState(false);
     const [ searchText, setSearchText ] = useState<string>('');
+    const [ shouldScrollToBottom, setShouldScrollToBottom ] = useState(false);
     const { chatHistory = [] } = useChatHistory();
-    const elementRef = useRef<HTMLDivElement>(null);
+    const wasVisibleRef = useRef(isVisible);
 
     const filteredChatHistory = useMemo(() =>
     {
@@ -22,8 +23,17 @@ export const ChatHistoryView: FC<{}> = props =>
 
     useEffect(() =>
     {
-        if(elementRef && elementRef.current && isVisible) elementRef.current.scrollTop = elementRef.current.scrollHeight;
+        if(isVisible && !wasVisibleRef.current) setShouldScrollToBottom(true);
+
+        wasVisibleRef.current = isVisible;
     }, [ isVisible ]);
+
+    useEffect(() =>
+    {
+        if(!shouldScrollToBottom) return;
+
+        setShouldScrollToBottom(false);
+    }, [ shouldScrollToBottom ]);
 
     useEffect(() =>
     {
@@ -63,7 +73,7 @@ export const ChatHistoryView: FC<{}> = props =>
             <Flex gap={ 2 } className="nitro-chat-history">
                 <Column className="chat-history-content h-100">
                     <Column className="h-100">
-                        <InfiniteScroll rows={ filteredChatHistory } estimateSize={ 35 } rowRender={ row =>
+                        <InfiniteScroll rows={ filteredChatHistory } estimateSize={ 35 } scrollToBottom={ shouldScrollToBottom } rowRender={ row =>
                         {
                             return (
                                 <Flex alignItems="center" className="p-1" gap={ 2 }>

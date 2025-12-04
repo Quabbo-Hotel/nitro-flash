@@ -34,7 +34,7 @@ export const WiredSelectorBaseView: FC<PropsWithChildren<WiredSelectorBaseViewPr
     ]);
 
     return (
-        <WiredBaseView wiredType="action" requiresFurni={requiresFurni} save={save} hasSpecialInput={hasSpecialInput}>
+        <WiredBaseView wiredType="selector" requiresFurni={requiresFurni} save={save} hasSpecialInput={hasSpecialInput}>
             {children}
             <Text bold>{LocalizeText('wiredfurni.params.select.options')}</Text>
             <div>

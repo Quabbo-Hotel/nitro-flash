@@ -444,10 +444,10 @@ export const WiredSelectorFurniNeighbor: FC<{}> = () =>
     };
 
 
-    // --- RENDER
-    return (
-        <WiredSelectorBaseView hasSpecialInput={true} requiresFurni={1} save={save}>
-            <div>
+        // --- RENDER
+        return (
+                <WiredSelectorBaseView hasSpecialInput={true} requiresFurni={1} save={save}>
+            <div >
                 <div className='global-neighbor'>
                     <button
                         className='button-add-tile'

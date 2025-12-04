@@ -25,6 +25,8 @@ export const InfiniteScroll: FC<InfiniteScrollProps> = props =>
     const paddingTop = (virtualItems.length > 0) ? (virtualItems?.[0]?.start || 0) : 0
     const paddingBottom = (virtualItems.length > 0) ? (totalSize - (virtualItems?.[virtualItems.length - 1]?.end || 0)) : 0;
 
+    useEffect(() => setScrollIndex(rows.length - 1), [ rows.length ]);
+
     useEffect(() =>
     {
         if(!scrollToBottom) return;

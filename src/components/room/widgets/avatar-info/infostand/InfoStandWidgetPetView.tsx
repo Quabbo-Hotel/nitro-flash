@@ -78,10 +78,10 @@ export const InfoStandWidgetPetView: FC<InfoStandWidgetPetViewProps> = props =>
             <Column overflow="visible" className="container-fluid content-area" gap={ 1 }>
                 <Column gap={ 1 }>
                     <Flex alignItems="center" justifyContent="between" gap={ 1 }>
-                        <Text variant="white" small wrap>{ avatarInfo.name }</Text>
-                        <FaPlus className="fa-icon" onClick={ onClose } />
+                        <Text gfbold variant="white">{ avatarInfo.name }</Text>
+                        <i onClick={onClose} className="infostand-close"></i>
                     </Flex>
-                    <Text variant="white" small wrap>{ LocalizeText(`pet.breed.${ avatarInfo.petType }.${ avatarInfo.petBreed }`) }</Text>
+                    <Text variant="white" wrap>{ LocalizeText(`pet.breed.${ avatarInfo.petType }.${ avatarInfo.petBreed }`) }</Text>
                     <hr className="m-0" />
                 </Column>
                 <Column gap={ 1 }>
@@ -90,30 +90,33 @@ export const InfoStandWidgetPetView: FC<InfoStandWidgetPetViewProps> = props =>
                             <LayoutPetImageView figure={ avatarInfo.petFigure } posture={ avatarInfo.posture } direction={ 4 } />
                         </Column>
                         <Column grow gap={ 1 }>
-                            <Text variant="white" center small wrap>{ LocalizeText('pet.level', [ 'level', 'maxlevel' ], [ avatarInfo.level.toString(), avatarInfo.maximumLevel.toString() ]) }</Text>
+                            <Text  variant="white">{ LocalizeText('pet.level', [ 'level', 'maxlevel' ], [ avatarInfo.level.toString(), avatarInfo.maximumLevel.toString() ]) }</Text>
                             <Column alignItems="center" gap={ 1 }>
-                                <Text variant="white" truncate>{ LocalizeText('infostand.pet.text.happiness') }</Text>
-                                <Base fullWidth overflow="hidden" position="relative" className="bg-light-dark rounded">
+                                <Text  variant="white">{ LocalizeText('infostand.pet.text.happiness') }</Text>
+                                <Base fullWidth position="relative" className="bg-light-dark rounded pet-stats-border">
                                     <Flex fit center position="absolute">
-                                        <Text variant="white" small>{ avatarInfo.happyness + '/' + avatarInfo.maximumHappyness }</Text>
+                                        <Flex className='happy-pet stats-pet-position' position='relative'></Flex>
+                                        <Text variant="white">{ avatarInfo.happyness + '/' + avatarInfo.maximumHappyness }</Text>
                                     </Flex>
                                     <Base className="bg-info rounded pet-stats" style={ { width: (avatarInfo.happyness / avatarInfo.maximumHappyness) * 100 + '%' } } />
                                 </Base>
                             </Column>
                             <Column alignItems="center" gap={ 1 }>
-                                <Text variant="white" truncate>{ LocalizeText('infostand.pet.text.experience') }</Text>
-                                <Base fullWidth overflow="hidden" position="relative" className="bg-light-dark rounded">
-                                    <Flex fit center position="absolute">
-                                        <Text variant="white" small>{ avatarInfo.experience + '/' + avatarInfo.levelExperienceGoal }</Text>
+                                <Text  variant="white">{ LocalizeText('infostand.pet.text.experience') }</Text>
+                                <Base fullWidth position="relative" className="bg-light-dark rounded pet-stats-border">
+                                    <Flex fit center position="absolute" >
+                                        <Flex style={{left:"-27px"}} className='exp-pet stats-pet-position' position='relative'></Flex>
+                                        <Text variant="white">{ avatarInfo.experience + '/' + avatarInfo.levelExperienceGoal }</Text>
                                     </Flex>
                                     <Base className="bg-purple rounded pet-stats" style={ { width: (avatarInfo.experience / avatarInfo.levelExperienceGoal) * 100 + '%' } } />
                                 </Base>
                             </Column>
                             <Column alignItems="center" gap={ 1 }>
                                 <Text variant="white" truncate>{ LocalizeText('infostand.pet.text.energy') }</Text>
-                                <Base fullWidth overflow="hidden" position="relative" className="bg-light-dark rounded">
+                                <Base fullWidth position="relative" className="bg-light-dark rounded pet-stats-border">
                                     <Flex fit center position="absolute">
-                                        <Text variant="white" small>{ avatarInfo.energy + '/' + avatarInfo.maximumEnergy }</Text>
+                                        <Flex style={{left:"-29px"}} className='energy-pet stats-pet-position' position='relative'></Flex>
+                                        <Text variant="white">{ avatarInfo.energy + '/' + avatarInfo.maximumEnergy }</Text>
                                     </Flex>
                                     <Base className="bg-success rounded pet-stats" style={ { width: (avatarInfo.energy / avatarInfo.maximumEnergy) * 100 + '%' } } />
                                 </Base>
@@ -123,14 +126,14 @@ export const InfoStandWidgetPetView: FC<InfoStandWidgetPetViewProps> = props =>
                     <hr className="m-0" />
                 </Column>
                 <Column gap={ 1 }>
-                    <Text variant="white" small wrap>{ LocalizeText('infostand.text.petrespect', [ 'count' ], [ avatarInfo.respect.toString() ]) }</Text>
-                    <Text variant="white" small wrap>{ LocalizeText('pet.age', [ 'age' ], [ avatarInfo.age.toString() ]) }</Text>
+                    <Text gfbold variant="white">{ LocalizeText('infostand.text.petrespect', [ 'count' ], [ avatarInfo.respect.toString() ]) }</Text>
+                    <Text gfbold variant="white">{ LocalizeText('pet.age', [ 'age' ], [ avatarInfo.age.toString() ]) }</Text>
                     <hr className="m-0" />
                 </Column>
                 <Column gap={ 1 }>
                     <Flex alignItems="center" gap={ 1 }>
                         <UserProfileIconView userId={ avatarInfo.ownerId } />
-                        <Text variant="white" small wrap>
+                        <Text variant="white" wrap>
                             { LocalizeText('infostand.text.petowner', [ 'name' ], [ avatarInfo.ownerName ]) }
                         </Text>
                     </Flex>

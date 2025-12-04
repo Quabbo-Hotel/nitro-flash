@@ -36,117 +36,7 @@ export const ChatWidgetMessageView: FC<ChatWidgetMessageViewProps> = props =>
         return tetrioRegex.test(text);
     };
 
-    // Detectar enlaces de prnt.sc o prntscr (PrntScr) y extraer el id
-    const getPrntscrId = (text: string) =>
-    {
-        // ejemplos: https://prnt.sc/abcd12 o https://prntscr.com/abcd12
-        const regex = /https?:\/\/(?:prnt\.sc|prntscr\.com|prnt\.scr)\/([a-zA-Z0-9_-]{4,})/i;
-        const match = text.match(regex);
-        return match ? match[1] : null;
-    };
-
-    // Construir posibles URLs directas de imagen a partir del id de prntscr
-    const buildPrntscrUrls = (id: string) =>
-    {
-        if (!id) return [];
-
-        // Prnt.sc normalmente sirve imágenes desde i.prnt.sc o direct links con la extensión
-        // Intentamos varios patrones: i.prnt.sc/<id>.png, https://image.prntscr.com/image/<id>.png, y prnt.sc/<id>.png
-        return [
-            `https://i.prnt.sc/${id}.png`,
-            `https://i.prnt.sc/${id}.jpg`,
-            `https://image.prntscr.com/image/${id}.png`,
-            `https://image.prntscr.com/image/${id}.jpg`,
-            `https://prnt.sc/${id}`
-        ];
-    };
-
-    // Hooks to manage prntscr preview state (must be top-level)
-    const prntId = useMemo(() => getPrntscrId(chat?.formattedText ?? ''), [chat?.formattedText]);
-    const prntUrls = useMemo(() => prntId ? buildPrntscrUrls(prntId) : [], [prntId]);
-    const [currentPrntSrcIndex, setCurrentPrntSrcIndex] = useState(0);
-    const [resolvedPrntImage, setResolvedPrntImage] = useState<string | null>(null);
-    const [isResolvingPrntImage, setIsResolvingPrntImage] = useState(false);
-
-    useEffect(() =>
-    {
-        setCurrentPrntSrcIndex(0);
-    }, [prntId]);
-
-    const handlePrntImageError = () =>
-    {
-        // If we had a resolved og:image and it errored, clear it and try fallbacks
-        if (resolvedPrntImage)
-        {
-            setResolvedPrntImage(null);
-            return;
-        }
-
-        const next = currentPrntSrcIndex + 1;
-        if (next < prntUrls.length) setCurrentPrntSrcIndex(next);
-    };
-
-    // Try to fetch the prnt.sc page and extract og:image (or twitter:image) meta tag
-    useEffect(() =>
-    {
-        let cancelled = false;
-        setResolvedPrntImage(null);
-
-        if (!prntId) return;
-
-        const pageUrl = chat?.formattedText?.match(/https?:\/\/(?:prnt\.sc|prntscr\.com|prnt\.scr)\/[a-zA-Z0-9_-]{4,}/i)?.[0];
-        if (!pageUrl) return;
-
-        const controller = new AbortController();
-        setIsResolvingPrntImage(true);
-
-        const tryParseHtml = (html: string) =>
-        {
-            if (cancelled) return null;
-            const ogMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i)
-                || html.match(/<meta\s+name=["']twitter:image["']\s+content=["']([^"']+)["']/i);
-            return ogMatch ? ogMatch[1] : null;
-        };
-
-        fetch(pageUrl, { signal: controller.signal })
-            .then(response => response.text())
-            .then(html =>
-            {
-                if (cancelled) return;
-                const imageUrl = tryParseHtml(html);
-                if (imageUrl) setResolvedPrntImage(imageUrl);
-                return imageUrl;
-            })
-            .catch(() => null)
-            .then(async (maybeImage) =>
-            {
-                if (cancelled) return;
-                if (maybeImage) return;
-
-                // Si no obtuvimos la imagen directamente (CORS o contenido), intentamos vía AllOrigins public proxy
-                try
-                {
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(pageUrl)}`;
-                    const resp = await fetch(proxyUrl, { signal: controller.signal });
-                    const text = await resp.text();
-                    const imageUrl = tryParseHtml(text);
-                    if (imageUrl && !cancelled) setResolvedPrntImage(imageUrl);
-                }
-                catch (e) {
-                    // Si falla también, dejamos que los fallbacks manejen el caso
-                }
-            })
-            .finally(() =>
-            {
-                if (!cancelled) setIsResolvingPrntImage(false);
-            });
-
-        return () =>
-        {
-            cancelled = true;
-            controller.abort();
-        };
-    }, [prntId, chat?.formattedText]);
+    const prntLink = useMemo(() => chat?.formattedText?.match(/https?:\/\/(?:prnt\.sc|prntscr\.com|prnt\.scr)\/[a-zA-Z0-9_-]{4,}/i)?.[0] ?? null, [chat?.formattedText]);
 
     useEffect(() =>
     {
@@ -203,19 +93,17 @@ export const ChatWidgetMessageView: FC<ChatWidgetMessageViewProps> = props =>
                 <div className="chat-content">
                     <span className="username mr-1" dangerouslySetInnerHTML={{ __html: `${chat.username}: ` }} />
                     {
-                        // Si hay un enlace prnt.sc y el autor es g6re o Yogurt, mostramos la imagen embebida con fallbacks
-                        (prntId && (chat.username === 'g6re' || chat.username === 'Yogurt')) ? (
-                            <div className="prntscr-embed" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }} onClick={e => e.stopPropagation()}>
-                                <a href={chat.formattedText.match(/https?:\/\/(?:prnt\.sc|prntscr\.com|prnt\.scr)\/[a-zA-Z0-9_-]{4,}/i)?.[0] ?? '#'} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }} onClick={e => e.stopPropagation()}>
-                                    <img
-                                        src={resolvedPrntImage ?? prntUrls[currentPrntSrcIndex]}
-                                        alt="PrntScr preview"
-                                        onError={handlePrntImageError}
-                                        style={{ maxWidth: Math.min(500, getBubbleWidth - 20), maxHeight: 500, width: 'auto', height: 'auto', borderRadius: 6, display: 'block', objectFit: 'contain' }}
-                                    />
-                                </a>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted, #666)' }}>{chat.formattedText}</div>
-                            </div>
+                        prntLink ? (
+                            <a
+                                href={prntLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="message"
+                                style={{ textDecoration: 'underline', color: '#0d47a1' }}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {` ${chat.formattedText ?? prntLink} `}
+                            </a>
                         ) : isTetrioInviteLink(chat.formattedText) && chat.username === 'g6re' ? (
                             <a
                                 href={chat.formattedText.match(/https:\/\/tetr\.io\/#\w+/i)[0]}

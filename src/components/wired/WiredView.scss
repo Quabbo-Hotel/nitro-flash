@@ -364,3 +364,13 @@
 	background-color: rgb(41, 41, 41);
 	border-radius: 2px;
 }
+.form-var-text{
+	height: 160px;
+  width: 100%;
+  border-image-slice:6 6 6 6 fill;
+  border-image-width:6px 6px 6px 6px;
+  border-image-repeat:repeat repeat;
+  border-image-source: url("@/assets/flash/boxes/card/input.png");
+  background: transparent;
+	outline: none;
+}

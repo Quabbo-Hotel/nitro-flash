@@ -35,7 +35,7 @@
         min-width: 190px;
         max-width: 190px;
         z-index: $infostand-zindex;
-	    pointer-events: auto;
+        pointer-events: auto;
         border-image-source: url(@/assets/flash/buttons/toggle_bg.png);
         border-image-slice: 6 6 6 6 fill;
         border-image-width: 6px 6px 6px 6px;
@@ -53,6 +53,7 @@
             border-image-source: url(@/assets/flash/infostand/thumb_bg.png);
             border-image-slice: 6 6 6 6 fill;
             border-image-width: 6px 6px 6px 6px;
+
         }
 
         .infostand-close {
@@ -75,7 +76,7 @@
             }
 
             &.bot {
-                background-image: url('@/assets/images/infostand/bot_background.png');
+                background-image: url('@/assets/images/infostand/bot_background.png') !important;
                 background-repeat: no-repeat;
                 background-position: center;
             }
@@ -125,13 +126,11 @@
             }
         }
 
-        .flex-tags
-        {
+        .flex-tags {
             flex-wrap: wrap;
             margin-bottom: -10px;
 
-            .text-tags
-            {
+            .text-tags {
                 padding: 2px;
                 border-radius: 3px;
                 background: #333;
@@ -143,7 +142,7 @@
     }
 
     .button-container {
-	    pointer-events: auto;
+        pointer-events: auto;
     }
 
     .pet-stats {
@@ -157,4 +156,36 @@
     &:hover {
         color: #91c2ff !important;
     }
+}
+
+.body-image.bot.infostand-thumb-bg {
+    border-image-slice: 6 6 6 6;
+    background-image: url('@/assets/images/infostand/bot_background.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #656565;
+    border-radius: 12px;
+}
+.happy-pet {
+    background-image: url('@/assets/images/pets/happy-pet.png');
+    width: 18px;
+    height: 18px;
+}
+
+.exp-pet {
+    background-image: url('@/assets/images/pets/exp-pet.png');
+    width: 18px;
+    height: 18px;
+}.energy-pet {
+    background-image: url('@/assets/images/pets/energy-pet.png');
+    width: 18px;
+    height: 18px;
+}
+.pet-stats-border {
+    border: 1px solid #ffffff;
+    overflow: visible;
+}
+.stats-pet-position {
+    position: relative;
+    left: -29px;
 }

@@ -151,22 +151,7 @@ export const AvatarInfoWidgetView: FC<{}> = props =>
             { rentableBotChatEvent && <AvatarInfoRentableBotChatView chatEvent={ rentableBotChatEvent } onClose={ () => setRentableBotChatEvent(null) }/> }
             
             { confirmingProduct && <AvatarInfoUseProductConfirmView item={ confirmingProduct } onClose={ () => updateConfirmingProduct(null) } /> }
-            { showBetDialog && (
-                <NitroCardView uniqueKey="bet-dialog" className="nitro-bet-dialog">
-                    <NitroCardHeaderView headerText="Blackjack Bet" onCloseClick={() => cancelBet()} />
-                    <NitroCardContentView>
-                        <p>Enter the amount of VIP points to bet:</p>
-                        <input
-                            type="number"
-                            value={betAmount}
-                            onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)}
-                            min="0"
-                        />
-                        <Button onClick={() => handleBet(betAmount)}>Bet</Button>
-                        <Button onClick={() => cancelBet()}>Cancel</Button>
-                    </NitroCardContentView>
-                </NitroCardView>
-            ) }
+            
             <AvatarInfoPetTrainingPanelView />
         </>
     )

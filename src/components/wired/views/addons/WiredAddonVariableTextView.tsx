@@ -42,7 +42,7 @@ export const WiredAddonVariableTextView: FC = () => {
                     Escribe hasta { MAX_LINES } líneas usando el formato <b>numero=texto</b>. Cada número corresponde al valor que recibirá el addon de variable.
                 </Text>
                 <textarea
-                    className='form-control form-control-sm'
+                    className='form-var-text'
                     rows={8}
                     spellCheck={false}
                     value={editorValue}
