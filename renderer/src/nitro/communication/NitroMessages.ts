@@ -20,6 +20,8 @@ import { RoomInternalUserVariablesMessageEvent } from './messages/incoming/room/
 import { UserWithVariablesMessageEvent } from './messages/incoming/room/variables/UserWithVariablesMessageEvent';
 import { RoomGlobalVariablesMessageEvent } from './messages/incoming/room/variables/RoomGlobalVariablesMessageEvent';
 import { RoomInternalGlobalVariablesMessageEvent } from './messages/incoming/room/variables/RoomInternalGlobalVariablesMessageEvent';
+import { RoomContextVariablesMessageEvent } from './messages/incoming/room/variables/RoomContextVariablesMessageEvent';
+import { RoomInternalContextVariablesMessageEvent } from './messages/incoming/room/variables/RoomInternalContextVariablesMessageEvent';
 import { SharedRoomVariablesMessageEvent } from './messages/incoming/room/variables/SharedRoomVariablesMessageEvent';
 import { ClickFurniMessageComposer } from './messages/outgoing/room/engine/ClickFurniMessageComposer';
 import { InspectFurniVariablesComposer } from './messages/outgoing/room/engine/InspectFurniVariablesComposer';
@@ -38,6 +40,7 @@ import { ToggleUserInspectionLockComposer } from './messages/outgoing/room/varia
 import { RequestGlobalVariablesComposer } from './messages/outgoing/room/variables/RequestGlobalVariablesComposer';
 import { RequestGlobalWithVariablesComposer } from './messages/outgoing/room/variables/RequestGlobalWithVariablesComposer';
 import { RequestSharedRoomVariablesComposer } from './messages/outgoing/room/variables/RequestSharedRoomVariablesComposer';
+import { RequestContextVariablesComposer } from './messages/outgoing/room/variables/RequestContextVariablesComposer';
 
 export class NitroMessages implements IMessageConfiguration {
     private _events: Map<number, Function>;
@@ -65,6 +68,8 @@ export class NitroMessages implements IMessageConfiguration {
         this._events.set(IncomingHeader.ROOM_INTERNAL_USER_VARIABLES, RoomInternalUserVariablesMessageEvent);
         this._events.set(IncomingHeader.ROOM_GLOBAL_VARIABLES, RoomGlobalVariablesMessageEvent);
         this._events.set(IncomingHeader.ROOM_INTERNAL_GLOBAL_VARIABLES, RoomInternalGlobalVariablesMessageEvent);
+        this._events.set(IncomingHeader.ROOM_CONTEXT_VARIABLES, RoomContextVariablesMessageEvent);
+        this._events.set(IncomingHeader.ROOM_INTERNAL_CONTEXT_VARIABLES, RoomInternalContextVariablesMessageEvent);
         this._events.set(IncomingHeader.FURNI_WITH_VARIABLES, FurniWithVariablesMessageEvent);
         this._events.set(IncomingHeader.USER_WITH_VARIABLES, UserWithVariablesMessageEvent);
         this._events.set(IncomingHeader.GET_FURNI_VARIABLE_BY_CLICK, GetFurniVariablesAndValuesMessageEvent);
@@ -652,6 +657,7 @@ export class NitroMessages implements IMessageConfiguration {
         this._composers.set(OutgoingHeader.REQUEST_GLOBAL_VARIABLES, RequestGlobalVariablesComposer);
         this._composers.set(OutgoingHeader.REQUEST_GLOBAL_WITH_VARIABLES, RequestGlobalWithVariablesComposer);
         this._composers.set(OutgoingHeader.REQUEST_SHARED_ROOM_VARIABLES, RequestSharedRoomVariablesComposer);
+        this._composers.set(OutgoingHeader.REQUEST_CONTEXT_VARIABLES, RequestContextVariablesComposer);
         this._composers.set(OutgoingHeader.TOGGLE_HIGHLIGHT_MODE, ToggleHighlightModeComposer);
         this._composers.set(OutgoingHeader.TOGGLE_FURNI_INSPECTION_LOCK, ToggleFurniInspectionLockComposer);
         this._composers.set(OutgoingHeader.INSPECT_USER_VARIABLES, InspectUserVariablesComposer);

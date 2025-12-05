@@ -19,6 +19,7 @@ export class OutgoingHeader
     public static TOGGLE_GLOBAL_INSPECTION = 6043;
     public static INSPECT_FURNI_VARIABLES = 6044;
     public static REQUEST_SHARED_ROOM_VARIABLES = 6047;
+    public static REQUEST_CONTEXT_VARIABLES = 6052;
     public static BLACKJACK_BET = 6032;
     public static BLACKJACK_HIT = 6033;
     public static BLACKJACK_STAND = 6034;

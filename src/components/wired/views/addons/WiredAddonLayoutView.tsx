@@ -13,6 +13,7 @@ import { WiredAddonVariableTextView } from './WiredAddonVariableTextView';
 import { WiredAddonTextOutputUsernameView } from './WiredAddonTextOutputUsernameView';
 import { WiredAddonTextOutputVariableView } from './WiredAddonTextOutputVariableView';
 import { WiredAddonReferenceVariableView } from './WiredAddonReferenceVariableView';
+import { WiredAddonContextVariableView } from './WiredAddonContextVariableView';
 
 
 
@@ -49,6 +50,8 @@ export const WiredAddonLayoutView = (code: number) =>
             return <WiredAddonTextOutputVariableView />;
         case WiredAddonLayoutCode.REFERENCE_VARIABLE:
             return <WiredAddonReferenceVariableView />;
+        case WiredAddonLayoutCode.CONTEXT_VARIABLE:
+            return <WiredAddonContextVariableView />;
 
 
 

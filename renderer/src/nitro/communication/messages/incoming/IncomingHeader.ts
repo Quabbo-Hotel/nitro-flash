@@ -18,6 +18,8 @@ export class IncomingHeader
     public static ROOM_INTERNAL_USER_VARIABLES = 6021;
     public static ROOM_GLOBAL_VARIABLES = 6040;
     public static ROOM_INTERNAL_GLOBAL_VARIABLES = 6041;
+    public static ROOM_CONTEXT_VARIABLES = 6050;
+    public static ROOM_INTERNAL_CONTEXT_VARIABLES = 6051;
     public static FURNI_WITH_VARIABLES = 6011;
     public static USER_WITH_VARIABLES = 6015;
     public static GET_FURNI_VARIABLE_BY_CLICK = 6012;

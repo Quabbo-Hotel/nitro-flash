@@ -1,10 +1,15 @@
+import { IContextVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomContextVariablesMessageParser';
 import { IFurniUserVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomFurniVariablesMessageParser';
+import { IGlobalUserVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomGlobalVariablesMessageParser';
 import { IInternalFurniVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomInternalFurniVariablesMessageParser';
+import { IInternalContextVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomInternalContextVariablesMessageParser';
 import { IInternalUserVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomInternalUserVariablesMessageParser';
 import { IUserUserVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomUserVariablesMessageParser';
 import { IInternalGlobalVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomInternalGlobalVariablesMessageParser';
 import { RoomFurniVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomFurniVariablesMessageEvent';
 import { RoomInternalFurniVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomInternalFurniVariablesMessageEvent';
+import { RoomContextVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomContextVariablesMessageEvent';
+import { RoomInternalContextVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomInternalContextVariablesMessageEvent';
 import { RoomInternalUserVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomInternalUserVariablesMessageEvent';
 import { RoomUserVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomUserVariablesMessageEvent';
 import { RoomGlobalVariablesMessageEvent } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/room/variables/RoomGlobalVariablesMessageEvent';
@@ -17,17 +22,26 @@ import { RequestGlobalVariablesComposer } from '@nitrots/nitro-renderer/src/nitr
 import { RequestGlobalWithVariablesComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/RequestGlobalWithVariablesComposer';
 import { ToggleHighlightModeComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/ToggleHighlightModeComposer';
 import { FC, useEffect, useState } from 'react';
+import { RequestContextVariablesComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/RequestContextVariablesComposer';
 import { SendMessageComposer } from '../../api';
 import { Button, Flex, Text } from '../../common';
 import { useMessageEvent } from '../../hooks/events';
 import { useVariableHighlight } from '../../hooks/rooms/widgets/variables/useVariableHighlight';
-import { IGlobalUserVariableData } from '@nitrots/nitro-renderer/src/nitro/communication/messages/incoming/parser/room/variables/RoomGlobalVariablesMessageParser';
 
 interface IVariableHighlight {
     variableName: string;
     furniAssignments: any[];
     userAssignments: any[];
 }
+
+type VariableTarget = 'furni' | 'user' | 'global' | 'context';
+type VariableOrigin = 'user' | 'internal';
+
+type SelectedVariable = {
+    target: VariableTarget;
+    origin: VariableOrigin;
+    var: IFurniUserVariableData | IInternalFurniVariableData | IUserUserVariableData | IInternalUserVariableData | IGlobalUserVariableData | IInternalGlobalVariableData | IContextVariableData | IInternalContextVariableData;
+};
 
 export const VariableTabView: FC<{}> = props => {
     const [userFurniVars, setUserFurniVars] = useState<IFurniUserVariableData[]>([]);
@@ -36,8 +50,10 @@ export const VariableTabView: FC<{}> = props => {
     const [internalUserVars, setInternalUserVars] = useState<IInternalUserVariableData[]>([]);
     const [userGlobalVars, setUserGlobalVars] = useState<IGlobalUserVariableData[]>([]);
     const [internalGlobalVars, setInternalGlobalVars] = useState<IInternalGlobalVariableData[]>([]);
-    const [selectedType, setSelectedType] = useState<'furni' | 'user' | 'global'>('furni');
-    const [selected, setSelected] = useState<{ kind: 'user' | 'internal', var: IFurniUserVariableData | IInternalFurniVariableData | IUserUserVariableData | IInternalUserVariableData | IGlobalUserVariableData | IInternalGlobalVariableData } | null>(null);
+    const [userContextVars, setUserContextVars] = useState<IContextVariableData[]>([]);
+    const [internalContextVars, setInternalContextVars] = useState<IInternalContextVariableData[]>([]);
+    const [selectedType, setSelectedType] = useState<VariableTarget>('furni');
+    const [selected, setSelected] = useState<SelectedVariable | null>(null);
     const { activeHighlight, clearHighlights } = useVariableHighlight();
 
     const sortByCreationAsc = <T extends { creationTimestamp?: number }>(values: T[]) =>
@@ -48,24 +64,20 @@ export const VariableTabView: FC<{}> = props => {
         SendMessageComposer(new RequestRoomVariablesComposer()); 
         SendMessageComposer(new RequestUserVariablesComposer()); 
         SendMessageComposer(new RequestGlobalVariablesComposer()); 
+        SendMessageComposer(new RequestContextVariablesComposer());
     }, []);
 
     // Clear highlights when selection changes to non-user or null
     // But don't clear if there's an active highlight for the same type (to prevent clearing during variable updates)
     useEffect(() => {
-        if (!selected || selected.kind !== 'user') {
-            // If there's an active highlight and we're switching to a different type, clear it
-            // Or if there's no active highlight at all, also clear (normal case)
+        if (!selected || selected.origin !== 'user' || selected.target === 'context') {
             if (activeHighlight) {
-                // Check if we have a user highlight active but are now selecting furni
                 const hasUserHighlight = activeHighlight.userAssignments && activeHighlight.userAssignments.length > 0;
-                if (hasUserHighlight && selected && selected.kind === 'internal') {
-                    // Switching from user highlight to furni selection - clear the user highlight
+                if (hasUserHighlight && (!selected || selected.origin === 'internal' || selected.target === 'context')) {
                     clearHighlights();
                     SendMessageComposer(new ToggleHighlightModeComposer(false));
                 }
             } else {
-                // No active highlight, safe to clear
                 clearHighlights();
                 SendMessageComposer(new ToggleHighlightModeComposer(false));
             }
@@ -79,9 +91,9 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserFurniVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.kind !== 'user') return prev;
+            if(!prev || prev.target !== 'furni' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
-            return still ? { kind:'user', var: still } : null;
+            return still ? { target: 'furni', origin: 'user', var: still } : null;
         });
     });
 
@@ -92,9 +104,9 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalFurniVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.kind !== 'internal') return prev;
+            if(!prev || prev.target !== 'furni' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
-            return still ? { kind:'internal', var: still } : null;
+            return still ? { target: 'furni', origin: 'internal', var: still } : null;
         });
     });
 
@@ -105,9 +117,9 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserUserVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.kind !== 'user') return prev;
+            if(!prev || prev.target !== 'user' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
-            return still ? { kind:'user', var: still } : null;
+            return still ? { target: 'user', origin: 'user', var: still } : null;
         });
     });
 
@@ -118,9 +130,9 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalUserVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.kind !== 'internal') return prev;
+            if(!prev || prev.target !== 'user' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
-            return still ? { kind:'internal', var: still } : null;
+            return still ? { target: 'user', origin: 'internal', var: still } : null;
         });
     });
 
@@ -131,9 +143,9 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserGlobalVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.kind !== 'user') return prev;
+            if(!prev || prev.target !== 'global' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
-            return still ? { kind:'user', var: still } : null;
+            return still ? { target: 'global', origin: 'user', var: still } : null;
         });
     });
 
@@ -144,37 +156,64 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalGlobalVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.kind !== 'internal') return prev;
+            if(!prev || prev.target !== 'global' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
-            return still ? { kind:'internal', var: still } : null;
+            return still ? { target: 'global', origin: 'internal', var: still } : null;
         });
     });
 
+    // Listen for user-created context variables
+    useMessageEvent<RoomContextVariablesMessageEvent>(RoomContextVariablesMessageEvent, event => {
+        const parser = event.getParser();
+        const list = parser.vars || [];
+        const sorted = sortByCreationAsc(list);
+        setUserContextVars(sorted);
+        setSelected(prev => {
+            if(!prev || prev.target !== 'context' || prev.origin !== 'user') return prev;
+            const still = sorted.find(v => v.name === (prev.var as any).name);
+            return still ? { target: 'context', origin: 'user', var: still } : null;
+        });
+    });
+
+    // Listen for internal context variables
+    useMessageEvent<RoomInternalContextVariablesMessageEvent>(RoomInternalContextVariablesMessageEvent, event => {
+        const parser = event.getParser();
+        const list = parser.vars || [];
+        const sorted = sortByCreationAsc(list);
+        setInternalContextVars(sorted);
+        setSelected(prev => {
+            if(!prev || prev.target !== 'context' || prev.origin !== 'internal') return prev;
+            const still = sorted.find(v => v.name === (prev.var as any).name);
+            return still ? { target: 'context', origin: 'internal', var: still } : null;
+        });
+    });
+
+    const highlightDisabled = !selected || selected.origin !== 'user' || selected.target === 'context';
+
     const handleToggleHighlight = () => {
-        if (selected && selected.kind === 'user') {
-            const variableName = (selected.var as IFurniUserVariableData | IUserUserVariableData).name;
-            
-            // If there's an active highlight for this exact variable, clear it
-            if (activeHighlight && activeHighlight.variableName === variableName) {
-                clearHighlights();
-                SendMessageComposer(new ToggleHighlightModeComposer(false));
-            } else {
-                // If there's an active highlight for a different variable or different type, clear it first
-                if (activeHighlight) {
-                    clearHighlights();
-                    SendMessageComposer(new ToggleHighlightModeComposer(false));
-                }
-                
-                // Request highlight for the new variable
-                SendMessageComposer(new ToggleHighlightModeComposer(true, variableName));
-                if (selectedType === 'furni') {
-                    SendMessageComposer(new RequestFurniWithVariablesComposer(variableName));
-                } else if (selectedType === 'user') {
-                    SendMessageComposer(new RequestUserWithVariablesComposer(variableName));
-                } else if (selectedType === 'global') {
-                    SendMessageComposer(new RequestGlobalWithVariablesComposer(variableName));
-                }
-            }
+        if (highlightDisabled || !selected) return;
+
+        const variableName = (selected.var as IFurniUserVariableData | IUserUserVariableData | IGlobalUserVariableData).name;
+
+        if (activeHighlight && activeHighlight.variableName === variableName) {
+            clearHighlights();
+            SendMessageComposer(new ToggleHighlightModeComposer(false));
+            return;
+        }
+
+        if (activeHighlight) {
+            clearHighlights();
+            SendMessageComposer(new ToggleHighlightModeComposer(false));
+        }
+
+        SendMessageComposer(new ToggleHighlightModeComposer(true, variableName));
+
+        if (selected.target === 'furni') {
+            SendMessageComposer(new RequestFurniWithVariablesComposer(variableName));
+        } else if (selected.target === 'user') {
+            SendMessageComposer(new RequestUserWithVariablesComposer(variableName));
+        } else if (selected.target === 'global') {
+            SendMessageComposer(new RequestGlobalWithVariablesComposer(variableName));
         }
     };
 
@@ -185,8 +224,8 @@ export const VariableTabView: FC<{}> = props => {
 
     // Determine button text based on current state
     const getHighlightButtonText = () => {
-        if (selected && selected.kind === 'user') {
-            const variableName = (selected.var as IFurniUserVariableData | IUserUserVariableData).name;
+        if (!highlightDisabled && selected) {
+            const variableName = (selected.var as IFurniUserVariableData | IUserUserVariableData | IGlobalUserVariableData).name;
             return (activeHighlight && activeHighlight.variableName === variableName) 
                 ? 'Eliminar Highlight' 
                 : 'Agregar Highlight';
@@ -204,7 +243,7 @@ export const VariableTabView: FC<{}> = props => {
                         <button className={`button-var icon-furni-var ${selectedType === 'furni' ? 'selected' : ''}`} onClick={() => setSelectedType('furni')}></button>
                         <button className={`button-var icon-user-var ${selectedType === 'user' ? 'selected' : ''}`} onClick={() => setSelectedType('user')}></button>
                         <button className={`button-var icon-global-var ${selectedType === 'global' ? 'selected' : ''}`} onClick={() => setSelectedType('global')}></button>
-                        <button className='button-var icon-context-var'></button>
+                        <button className={`button-var icon-context-var ${selectedType === 'context' ? 'selected' : ''}`} onClick={() => setSelectedType('context')}></button>
                     </Flex>
                 </Flex>
 
@@ -214,9 +253,9 @@ export const VariableTabView: FC<{}> = props => {
                         {selectedType === 'furni' && userFurniVars.map(v => (
                             <Flex
                                 key={'fu-' + v.name + '-' + v.furniId}
-                                className={`button-var ${selected && selected.kind === 'user' && selected.var === v ? 'selected' : ''}`}
+                                className={`button-var ${selected && selected.target === 'furni' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
                                 style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ kind: 'user', var: v })}
+                                onClick={() => setSelected({ target: 'furni', origin: 'user', var: v })}
                             >
                                 <Text small>{v.name}</Text>
                             </Flex>
@@ -225,9 +264,9 @@ export const VariableTabView: FC<{}> = props => {
                         {selectedType === 'furni' && internalFurniVars.map(v => (
                             <Flex
                                 key={'fi-' + v.name + '-' + v.furniId}
-                                className={`button-var ${selected && selected.kind === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                className={`button-var ${selected && selected.target === 'furni' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
                                 style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ kind: 'internal', var: v })}
+                                onClick={() => setSelected({ target: 'furni', origin: 'internal', var: v })}
                             >
                                 <Text small>{v.name}</Text>
                             </Flex>
@@ -236,9 +275,9 @@ export const VariableTabView: FC<{}> = props => {
                         {selectedType === 'user' && userUserVars.map(v => (
                             <Flex
                                 key={'uu-' + v.name + '-' + v.userId}
-                                className={`button-var ${selected && selected.kind === 'user' && selected.var === v ? 'selected' : ''}`}
+                                className={`button-var ${selected && selected.target === 'user' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
                                 style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ kind: 'user', var: v })}
+                                onClick={() => setSelected({ target: 'user', origin: 'user', var: v })}
                             >
                                 <Text small>{v.name}</Text>
                             </Flex>
@@ -247,9 +286,9 @@ export const VariableTabView: FC<{}> = props => {
                         {selectedType === 'user' && internalUserVars.map(v => (
                             <Flex
                                 key={'ui-' + v.name + '-' + v.userId}
-                                className={`button-var ${selected && selected.kind === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                className={`button-var ${selected && selected.target === 'user' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
                                 style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ kind: 'internal', var: v })}
+                                onClick={() => setSelected({ target: 'user', origin: 'internal', var: v })}
                             >
                                 <Text small>{v.name}</Text>
                             </Flex>
@@ -258,9 +297,9 @@ export const VariableTabView: FC<{}> = props => {
                         {selectedType === 'global' && userGlobalVars.map(v => (
                             <Flex
                                 key={'gu-' + v.name}
-                                className={`button-var ${selected && selected.kind === 'user' && selected.var === v ? 'selected' : ''}`}
+                                className={`button-var ${selected && selected.target === 'global' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
                                 style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ kind: 'user', var: v })}
+                                onClick={() => setSelected({ target: 'global', origin: 'user', var: v })}
                             >
                                 <Text small>{v.name}</Text>
                             </Flex>
@@ -269,9 +308,31 @@ export const VariableTabView: FC<{}> = props => {
                         {selectedType === 'global' && internalGlobalVars.map(v => (
                             <Flex
                                 key={'gi-' + v.name}
-                                className={`button-var ${selected && selected.kind === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                className={`button-var ${selected && selected.target === 'global' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
                                 style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ kind: 'internal', var: v })}
+                                onClick={() => setSelected({ target: 'global', origin: 'internal', var: v })}
+                            >
+                                <Text small>{v.name}</Text>
+                            </Flex>
+                        ))}
+
+                        {selectedType === 'context' && userContextVars.map(v => (
+                            <Flex
+                                key={'cu-' + v.name + '-' + v.furniId}
+                                className={`button-var ${selected && selected.target === 'context' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
+                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
+                                onClick={() => setSelected({ target: 'context', origin: 'user', var: v })}
+                            >
+                                <Text small>{v.name}</Text>
+                            </Flex>
+                        ))}
+
+                        {selectedType === 'context' && internalContextVars.map(v => (
+                            <Flex
+                                key={'ci-' + v.name + '-' + v.furniId}
+                                className={`button-var ${selected && selected.target === 'context' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
+                                onClick={() => setSelected({ target: 'context', origin: 'internal', var: v })}
                             >
                                 <Text small>{v.name}</Text>
                             </Flex>
@@ -283,7 +344,7 @@ export const VariableTabView: FC<{}> = props => {
                 <Button 
                     style={{ marginTop: '10px', padding: '8px', width: '230px' }}
                     onClick={handleToggleHighlight}
-                    disabled={!selected || selected.kind !== 'user'}
+                    disabled={highlightDisabled}
                 >
                     {getHighlightButtonText()}
                 </Button>
@@ -310,9 +371,10 @@ export const VariableTabView: FC<{}> = props => {
 
                         {selected && (() => {
                             const v: any = selected.var;
-                            const isInternal = selected.kind === 'internal';
+                            const isInternal = selected.origin === 'internal';
                             const yn = (b: boolean | undefined) => b ? 'Yes' : 'No';
                             const formatTimestamp = (value?: number) => value ? new Date(value).toLocaleString() : '-';
+                            const targetLabel = selected.target === 'furni' ? 'Furni' : selected.target === 'user' ? 'User' : selected.target === 'global' ? 'Global' : 'Context';
 
                             const availability = v.availability || '/';
                             const hasValue = !!v.hasValue;
@@ -335,7 +397,7 @@ export const VariableTabView: FC<{}> = props => {
                                         <Text>Type</Text><div></div><Text>{isInternal ? 'Internal' : 'Created by User'}</Text>
                                     </div>
                                     <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Target</Text><div></div><Text>{selectedType === 'furni' ? 'Furni' : selectedType === 'user' ? 'User' : 'Global'}</Text>
+                                        <Text>Target</Text><div></div><Text>{targetLabel}</Text>
                                     </div>
                                     <div className='grid-container2-props' style={{ marginTop: "10px" }}>
                                         <Text>Availability</Text><div></div><Text>{availability}</Text>
@@ -386,7 +448,7 @@ export const VariableTabView: FC<{}> = props => {
 
                         const variable: any = selected.var;
                         const isTextConnected = !!variable?.isTextConnected;
-                        const supportsTexts = selected.kind === 'user' || selected.kind === 'internal';
+                        const supportsTexts = selected.origin === 'user' || selected.origin === 'internal';
 
                         if(!supportsTexts) {
                             return (

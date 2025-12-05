@@ -14,5 +14,6 @@ export class WiredAddonLayoutCode
     public static TEXT_OUTPUT_USERNAME: number = 11;
     public static TEXT_OUTPUT_VARIABLE: number = 12;
     public static REFERENCE_VARIABLE: number = 13;
+    public static CONTEXT_VARIABLE: number = 14;
 
 }
