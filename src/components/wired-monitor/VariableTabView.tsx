@@ -59,11 +59,40 @@ export const VariableTabView: FC<{}> = props => {
     const sortByCreationAsc = <T extends { creationTimestamp?: number }>(values: T[]) =>
         values.slice().sort((a, b) => ((a.creationTimestamp ?? 0) - (b.creationTimestamp ?? 0)));
 
+    // Auto-select first variable when category changes or variables load
+    useEffect(() => {
+        if (selectedType === 'furni') {
+            if (userFurniVars.length > 0) {
+                setSelected({ target: 'furni', origin: 'user', var: userFurniVars[0] });
+            } else if (internalFurniVars.length > 0) {
+                setSelected({ target: 'furni', origin: 'internal', var: internalFurniVars[0] });
+            }
+        } else if (selectedType === 'user') {
+            if (userUserVars.length > 0) {
+                setSelected({ target: 'user', origin: 'user', var: userUserVars[0] });
+            } else if (internalUserVars.length > 0) {
+                setSelected({ target: 'user', origin: 'internal', var: internalUserVars[0] });
+            }
+        } else if (selectedType === 'global') {
+            if (userGlobalVars.length > 0) {
+                setSelected({ target: 'global', origin: 'user', var: userGlobalVars[0] });
+            } else if (internalGlobalVars.length > 0) {
+                setSelected({ target: 'global', origin: 'internal', var: internalGlobalVars[0] });
+            }
+        } else if (selectedType === 'context') {
+            if (userContextVars.length > 0) {
+                setSelected({ target: 'context', origin: 'user', var: userContextVars[0] });
+            } else if (internalContextVars.length > 0) {
+                setSelected({ target: 'context', origin: 'internal', var: internalContextVars[0] });
+            }
+        }
+    }, [selectedType, userFurniVars, internalFurniVars, userUserVars, internalUserVars, userGlobalVars, internalGlobalVars, userContextVars, internalContextVars]);
+
     // Request variables once when tab mounts
-    useEffect(() => { 
-        SendMessageComposer(new RequestRoomVariablesComposer()); 
-        SendMessageComposer(new RequestUserVariablesComposer()); 
-        SendMessageComposer(new RequestGlobalVariablesComposer()); 
+    useEffect(() => {
+        SendMessageComposer(new RequestRoomVariablesComposer());
+        SendMessageComposer(new RequestUserVariablesComposer());
+        SendMessageComposer(new RequestGlobalVariablesComposer());
         SendMessageComposer(new RequestContextVariablesComposer());
     }, []);
 
@@ -91,7 +120,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserFurniVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'furni' || prev.origin !== 'user') return prev;
+            if (!prev || prev.target !== 'furni' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'furni', origin: 'user', var: still } : null;
         });
@@ -104,7 +133,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalFurniVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'furni' || prev.origin !== 'internal') return prev;
+            if (!prev || prev.target !== 'furni' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'furni', origin: 'internal', var: still } : null;
         });
@@ -117,7 +146,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserUserVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'user' || prev.origin !== 'user') return prev;
+            if (!prev || prev.target !== 'user' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'user', origin: 'user', var: still } : null;
         });
@@ -130,7 +159,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalUserVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'user' || prev.origin !== 'internal') return prev;
+            if (!prev || prev.target !== 'user' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'user', origin: 'internal', var: still } : null;
         });
@@ -143,7 +172,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserGlobalVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'global' || prev.origin !== 'user') return prev;
+            if (!prev || prev.target !== 'global' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'global', origin: 'user', var: still } : null;
         });
@@ -156,7 +185,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalGlobalVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'global' || prev.origin !== 'internal') return prev;
+            if (!prev || prev.target !== 'global' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'global', origin: 'internal', var: still } : null;
         });
@@ -169,7 +198,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setUserContextVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'context' || prev.origin !== 'user') return prev;
+            if (!prev || prev.target !== 'context' || prev.origin !== 'user') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'context', origin: 'user', var: still } : null;
         });
@@ -182,7 +211,7 @@ export const VariableTabView: FC<{}> = props => {
         const sorted = sortByCreationAsc(list);
         setInternalContextVars(sorted);
         setSelected(prev => {
-            if(!prev || prev.target !== 'context' || prev.origin !== 'internal') return prev;
+            if (!prev || prev.target !== 'context' || prev.origin !== 'internal') return prev;
             const still = sorted.find(v => v.name === (prev.var as any).name);
             return still ? { target: 'context', origin: 'internal', var: still } : null;
         });
@@ -226,271 +255,307 @@ export const VariableTabView: FC<{}> = props => {
     const getHighlightButtonText = () => {
         if (!highlightDisabled && selected) {
             const variableName = (selected.var as IFurniUserVariableData | IUserUserVariableData | IGlobalUserVariableData).name;
-            return (activeHighlight && activeHighlight.variableName === variableName) 
-                ? 'Eliminar Highlight' 
+            return (activeHighlight && activeHighlight.variableName === variableName)
+                ? 'Eliminar Highlight'
                 : 'Agregar Highlight';
         }
         return 'Agregar Highlight';
     };
 
     return (
-        <Flex className='global-grid' gap={4}>
-            {/* Columna izquierda */}
-            <Flex column className='w-50 bg-red' style={{ width: '100%' }}>
-                <Flex column justifyContent='start' style={{ width: '100%' }}>
-                    <Text style={{ width: '100%' }}>Tipo de variable</Text>
-                    <Flex gap={2} className='container-buttons-var' style={{ width: '100%' }}>
-                        <button className={`button-var icon-furni-var ${selectedType === 'furni' ? 'selected' : ''}`} onClick={() => setSelectedType('furni')}></button>
-                        <button className={`button-var icon-user-var ${selectedType === 'user' ? 'selected' : ''}`} onClick={() => setSelectedType('user')}></button>
-                        <button className={`button-var icon-global-var ${selectedType === 'global' ? 'selected' : ''}`} onClick={() => setSelectedType('global')}></button>
-                        <button className={`button-var icon-context-var ${selectedType === 'context' ? 'selected' : ''}`} onClick={() => setSelectedType('context')}></button>
+        <>
+
+            <Flex className='global-grid' style={{gap:"10px"}}>
+                {/* Columna izquierda */}
+                <Flex column className='w-50 bg-red' style={{ width: '100%' }}>
+                    <Flex center column style={{ width: '100%' }}>
+                        <Text className='text-left-container' >Variable type:</Text>
                     </Flex>
-                </Flex>
-
-                <Flex column justifyContent='start' style={{ width: '100%' }}>
-                    <Text style={{ width: '100%' }} className='container-selector'>Selector de variables</Text>
-                    <Flex className='container-var-selector' column style={{ overflowY: 'auto', width: '100%' }}>
-                        {selectedType === 'furni' && userFurniVars.map(v => (
-                            <Flex
-                                key={'fu-' + v.name + '-' + v.furniId}
-                                className={`button-var ${selected && selected.target === 'furni' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'furni', origin: 'user', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
+                    <Flex column style={{ width: '100%' }}>
+                        <Flex center gap={3} className='container-buttons-var' style={{ width: '100%' }}>
+                            <Flex center gap={3} className='container-buttons-var-inside'>
+                                <Button active={selectedType === 'furni'} style={{ padding: "0" }} onClick={() => setSelectedType('furni')}>
+                                    <i className={`button-var icon-furni-var ${selectedType === 'furni' ? 'selected' : ''}`}></i>
+                                </Button>
+                                <Button active={selectedType === 'user'} style={{ padding: "0" }} onClick={() => setSelectedType('user')}>
+                                    <i className={`button-var icon-user-var ${selectedType === 'user' ? 'selected' : ''}`}></i>
+                                </Button>
+                                <Button active={selectedType === 'global'} style={{ padding: "0" }} onClick={() => setSelectedType('global')}>
+                                    <i className={`button-var icon-global-var ${selectedType === 'global' ? 'selected' : ''}`}></i>
+                                </Button>
+                                <Button active={selectedType === 'context'} style={{ padding: "0" }} onClick={() => setSelectedType('context')}>
+                                    <i className={`button-var icon-context-var ${selectedType === 'context' ? 'active' : ''}`}></i>
+                                </Button>
                             </Flex>
-                        ))}
-
-                        {selectedType === 'furni' && internalFurniVars.map(v => (
-                            <Flex
-                                key={'fi-' + v.name + '-' + v.furniId}
-                                className={`button-var ${selected && selected.target === 'furni' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'furni', origin: 'internal', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
-                        {selectedType === 'user' && userUserVars.map(v => (
-                            <Flex
-                                key={'uu-' + v.name + '-' + v.userId}
-                                className={`button-var ${selected && selected.target === 'user' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'user', origin: 'user', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
-                        {selectedType === 'user' && internalUserVars.map(v => (
-                            <Flex
-                                key={'ui-' + v.name + '-' + v.userId}
-                                className={`button-var ${selected && selected.target === 'user' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'user', origin: 'internal', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
-                        {selectedType === 'global' && userGlobalVars.map(v => (
-                            <Flex
-                                key={'gu-' + v.name}
-                                className={`button-var ${selected && selected.target === 'global' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'global', origin: 'user', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
-                        {selectedType === 'global' && internalGlobalVars.map(v => (
-                            <Flex
-                                key={'gi-' + v.name}
-                                className={`button-var ${selected && selected.target === 'global' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'global', origin: 'internal', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
-                        {selectedType === 'context' && userContextVars.map(v => (
-                            <Flex
-                                key={'cu-' + v.name + '-' + v.furniId}
-                                className={`button-var ${selected && selected.target === 'context' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'context', origin: 'user', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
-                        {selectedType === 'context' && internalContextVars.map(v => (
-                            <Flex
-                                key={'ci-' + v.name + '-' + v.furniId}
-                                className={`button-var ${selected && selected.target === 'context' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
-                                style={{ margin: '2px 4px', borderRadius: 4, cursor: 'pointer' }}
-                                onClick={() => setSelected({ target: 'context', origin: 'internal', var: v })}
-                            >
-                                <Text small>{v.name}</Text>
-                            </Flex>
-                        ))}
-
+                        </Flex>
                     </Flex>
-                </Flex>
 
-                <Button 
-                    style={{ marginTop: '10px', padding: '8px', width: '230px' }}
-                    onClick={handleToggleHighlight}
-                    disabled={highlightDisabled}
-                >
-                    {getHighlightButtonText()}
-                </Button>
-            </Flex>
+                    <Flex column justifyContent='start' style={{ width: '100%' }}>
+                        <Flex center column style={{ width: '100%' }}>
+                            <Text style={{ marginBottom: "5px" }} className='text-left-container' >Variable picker:</Text>
+                        </Flex>
+                        <Flex center column style={{ width: '100%' }}>
 
-            {/* Columna derecha */}
-            <Flex column className='w-50 bg-blue' style={{ width: '100%' }}>
-                <Flex style={{ marginBottom: "10px" }}><Text>Propiedades</Text></Flex>
-                <Flex className='container-values-prop'>
-                    <div className='grid-container-props'>
-                        <div className='grid-container2-props'>
-                            <Text>Propiedad</Text>
-                            <div></div>
-                            <Text>Valor</Text>
-                        </div>
+                            <Flex className='container-var-selector' column>
+                                {selectedType === 'furni' && userFurniVars.map((v, index) => (
+                                    <Flex
+                                        key={'fu-' + v.name + '-' + v.furniId}
+                                        className={`button-var-picker ${selected && selected.target === 'furni' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'furni' && selected.origin === 'user' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'furni', origin: 'user', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                        {!selected && (
-                            <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                <Text>-</Text>
-                                <div></div>
-                                <Text>Selecciona una variable...</Text>
-                            </div>
-                        )}
+                                {selectedType === 'furni' && internalFurniVars.map((v, index) => (
+                                    <Flex
+                                        key={'fi-' + v.name + '-' + v.furniId}
+                                        className={`button-var-picker ${selected && selected.target === 'furni' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'furni' && selected.origin === 'internal' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'furni', origin: 'internal', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                        {selected && (() => {
-                            const v: any = selected.var;
-                            const isInternal = selected.origin === 'internal';
-                            const yn = (b: boolean | undefined) => b ? 'Yes' : 'No';
-                            const formatTimestamp = (value?: number) => value ? new Date(value).toLocaleString() : '-';
-                            const targetLabel = selected.target === 'furni' ? 'Furni' : selected.target === 'user' ? 'User' : selected.target === 'global' ? 'Global' : 'Context';
+                                {selectedType === 'user' && userUserVars.map((v, index) => (
+                                    <Flex
+                                        key={'uu-' + v.name + '-' + v.userId}
+                                        className={`button-var-picker ${selected && selected.target === 'user' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'user' && selected.origin === 'user' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'user', origin: 'user', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                            const availability = v.availability || '/';
-                            const hasValue = !!v.hasValue;
-                            const canWriteTo = !!v.canWriteTo;
-                            const canCreateDelete = !!v.canCreateDelete;
-                            const isAlwaysAvailable = !!v.isAlwaysAvailable;
-                            const hasCreationTime = !!v.hasCreationTime;
-                            const hasUpdateTime = !!v.hasUpdateTime;
-                            const isTextConnected = !!v.isTextConnected;
-                            const runtimeValue = v.hasRuntimeValue ? v.runtimeValue : (hasValue ? v.runtimeValue : undefined);
-                            const creationTimestamp = formatTimestamp(v.creationTimestamp);
-                            const updateTimestamp = formatTimestamp(v.updateTimestamp);
+                                {selectedType === 'user' && internalUserVars.map((v, index) => (
+                                    <Flex
+                                        key={'ui-' + v.name + '-' + v.userId}
+                                        className={`button-var-picker ${selected && selected.target === 'user' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'user' && selected.origin === 'internal' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'user', origin: 'internal', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                            return (
-                                <>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Name</Text><div></div><Text>{v.name}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Type</Text><div></div><Text>{isInternal ? 'Internal' : 'Created by User'}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Target</Text><div></div><Text>{targetLabel}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Availability</Text><div></div><Text>{availability}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Has value</Text><div></div><Text>{yn(hasValue)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Can write to</Text><div></div><Text>{yn(canWriteTo)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Can create/delete</Text><div></div><Text>{yn(canCreateDelete)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Is always available</Text><div></div><Text>{yn(isAlwaysAvailable)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Has creation time</Text><div></div><Text>{yn(hasCreationTime)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Has update time</Text><div></div><Text>{yn(hasUpdateTime)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Is text connected</Text><div></div><Text>{yn(isTextConnected)}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Created at</Text><div></div><Text>{creationTimestamp}</Text>
-                                    </div>
-                                    <div className='grid-container2-props' style={{ marginTop: "10px" }}>
-                                        <Text>Updated at</Text><div></div><Text>{updateTimestamp}</Text>
-                                    </div>
-                                </>
-                            );
-                        })()}
-                    </div>
-                </Flex>
+                                {selectedType === 'global' && userGlobalVars.map((v, index) => (
+                                    <Flex
+                                        key={'ug-' + v.name}
+                                        className={`button-var-picker ${selected && selected.target === 'global' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'global' && selected.origin === 'user' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'global', origin: 'user', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                <Flex style={{ marginTop: "10px" }}><Text>Valores de texto</Text></Flex>
-                <Flex className='container-values-prop' style={{ height: "140px", marginTop: "10px", overflowY: 'auto' }}>
-                    {(() => {
-                        if(!selected) {
-                            return (
-                                <Text style={{ padding: '10px', width: '100%' }}>
-                                    Selecciona una variable para consultar los textos conectados.
-                                </Text>
-                            );
-                        }
+                                {selectedType === 'global' && internalGlobalVars.map((v, index) => (
+                                    <Flex
+                                        key={'ig-' + v.name}
+                                        className={`button-var-picker ${selected && selected.target === 'global' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'global' && selected.origin === 'internal' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'global', origin: 'internal', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                        const variable: any = selected.var;
-                        const isTextConnected = !!variable?.isTextConnected;
-                        const supportsTexts = selected.origin === 'user' || selected.origin === 'internal';
+                                {selectedType === 'context' && userContextVars.map((v, index) => (
+                                    <Flex
+                                        key={'cu-' + v.name + '-' + v.furniId}
+                                        className={`button-var-picker ${selected && selected.target === 'context' && selected.origin === 'user' && selected.var === v ? 'selected' : ''}`}
+                                        style={{ cursor: 'pointer', backgroundColor: (selected && selected.target === 'context' && selected.origin === 'user' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'context', origin: 'user', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                    </Flex>
+                                ))}
 
-                        if(!supportsTexts) {
-                            return (
-                                <Text style={{ padding: '10px', width: '100%' }}>
-                                    Esta variable no soporta textos conectados.
-                                </Text>
-                            );
-                        }
-
-                        if(!isTextConnected) {
-                            return (
-                                <Text style={{ padding: '10px', width: '100%' }}>
-                                    Esta variable no tiene textos conectados.
-                                </Text>
-                            );
-                        }
-
-                        const entries = Array.isArray(variable.textEntries) ? [...variable.textEntries] : [];
-                        entries.sort((a, b) => a.index - b.index);
-
-                        if(!entries.length) {
-                            return (
-                                <Text style={{ padding: '10px', width: '100%' }}>
-                                    Esta variable no tiene textos conectados.
-                                </Text>
-                            );
-                        }
-
-                        return (
-                            <Flex column style={{ width: '100%', padding: '6px 10px', gap: 4 }}>
-                                {entries.map(entry => (
-                                    <Flex key={entry.index} justifyContent='space-between' className='text-entry-row' gap={6}>
-                                        <Text small style={{ width: '50px' }}>{entry.index}</Text>
-                                        <Text small style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.text}</Text>
+                                {selectedType === 'context' && internalContextVars.map((v, index) => (
+                                    <Flex
+                                        key={'ci-' + v.name + '-' + v.furniId}
+                                        className={`button-var-picker ${selected && selected.target === 'context' && selected.origin === 'internal' && selected.var === v ? 'selected' : ''}`}
+                                        style={{  cursor: 'pointer', backgroundColor: (selected && selected.target === 'context' && selected.origin === 'internal' && selected.var === v) ? '#b8e2fc' : (index % 2 === 0 ? 'white' : '#eaeaea') }}
+                                        onClick={() => setSelected({ target: 'context', origin: 'internal', var: v })}
+                                    >
+                                        <Text small style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
                                     </Flex>
                                 ))}
                             </Flex>
-                        );
-                    })()}
+                        </Flex>
+                    </Flex>
+                    <Flex column justifyContent='start' style={{ width: '100%' }}>
+                        <Flex center column style={{ width: '100%', marginTop: "10px" }}>
+                            <Flex className='text-left-container'>
+                                <Button
+
+                                    onClick={handleToggleHighlight}
+                                    disabled={highlightDisabled}
+                                >
+                                    {getHighlightButtonText()}
+                                </Button>
+                            </Flex>
+                        </Flex>
+                    </Flex>
                 </Flex>
-            </Flex>
-        </Flex>
+
+                {/* Columna derecha */}
+                <Flex column className='w-50 bg-blue' style={{ width: '100%' }}>
+                    <Flex style={{ marginBottom: "10px" }}><Text>Properties</Text>
+                    </Flex>
+                    <Flex className='container-values-prop'>
+                        <div className='grid-container-props'>
+                            <div style={{ backgroundColor: "#f9f9f9", borderBottom: "1px solid #bfbfbf", gridTemplateColumns: '1fr 20px 1fr' }} className='grid-container2-props'>
+                                <Text style={{ marginLeft: "4px" }} bold>Property</Text>
+                                <div></div>
+                                <Text bold>Value</Text>
+                            </div>
+
+                            {!selected && (
+                                <div className='grid-container2-props' style={{ marginTop: "10px", gridTemplateColumns: '1fr 20px 1fr' }}>
+                                    <Text>-</Text>
+                                    <div></div>
+                                    <Text>Selecciona una variable...</Text>
+                                </div>
+                            )}
+
+                            {selected && (() => {
+                                const v: any = selected.var;
+                                const isInternal = selected.origin === 'internal';
+                                const yn = (b: boolean | undefined) => b ? 'Yes' : 'No';
+                                const formatTimestamp = (value?: number) => value ? new Date(value).toLocaleString() : '-';
+                                const targetLabel = selected.target === 'furni' ? 'Furni' : selected.target === 'user' ? 'User' : selected.target === 'global' ? 'Global' : 'Context';
+
+                                const availability = v.availability || '/';
+                                const hasValue = !!v.hasValue;
+                                const canWriteTo = !!v.canWriteTo;
+                                const canCreateDelete = !!v.canCreateDelete;
+                                const isAlwaysAvailable = !!v.isAlwaysAvailable;
+                                const hasCreationTime = !!v.hasCreationTime;
+                                const hasUpdateTime = !!v.hasUpdateTime;
+                                const isTextConnected = !!v.isTextConnected;
+                                const runtimeValue = v.hasRuntimeValue ? v.runtimeValue : (hasValue ? v.runtimeValue : undefined);
+                                const creationTimestamp = formatTimestamp(v.creationTimestamp);
+                                const updateTimestamp = formatTimestamp(v.updateTimestamp);
+
+                                return (
+                                    <>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Name</Text><div></div><Text style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.name}>{v.name}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: '#eaeaea', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Type</Text><div></div><Text>{isInternal ? 'Internal' : 'Created by User'}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Target</Text><div></div><Text>{targetLabel}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: '#eaeaea', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Availability</Text><div></div><Text>{availability === 'while_room_active' ? 'While user is in room' : availability}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Has value</Text><div></div><Text>{yn(hasValue)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: '#eaeaea', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Can write to</Text><div></div><Text>{yn(canWriteTo)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Can create/delete</Text><div></div><Text>{yn(canCreateDelete)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: '#eaeaea', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Is always available</Text><div></div><Text>{yn(isAlwaysAvailable)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Has creation time</Text><div></div><Text>{yn(hasCreationTime)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: '#eaeaea', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Has update time</Text><div></div><Text>{yn(hasUpdateTime)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Is text connected</Text><div></div><Text>{yn(isTextConnected)}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: '#eaeaea', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Created at</Text><div></div><Text style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={creationTimestamp}>{creationTimestamp}</Text>
+                                        </div>
+                                        <div className='grid-container2-props' style={{ backgroundColor: 'white', gridTemplateColumns: '1fr 20px 1fr' }}>
+                                            <Text style={{ marginLeft: "4px" }}>Updated at</Text><div></div><Text style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={updateTimestamp}>{updateTimestamp}</Text>
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                        </div>
+                    </Flex>
+
+                    <Flex style={{ marginTop: "10px" }}><Text>Text values:</Text></Flex>
+                    <Flex className='container-values-prop' style={{ height: "140px", marginTop: "10px", overflowY: 'auto', marginBottom: "18px" }}>
+                        {(() => {
+                            if (!selected) {
+                                return (
+                                    <Text style={{ padding: '10px', width: '100%' }}>
+                                        Selecciona una variable para consultar los textos conectados.
+                                    </Text>
+                                );
+                            }
+
+                            const variable: any = selected.var;
+                            const isTextConnected = !!variable?.isTextConnected;
+                            const supportsTexts = selected.origin === 'user' || selected.origin === 'internal';
+
+                            if (!supportsTexts) {
+                                return (
+                                    <Text style={{ padding: '10px', width: '100%' }}>
+                                        Esta variable no soporta textos conectados.
+                                    </Text>
+                                );
+                            }
+
+                            if (!isTextConnected) {
+                                return (
+                                    <Flex column style={{ width: '100%', backgroundColor:"#ffffffff" }}>
+                                    <Flex style={{ backgroundColor: '#ffffffff', padding: "3px", borderBottom: "1px solid #bfbfbf" }} className=''>
+                                        <Text style={{ marginLeft: "4px" }} bold>Value</Text>
+                                        <Text bold style={{ marginLeft: 'auto', marginRight: '4px' }} >Text</Text>
+                                    </Flex>
+                                    
+                                </Flex>
+                                );
+                            }
+
+                            const entries = Array.isArray(variable.textEntries) ? [...variable.textEntries] : [];
+                            entries.sort((a, b) => a.index - b.index);
+
+                            if (!entries.length) {
+                                return (
+                                    <Flex column style={{ width: '100%', backgroundColor:"#ffffffff" }}>
+                                    <Flex style={{ backgroundColor: '#ffffffff', padding: "3px", borderBottom: "1px solid #bfbfbf" }} className=''>
+                                        <Text style={{ marginLeft: "4px" }} bold>Value</Text>
+                                        <Text bold style={{ marginLeft: 'auto', marginRight: '4px' }} >Text</Text>
+                                    </Flex>
+                                    
+                                </Flex>
+                                );
+                            }
+
+                            return (
+                                <Flex column style={{ backgroundColor:"#ffffffff", width: '100%' }}>
+                                    <Flex style={{ backgroundColor: '#f9f9f9', padding: "3px", borderBottom: "1px solid #bfbfbf" }} className=''>
+                                        <Text style={{ marginLeft: "4px" }} bold>Value</Text>
+                                        <Text bold style={{ marginLeft: 'auto', marginRight: '4px' }} >Text</Text>
+                                    </Flex>
+                                    {entries.map((entry, index) => (
+                                        <Flex key={entry.index} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#eaeaea', padding: "3px" }} className=''>
+                                            <Text style={{ marginLeft: "4px" }}  >{entry.index}</Text>
+                                            <Text style={{ marginLeft: 'auto', marginRight: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={entry.text}>{entry.text}</Text>
+                                        </Flex>
+                                    ))}
+                                </Flex>
+                            );
+                        })()}
+                    </Flex>
+                </Flex>
+            </Flex></>
 
 
     );

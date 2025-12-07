@@ -2,8 +2,8 @@ import { BadgePointLimitsEvent, ILinkEventTracker, IRoomSession, RoomControllerL
 import { ToggleHighlightModeComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/ToggleHighlightModeComposer';
 import { FC, useEffect, useState } from 'react';
 import { AddEventLinkTracker, GetLocalization, GetRoomEngine, GetSessionDataManager, IRoomData, isObjectMoverRequested, LocalizeText, RemoveLinkEventTracker, SendMessageComposer, setObjectMoverRequested } from '../../api';
-import { NitroCardContentView, NitroCardHeaderView, NitroCardTabsItemView, NitroCardTabsView, NitroCardView } from '../../common';
-import { useInventoryTrade, useInventoryUnseenTracker, useMessageEvent, useNavigator, useRoomEngineEvent, useRoomSessionManagerEvent } from '../../hooks';
+import { Text, Flex, NitroCardContentView, NitroCardHeaderView, NitroCardTabsItemView, NitroCardTabsView, NitroCardView } from '../../common';
+import { useInventoryUnseenTracker, useMessageEvent, useNavigator, useRoomEngineEvent, useRoomSessionManagerEvent } from '../../hooks';
 import { useVariableHighlight } from '../../hooks/rooms/widgets/variables/useVariableHighlight';
 import { ConfigTabView } from './ConfigTabView';
 import { InspectionTabView } from './InspectionTabView';
@@ -14,28 +14,23 @@ const TAB_INSPECCION: string = 'wired-monitor.inspection';
 const TAB_CONFIGURACION: string = 'wired-monitor.configuration';
 const TABS = [TAB_VARIABLES, TAB_INSPECCION, TAB_CONFIGURACION];
 
-export const WiredMonitorView: FC<{}> = props =>
-{
+export const WiredMonitorView: FC<{}> = props => {
     const [isVisible, setIsVisible] = useState(false);
     const [currentTab, setCurrentTab] = useState<string>(TABS[0]);
     const [roomSession, setRoomSession] = useState<IRoomSession>(null);
     const [roomPreviewer, setRoomPreviewer] = useState<RoomPreviewer>(null);
     const [roomData, setRoomData] = useState<IRoomData>(null);
-    const { isTrading = false, stopTrading = null } = useInventoryTrade();
     const { getCount = null, resetCategory = null } = useInventoryUnseenTracker();
     const { clearHighlights } = useVariableHighlight();
     const { navigatorData = null } = useNavigator();
 
     const isOwner = navigatorData?.currentRoomOwner || false;
 
-    const handleChange = (field: string, value: string | number | boolean | string[]) =>
-    {
-        setRoomData(prevValue =>
-        {
+    const handleChange = (field: string, value: string | number | boolean | string[]) => {
+        setRoomData(prevValue => {
             const newValue = { ...prevValue };
 
-            switch(field)
-            {
+            switch (field) {
                 case 'modify_wired':
                     newValue.modify_wired = Number(value);
                     break;
@@ -56,10 +51,7 @@ export const WiredMonitorView: FC<{}> = props =>
         });
     }
 
-    const onClose = () =>
-    {
-        if (isTrading) stopTrading();
-
+    const onClose = () => {
         // Clear any active highlights when closing the monitor
         clearHighlights();
         // Also notify backend to disable highlight state
@@ -68,8 +60,7 @@ export const WiredMonitorView: FC<{}> = props =>
         setIsVisible(false);
     }
 
-    useRoomEngineEvent<RoomEngineObjectPlacedEvent>(RoomEngineObjectEvent.PLACED, event =>
-    {
+    useRoomEngineEvent<RoomEngineObjectPlacedEvent>(RoomEngineObjectEvent.PLACED, event => {
         if (!isObjectMoverRequested()) return;
 
         setObjectMoverRequested(false);
@@ -80,10 +71,8 @@ export const WiredMonitorView: FC<{}> = props =>
     useRoomSessionManagerEvent<RoomSessionEvent>([
         RoomSessionEvent.CREATED,
         RoomSessionEvent.ENDED
-    ], event =>
-    {
-        switch (event.type)
-        {
+    ], event => {
+        switch (event.type) {
             case RoomSessionEvent.CREATED:
                 setRoomSession(event.session);
                 // Initialize roomData with defaults, since we only need roomId for saving wired settings
@@ -132,24 +121,20 @@ export const WiredMonitorView: FC<{}> = props =>
         }
     });
 
-    useMessageEvent<BadgePointLimitsEvent>(BadgePointLimitsEvent, event =>
-    {
+    useMessageEvent<BadgePointLimitsEvent>(BadgePointLimitsEvent, event => {
         const parser = event.getParser();
 
         for (const data of parser.data) GetLocalization().setBadgePointLimit(data.badgeId, data.limit);
     });
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         const linkTracker: ILinkEventTracker = {
-            linkReceived: (url: string) =>
-            {
+            linkReceived: (url: string) => {
                 const parts = url.split('/');
 
                 if (parts.length < 2) return;
 
-                switch (parts[1])
-                {
+                switch (parts[1]) {
                     case 'show':
                         setIsVisible(true);
                         return;
@@ -169,14 +154,11 @@ export const WiredMonitorView: FC<{}> = props =>
         return () => RemoveLinkEventTracker(linkTracker);
     }, []);
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         setRoomPreviewer(new RoomPreviewer(GetRoomEngine(), ++RoomPreviewer.PREVIEW_COUNTER));
 
-        return () =>
-        {
-            setRoomPreviewer(prevValue =>
-            {
+        return () => {
+            setRoomPreviewer(prevValue => {
                 prevValue.dispose();
 
                 return null;
@@ -184,15 +166,9 @@ export const WiredMonitorView: FC<{}> = props =>
         }
     }, []);
 
-    useEffect(() =>
-    {
-        if (!isVisible && isTrading) setIsVisible(true);
-    }, [isVisible, isTrading]);
-
     // Cerrar automáticamente si se pierden los permisos necesarios
-    useMessageEvent<RoomRightsEvent>(RoomRightsEvent, event =>
-    {
-        if(!isVisible) return; // no hace falta evaluar si no está abierto
+    useMessageEvent<RoomRightsEvent>(RoomRightsEvent, event => {
+        if (!isVisible) return; // no hace falta evaluar si no está abierto
 
         const parser = event.getParser();
         const controllerLevel = parser.controllerLevel;
@@ -200,7 +176,7 @@ export const WiredMonitorView: FC<{}> = props =>
         const isMod = GetSessionDataManager().isModerator;
 
         // Si ya no alcanza nivel de invitado y no es dueño ni moderador => cerrar
-        if((controllerLevel < RoomControllerLevel.GUEST) && !isOwner && !isMod) {
+        if ((controllerLevel < RoomControllerLevel.GUEST) && !isOwner && !isMod) {
             clearHighlights();
             // Notify backend to disable highlight state on rights loss
             SendMessageComposer(new ToggleHighlightModeComposer(false));
@@ -208,14 +184,13 @@ export const WiredMonitorView: FC<{}> = props =>
         }
     });
 
-    useMessageEvent<RoomRightsClearEvent>(RoomRightsClearEvent, _ =>
-    {
-        if(!isVisible) return;
+    useMessageEvent<RoomRightsClearEvent>(RoomRightsClearEvent, _ => {
+        if (!isVisible) return;
 
         const isOwner = roomSession?.isRoomOwner || false;
         const isMod = GetSessionDataManager().isModerator;
 
-        if(!isOwner && !isMod) {
+        if (!isOwner && !isMod) {
             clearHighlights();
             // Notify backend to disable highlight state on rights clear
             SendMessageComposer(new ToggleHighlightModeComposer(false));
@@ -223,37 +198,51 @@ export const WiredMonitorView: FC<{}> = props =>
         }
     });
 
+    const getHeaderText = (tab: string) => {
+        switch (tab) {
+            case TAB_VARIABLES:
+                return 'Variable Overview';
+            case TAB_INSPECCION:
+                return 'Variable Inspection';
+            case TAB_CONFIGURACION:
+                return 'Settings';
+            default:
+                return '';
+        }
+    };
+
     if (!isVisible) return null;
 
     return (
-        <NitroCardView uniqueKey={'inventory'} theme={isTrading ? 'primary-slim' : ''} >
+        <NitroCardView className='nitro-wired-monitor-view' uniqueKey={'wired-monitor'}>
             <NitroCardHeaderView headerText={LocalizeText('wired-monitor.title')} onCloseClick={onClose} />
-            {!isTrading &&
-                <>
-                    <NitroCardTabsView>
-                        {TABS.map((name, index) =>
-                        {
-                            return (
-                                <NitroCardTabsItemView key={index} isActive={(currentTab === name)} onClick={event => setCurrentTab(name)}>
-                                    {LocalizeText(name)}
-                                </NitroCardTabsItemView>
+            <>
+                <NitroCardTabsView isCentered={true}>
+                    {TABS.map((name, index) => {
+                        return (
+                            <NitroCardTabsItemView style={{padding:"0.2rem 2.9rem"}} key={index} isActive={(currentTab === name)} onClick={event => setCurrentTab(name)}>
+                                {LocalizeText(name)}
+                            </NitroCardTabsItemView>
 
-                            );
-                        })}
-                    </NitroCardTabsView>
+                        );
+                    })}
+                </NitroCardTabsView>
+                <Flex center className='header-monitor-banner'>
+                    <Text className='text-header-monitor'>{getHeaderText(currentTab)}</Text>
+                </Flex>
+                <NitroCardContentView>
+                    {(currentTab === TAB_VARIABLES) &&
+                        <VariableTabView />
+                    }
+                    {(currentTab === TAB_INSPECCION) &&
+                        <InspectionTabView roomPreviewer={roomPreviewer} />
+                    }
+                    {(currentTab === TAB_CONFIGURACION) &&
+                        <ConfigTabView roomData={roomData} handleChange={handleChange} isOwner={isOwner} />
+                    }
+                </NitroCardContentView>
 
-                    <NitroCardContentView>
-                        {(currentTab === TAB_VARIABLES) &&
-                            <VariableTabView />
-                        }
-                        {(currentTab === TAB_INSPECCION) &&
-                           <InspectionTabView roomPreviewer={roomPreviewer}/>
-                        }
-                        {(currentTab === TAB_CONFIGURACION) &&
-                            <ConfigTabView roomData={roomData} handleChange={handleChange} isOwner={isOwner}/>
-                        }
-                    </NitroCardContentView>
-                </>}
+            </>
         </NitroCardView>
     );
 }

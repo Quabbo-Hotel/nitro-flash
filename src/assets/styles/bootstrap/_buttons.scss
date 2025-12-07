@@ -16,7 +16,8 @@
     border-image-source: url("@/assets/flash/buttons/button_hover.png");
   }
 
-  &:active {
+  &:active,
+  &.active {
     border-image-source: url("@/assets/flash/buttons/button_active.png");
 
   }
