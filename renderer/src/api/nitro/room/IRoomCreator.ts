@@ -45,6 +45,7 @@ export interface IRoomCreator
     updateRoomObjectUserPetGesture(roomId: number, objectId: number, gesture: string): boolean;
     updateRoomObjectUserPosture(roomId: number, objectId: number, type: string, parameter?: string): boolean;
     updateRoomObjectUserOwn(roomId: number, objectId: number): void;
+    updateSpotlightOverlay(roomId: number, enabled: boolean, radiusPercent: number, featherPercent: number, opacityPercent: number): void;
     getPetTypeId(figure: string): number;
     refreshTileObjectMap(k: number, _arg_2: string): void;
     setRoomEngineGameMode(roomId: number, isPlaying: boolean): void;

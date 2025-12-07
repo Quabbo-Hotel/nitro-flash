@@ -37,6 +37,8 @@ import { WiredActionWalkToFurniView } from './WiredActionWalkToFurni';
 import { WiredActionGiveVariableView } from './WiredActionGiveVariableView';
 import { WiredActionRemoveVariableView } from './WiredActionRemoveVariableView';
 import { WiredActionChangeValueVariableView } from './WiredActionChangeValueVariableView';
+import { WiredActionLimitUserVisionView } from './WiredActionLimitUserVisionView';
+import { WiredActionSpotlightUserVisionView } from './WiredActionSpotlightUserVisionView';
 
 export const WiredActionLayoutView = (code: number) =>
 {
@@ -110,14 +112,18 @@ export const WiredActionLayoutView = (code: number) =>
             return <WiredActionSetHeightView />;
         case WiredActionLayoutCode.SEND_SIGNAL:
             return <WiredActionSendSignal />;
-            case WiredActionLayoutCode.SPEED_USER:
+        case WiredActionLayoutCode.SPEED_USER:
             return <WiredActionSpeedUserView />;
-            case WiredActionLayoutCode.GIVE_VARIABLE:
-                return <WiredActionGiveVariableView />;
-            case WiredActionLayoutCode.REMOVE_VARIABLE:
-                return <WiredActionRemoveVariableView />;
-            case WiredActionLayoutCode.CHANGE_VARIABLE_VALUE:
-                return <WiredActionChangeValueVariableView />;
+        case WiredActionLayoutCode.LIMIT_USER_VISION:
+            return <WiredActionLimitUserVisionView />;
+        case WiredActionLayoutCode.GIVE_VARIABLE:
+            return <WiredActionGiveVariableView />;
+        case WiredActionLayoutCode.REMOVE_VARIABLE:
+            return <WiredActionRemoveVariableView />;
+        case WiredActionLayoutCode.CHANGE_VARIABLE_VALUE:
+            return <WiredActionChangeValueVariableView />;
+        case WiredActionLayoutCode.SPOTLIGHT_USER_VISION:
+            return <WiredActionSpotlightUserVisionView />;
     }
 
     return null;

@@ -39,4 +39,6 @@ export class WiredActionLayoutCode
     public static GIVE_VARIABLE: number = 38;
     public static REMOVE_VARIABLE: number = 39;
     public static CHANGE_VARIABLE_VALUE: number = 40;
+    public static LIMIT_USER_VISION: number = 41;
+    public static SPOTLIGHT_USER_VISION: number = 42;
 }
