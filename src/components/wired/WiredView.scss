@@ -292,30 +292,54 @@
 	gap: 5px;
 }
 
-.button-icons-selector-general {
-	background-position: center;
-	background-repeat: no-repeat;
-	width: 32px;
-	height: 32px;
-	background-color: rgb(205, 211, 217);
-	border: 2px solid rgb(182, 190, 197);
-	border-radius: 5px;
-}
-
 .button-signal {
 	width: 29px;
 	height: 29px;
 }
-
-.button-icons-selector-general-selected {
+.button-icons-selector-general {
 	background-position: center;
 	background-repeat: no-repeat;
-	width: 32px;
-	height: 32px;
-	background-color: #ececec;
-	border: 2px solid rgb(255, 255, 255);
+	width: 33px;
+	height: 33px;
 	border-radius: 5px;
 }
+.button-icons-selector-general-selected {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-position: center;
+	background-repeat: no-repeat;
+	width: 33px;
+	height: 33px;
+	border-radius: 5px;
+	background-position: center;
+}
+
+.placeholder-adv-options:hover {
+	cursor: pointer;
+	border-image-slice: 6 6 6 6 fill;
+	border-image-width: 6px 6px 6px 6px;
+	border-image-repeat: repeat repeat;
+	border-image-source: url("@/assets/images/wired/placeholders/yellow-border.png");
+}
+
+.placeholder-adv-options {
+	border-image-slice: 6 6 6 6 fill;
+	border-image-width: 6px 6px 6px 6px;
+	border-image-repeat: repeat repeat;
+	border-image-source: url("@/assets/images/wired/placeholders/white-border.png");
+
+}
+
+.placeholder-adv-options-selected {
+	border-image-slice: 6 6 6 6 fill;
+	border-image-width: 6px 6px 6px 6px;
+	border-image-repeat: repeat repeat;
+	border-image-source: url("@/assets/images/wired/placeholders/green-border.png");
+
+}
+
+
 
 .align-advancedoptionsone {
 	display: flex;
@@ -469,3 +493,28 @@
 
 }
 
+.wired-slider-arrow{
+	background-image: url("@/assets/images/wired/arrowleft.png");
+	width:20px;
+	height: 20px;
+}
+.wired-slider-arrow-left{
+	background-image: url("@/assets/images/wired/arrowleft.png");
+	width:20px;
+	height: 20px;
+	transform: rotate(180deg);
+}
+
+.wired-slider-arrow:hover{
+	cursor: pointer;
+	filter: brightness(1.7);
+	background-color: #5f5f5f;
+	border-radius: 4px;
+}
+
+.wired-slider-arrow-left:hover{
+	cursor: pointer;
+	filter: brightness(1.7);
+	background-color: #5f5f5f;
+	border-radius: 4px;
+}

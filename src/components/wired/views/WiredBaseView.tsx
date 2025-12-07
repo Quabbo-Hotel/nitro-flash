@@ -186,23 +186,23 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props =>
                     </Flex>
                     {menuOpen &&
                         <div className="wired-menu-dropdown">
-                            <div className=' grid-menu-wired grid-menu-wired-top'>
+                            <div className=' grid-menu-wired grid-menu-wired-top'  onClick={handleCopyClipboard}>
                                 <div></div>
-                                <button type="button" className="wired-menu-item copyconf" disabled={!trigger} onClick={handleCopyClipboard}>
+                                <button type="button" className="wired-menu-item " disabled={!trigger} >
                                     Copiar configuración
                                 </button>
                             </div>
 
-                            <div className='grid-menu-wired grid-menu-wired-center'>
+                            <div className='grid-menu-wired grid-menu-wired-center' onClick={handlePasteClipboard}>
                                 <div></div>
-                                <button type="button" className="wired-menu-item" disabled={(!clipboardEntry || !isPasteCompatible)} onClick={handlePasteClipboard}>
+                                <button type="button" className="wired-menu-item" disabled={(!clipboardEntry || !isPasteCompatible)} >
                                     Pegar configuración
                                 </button>
                             </div>
 
-                            <label className="grid-menu-wired wired-menu-item grid-menu-wired-center">
+                            <label className="grid-menu-wired wired-menu-item grid-menu-wired-center" onChange={handleAutoPasteToggle}>
                                 <Flex style={{width:"20px", height:"14px"}} center>
-                                    <input className="check-menu-wired" type="checkbox" checked={autoPasteEnabled} onChange={handleAutoPasteToggle} />
+                                    <input className="check-menu-wired" type="checkbox" checked={autoPasteEnabled}  />
                                 </Flex>
                                 <span style={{textIndent:"5px"}}>Copiar en otro Wired</span>
                             </label>
@@ -210,15 +210,15 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props =>
                             <Flex center gap={1}>
                                 <div className="wired-menu-separator" />
                             </Flex>
-                            <div className='grid-menu-wired grid-menu-wired-center'>
+                            <div className='grid-menu-wired grid-menu-wired-center' onClick={handleClearSelection}>
                                 <div></div>
-                                <button type="button" className="wired-menu-item" disabled={!hasSelection} onClick={handleClearSelection}>
+                                <button type="button" className="wired-menu-item" disabled={!hasSelection} >
                                     Limpiar selección de furnis
                                 </button>
                             </div>
-                            <div className='grid-menu-wired grid-menu-wired-bottom'>
+                            <div className='grid-menu-wired grid-menu-wired-bottom' onClick={handleResetConfiguration}>
                                 <div></div>
-                                <button type="button" className="wired-menu-item" onClick={handleResetConfiguration}>
+                                <button type="button" className="wired-menu-item" >
                                     Restablecer la configuración
                                 </button>
                             </div>

@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import { LocalizeText, WiredFurniType } from '../../../../api';
-import { Column, Text } from '../../../../common';
+import { Column, Flex, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
@@ -44,9 +44,9 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
             save={ save }
         >
             <Column gap={ 1 }>
-                <Text bold>{ LocalizeText('wiredfurni.params.togglefurnistate.mode', [''], ['']) }</Text>
+                <Text className='goldfish-bold'>{ LocalizeText('wiredfurni.params.togglefurnistate.mode', [''], ['']) }</Text>
 
-                <div className="form-check">
+                <Flex gap={ 1 }>
                     <input
                         className="form-check-input"
                         type="radio"
@@ -57,9 +57,9 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
                     <label className="form-check-label" htmlFor="modeNormal">
                         Normal
                     </label>
-                </div>
+                </Flex>
 
-                <div className="form-check">
+                <Flex gap={ 1 }>
                     <input
                         className="form-check-input"
                         type="radio"
@@ -70,9 +70,9 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
                     <label className="form-check-label" htmlFor="modeInverse">
                         Inverso
                     </label>
-                </div>
+                </Flex>
 
-                <div className="form-check">
+                <Flex gap={ 1 }>
                     <input
                         className="form-check-input"
                         type="radio"
@@ -83,9 +83,9 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
                     <label className="form-check-label" htmlFor="modeRandom">
                         Aleatorio
                     </label>
-                </div>
+                </Flex>
 
-                <div className="form-check">
+                <Flex gap={ 1 }>
                     <input
                         className="form-check-input"
                         type="radio"
@@ -96,10 +96,10 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
                     <label className="form-check-label" htmlFor="modeSpecific">
                         Estado específico
                     </label>
-                </div>
+                </Flex>
 
                 {mode === 3 && (
-                    <div>
+                    <Flex gap={ 1 }>
                         <label htmlFor="specificState">Estado:</label>
                         <input
                             type="number"
@@ -110,7 +110,7 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
                             step="1"
                             maxLength={2}
                         />
-                    </div>
+                    </Flex>
                 )}
             </Column>
         </WiredActionBaseView>
