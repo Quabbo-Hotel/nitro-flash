@@ -19,8 +19,6 @@ export class WiredSelectionVisualizer
         if (!visualization) return;
 
         visualization.lookThroughCustom = false;
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, false);
     }
     
     public static showSelectedWired(furniId: number): void
@@ -34,8 +32,6 @@ export class WiredSelectionVisualizer
         if (!visualization) return;
 
         visualization.lookThroughCustom = true;
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, true);
     }
 
     public static show(furniId: number): void

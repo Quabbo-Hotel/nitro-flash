@@ -27,6 +27,8 @@ export class PageLocalization implements IPageLocalization
 
         if(!imageName || !imageName.length) return null;
 
+        if(imageName.startsWith('http')) return imageName;
+
         let assetUrl = GetConfiguration<string>('catalog.asset.image.url');
 
         assetUrl = assetUrl.replace('%name%', imageName);

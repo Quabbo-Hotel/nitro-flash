@@ -1,9 +1,12 @@
-import { BadgePointLimitsEvent, ILinkEventTracker, IRoomSession, RoomControllerLevel, RoomEngineObjectEvent, RoomEngineObjectPlacedEvent, RoomPreviewer, RoomRightsClearEvent, RoomRightsEvent, RoomSessionEvent, SaveWiredSettingsComposer } from '@nitrots/nitro-renderer';
+import { BadgePointLimitsEvent, ILinkEventTracker, IRoomSession, RoomControllerLevel, RoomPreviewer, RoomRightsClearEvent, RoomRightsEvent, RoomSessionEvent, SaveWiredSettingsComposer } from '@nitrots/nitro-renderer';
 import { ToggleHighlightModeComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/ToggleHighlightModeComposer';
-import { FC, useEffect, useState } from 'react';
-import { AddEventLinkTracker, GetLocalization, GetRoomEngine, GetSessionDataManager, IRoomData, isObjectMoverRequested, LocalizeText, RemoveLinkEventTracker, SendMessageComposer, setObjectMoverRequested } from '../../api';
+import { ToggleFurniInspectionLockComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/ToggleFurniInspectionLockComposer';
+import { ToggleGlobalInspectionComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/ToggleGlobalInspectionComposer';
+import { ToggleUserInspectionLockComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/variables/ToggleUserInspectionLockComposer';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { AddEventLinkTracker, GetLocalization, GetRoomEngine, GetSessionDataManager, IRoomData, LocalizeText, RemoveLinkEventTracker, SendMessageComposer } from '../../api';
 import { Text, Flex, NitroCardContentView, NitroCardHeaderView, NitroCardTabsItemView, NitroCardTabsView, NitroCardView } from '../../common';
-import { useInventoryUnseenTracker, useMessageEvent, useNavigator, useRoomEngineEvent, useRoomSessionManagerEvent } from '../../hooks';
+import {  useMessageEvent, useNavigator, useRoomSessionManagerEvent } from '../../hooks';
 import { useVariableHighlight } from '../../hooks/rooms/widgets/variables/useVariableHighlight';
 import { ConfigTabView } from './ConfigTabView';
 import { InspectionTabView } from './InspectionTabView';
@@ -20,11 +23,16 @@ export const WiredMonitorView: FC<{}> = props => {
     const [roomSession, setRoomSession] = useState<IRoomSession>(null);
     const [roomPreviewer, setRoomPreviewer] = useState<RoomPreviewer>(null);
     const [roomData, setRoomData] = useState<IRoomData>(null);
-    const { getCount = null, resetCategory = null } = useInventoryUnseenTracker();
     const { clearHighlights } = useVariableHighlight();
     const { navigatorData = null } = useNavigator();
 
     const isOwner = navigatorData?.currentRoomOwner || false;
+
+    const releaseInspectionSubscriptions = useCallback(() => {
+        SendMessageComposer(new ToggleGlobalInspectionComposer(false));
+        SendMessageComposer(new ToggleFurniInspectionLockComposer(false));
+        SendMessageComposer(new ToggleUserInspectionLockComposer(false));
+    }, []);
 
     const handleChange = (field: string, value: string | number | boolean | string[]) => {
         setRoomData(prevValue => {
@@ -59,14 +67,6 @@ export const WiredMonitorView: FC<{}> = props => {
 
         setIsVisible(false);
     }
-
-    useRoomEngineEvent<RoomEngineObjectPlacedEvent>(RoomEngineObjectEvent.PLACED, event => {
-        if (!isObjectMoverRequested()) return;
-
-        setObjectMoverRequested(false);
-
-        if (!event.placedInRoom) setIsVisible(true);
-    });
 
     useRoomSessionManagerEvent<RoomSessionEvent>([
         RoomSessionEvent.CREATED,
@@ -210,6 +210,18 @@ export const WiredMonitorView: FC<{}> = props => {
                 return '';
         }
     };
+
+    useEffect(() => {
+        if (isVisible) return;
+
+        releaseInspectionSubscriptions();
+    }, [isVisible, releaseInspectionSubscriptions]);
+
+    useEffect(() => {
+        return () => {
+            releaseInspectionSubscriptions();
+        };
+    }, [releaseInspectionSubscriptions]);
 
     if (!isVisible) return null;
 

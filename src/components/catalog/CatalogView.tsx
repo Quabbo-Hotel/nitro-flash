@@ -42,12 +42,14 @@ export const CatalogView: FC<{}> = props =>
                                 switch(parts[2])
                                 {
                                     case 'offerId':
+                                        setIsVisible(true);
                                         openPageByOfferId(parseInt(parts[3]));
                                         return;
                                 }
                             }
                             else
                             {
+                                setIsVisible(true);
                                 openPageByName(parts[2]);
                             }
                         }
