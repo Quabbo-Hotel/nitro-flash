@@ -2066,7 +2066,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
         if(!object) return false;
 
-        //object.model.setValue(RoomObjectVariable.FIGURE_HIGHLIGHT_ENABLE, 1);
+        if(object.model) object.model.setValue(RoomObjectVariable.FIGURE_HIGHLIGHT_ENABLE, 1);
 
         const instanceData = this.getRoomInstanceData(roomId);
         let focusAlpha = 255;
@@ -2213,6 +2213,14 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
             case RoomObjectVariable.FIGURE_GUIDE_STATUS:
                 message = new ObjectAvatarGuideStatusUpdateMessage(value);
                 break;
+            case RoomObjectVariable.FIGURE_HIGHLIGHT_ENABLE:
+            case RoomObjectVariable.FIGURE_HIGHLIGHT:
+                if(object.model)
+                {
+                    object.model.setValue(action, (value === 1) ? 1 : 0);
+                }
+
+                return true;
         }
 
         if(!message) return false;

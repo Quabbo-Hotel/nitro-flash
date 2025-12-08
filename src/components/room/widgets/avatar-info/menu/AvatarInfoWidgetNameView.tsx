@@ -7,11 +7,12 @@ interface AvatarInfoWidgetNameViewProps
     nameInfo: AvatarInfoName;
     onClose: () => void;
     fades?: boolean;
+    isVariable?: boolean;
 }
 
 export const AvatarInfoWidgetNameView: FC<AvatarInfoWidgetNameViewProps> = props =>
 {
-    const { nameInfo = null, onClose = null, fades = null } = props;
+    const { nameInfo = null, onClose = null, fades = null, isVariable = false } = props;
     const shouldFade = useMemo(() =>
     {
         if(fades !== null) return fades;
@@ -29,7 +30,7 @@ export const AvatarInfoWidgetNameView: FC<AvatarInfoWidgetNameViewProps> = props
     }, [ nameInfo ]);
 
     return (
-        <ContextMenuView objectId={ nameInfo.roomIndex } category={ nameInfo.category } userType={ nameInfo.userType } fades={ shouldFade } classNames={ getClassNames } onClose={ onClose }>
+        <ContextMenuView objectId={ nameInfo.roomIndex } category={ nameInfo.category } userType={ nameInfo.userType } fades={ shouldFade } classNames={ getClassNames } onClose={ onClose } isVariable={ isVariable }>
             <div className="text-shadow">
                 { nameInfo.name }
             </div>

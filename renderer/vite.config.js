@@ -10,7 +10,7 @@ export default defineConfig({
     plugins: [
         typescript({
             'target': 'es6',
-            'rootDir': resolvePath('./src'),
+            'rootDir': resolvePath('.'),
             'declaration': true,
             exclude: resolvePath('./node_modules/**'),
             allowSyntheticDefaultImports: true

@@ -143,7 +143,7 @@ export const AvatarInfoWidgetView: FC<{}> = props =>
                     { getInfostandView() }
                 </Column> }
             { (nameBubbles.length > 0) && nameBubbles.map((name, index) => <AvatarInfoWidgetNameView key={ index } nameInfo={ name } onClose={ () => removeNameBubble(index) } />) }
-            { (variableBubbles.length > 0) && variableBubbles.map((name, index) => <AvatarInfoWidgetNameView key={ `var-${index}` } nameInfo={ name } onClose={ () => {} } fades={ false } />) }
+            { (variableBubbles.length > 0) && variableBubbles.map((name, index) => <AvatarInfoWidgetNameView key={ `var-${index}` } nameInfo={ name } onClose={ () => {} } fades={ false } isVariable={ true } />) }
             { (productBubbles.length > 0) && productBubbles.map((item, index) =>
             {
                 return <AvatarInfoUseProductView key={ item.id } item={ item } updateConfirmingProduct={ updateConfirmingProduct } onClose={ () => removeProductBubble(index) } />;

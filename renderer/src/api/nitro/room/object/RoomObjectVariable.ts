@@ -21,6 +21,8 @@ export class RoomObjectVariable
     public static FIGURE_HIGHLIGHT_ENABLE: string = 'figure_highlight_enable';
     public static FIGURE_HIGHLIGHT: string = 'figure_highlight';
     public static FIGURE_FOCUS_ALPHA: string = 'figure_focus_alpha';
+    public static FURNITURE_HIGHLIGHT_ENABLE: string = 'furniture_highlight_enable';
+    public static FURNITURE_HIGHLIGHT: string = 'furniture_highlight';
     public static FURNITURE_PURCHASER_NAME: string = 'furniture_purchaser_name';
     public static FURNITURE_PURCHASER_FIGURE: string = 'furniture_purchaser_figure';
     public static STD: string = 'std';

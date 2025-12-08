@@ -1,7 +1,18 @@
+import { BLEND_MODES } from '@pixi/constants';
+import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
+import type { ColorMatrix } from '@pixi/filter-color-matrix';
+import { GlowFilter } from 'pixi-filters';
 import { AlphaTolerance, IGraphicAsset, IObjectVisualizationData, IRoomGeometry, IRoomObjectSprite, RoomObjectVariable, RoomObjectVisualizationType } from '../../../../../api';
 import { RoomObjectSpriteVisualization } from '../../../../../room';
 import { ColorData, LayerData } from '../data';
 import { FurnitureVisualizationData } from './FurnitureVisualizationData';
+
+interface IHighlightSpriteState
+{
+    alpha: number;
+    color: number;
+    blendMode: number;
+}
 
 export class FurnitureVisualization extends RoomObjectSpriteVisualization {
     protected static DEPTH_MULTIPLIER: number = Math.sqrt(0.5);
@@ -47,6 +58,12 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
     private _lookThroughCustomVar: boolean;
     private _needsLookThroughUpdateCustomVar: boolean;
 
+    private _highlightEnabled: boolean;
+    private _highlightActive: boolean;
+    private _highlightFilter: ColorMatrixFilter;
+    private _highlightGlowFilter: GlowFilter;
+    private _highlightSpriteState: WeakMap<IRoomObjectSprite, IHighlightSpriteState>;
+
     constructor() {
         super();
 
@@ -83,6 +100,12 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
         this._lookThrough = false;
         this._lookThroughCustom = false;
         this._lookThroughCustomVar = false;
+
+        this._highlightEnabled = false;
+        this._highlightActive = false;
+        this._highlightFilter = null;
+        this._highlightGlowFilter = null;
+        this._highlightSpriteState = new WeakMap();
     }
 
     public initialize(data: IObjectVisualizationData): boolean {
@@ -110,6 +133,10 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
         this._spriteXOffsets = null;
         this._spriteYOffsets = null;
         this._spriteZOffsets = null;
+
+        this._highlightFilter = null;
+        this._highlightGlowFilter = null;
+        this._highlightSpriteState = new WeakMap();
     }
 
     protected reset(): void {
@@ -128,6 +155,8 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
         this._spriteXOffsets = [];
         this._spriteYOffsets = [];
         this._spriteZOffsets = [];
+
+        this._highlightSpriteState = new WeakMap();
 
         this.createSprites(0);
     }
@@ -243,6 +272,15 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
             this._alphaChanged = true;
         }
 
+        this._highlightEnabled = (model.getValue<number>(RoomObjectVariable.FURNITURE_HIGHLIGHT_ENABLE) > 0);
+
+        if (this._highlightEnabled) {
+            this._highlightActive = (model.getValue<number>(RoomObjectVariable.FURNITURE_HIGHLIGHT) > 0);
+        }
+        else {
+            this._highlightActive = false;
+        }
+
         this.updateModelCounter = model.updateCounter;
 
         return true;
@@ -329,6 +367,8 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
                 sprite.libraryAssetName = this.getLibraryAssetNameForSprite(assetData, sprite);
                 sprite.posture = this.getPostureForAsset(scale, assetData.source);
                 sprite.clickHandling = this._clickHandling;
+
+                this.applyHighlightVisual(sprite, layerId !== this._shadowLayerIndex);
             }
             else {
                 this.resetSprite(sprite);
@@ -350,6 +390,8 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
     private resetSprite(sprite: IRoomObjectSprite): void {
         if (!sprite) return;
 
+        this.restoreHighlightVisual(sprite);
+
         sprite.texture = null;
         sprite.libraryAssetName = '';
         sprite.posture = '';
@@ -360,6 +402,108 @@ export class FurnitureVisualization extends RoomObjectSpriteVisualization {
         sprite.flipV = false;
         sprite.relativeDepth = 0;
         sprite.clickHandling = false;
+    }
+
+    private ensureHighlightFilter(): ColorMatrixFilter
+    {
+        if(!this._highlightFilter)
+        {
+            const filter = new ColorMatrixFilter();
+            const highlightMatrix = [
+                0.15, 0.25, 0.40, 0, 0,
+                0.15, 0.25, 0.40, 0, 0,
+                0.45, 0.60, 1.00, 0, 0.05,
+                0,    0,    0,    1, 0
+            ] as unknown as ColorMatrix;
+
+            filter.matrix = highlightMatrix;
+
+            this._highlightFilter = filter;
+        }
+
+        return this._highlightFilter;
+    }
+
+    private ensureHighlightGlowFilter(): GlowFilter
+    {
+        if(!this._highlightGlowFilter)
+        {
+            this._highlightGlowFilter = new GlowFilter({
+                color: 0xC8F2FF,
+                distance: 6,
+                outerStrength: 2.1,
+                innerStrength: 0,
+                quality: 3
+            });
+        }
+
+        return this._highlightGlowFilter;
+    }
+
+    private applyHighlightVisual(sprite: IRoomObjectSprite, eligible: boolean): void
+    {
+        if(!sprite)
+        {
+            return;
+        }
+
+        const highlightActive = (eligible && this._highlightEnabled && this._highlightActive);
+
+        if(!highlightActive)
+        {
+            this.restoreHighlightVisual(sprite);
+
+            return;
+        }
+
+        let state = this._highlightSpriteState.get(sprite);
+
+        if(!state)
+        {
+            state = {
+                alpha: (sprite.alpha === undefined || sprite.alpha === null) ? 255 : sprite.alpha,
+                color: (sprite.color === undefined || sprite.color === null) ? 0xFFFFFF : sprite.color,
+                blendMode: (sprite.blendMode === undefined || sprite.blendMode === null) ? BLEND_MODES.NORMAL : sprite.blendMode
+            };
+
+            this._highlightSpriteState.set(sprite, state);
+        }
+
+        const highlightFilter = this.ensureHighlightFilter();
+        const glowFilter = this.ensureHighlightGlowFilter();
+        const preservedFilters = sprite.filters ? sprite.filters.filter(filter => ((filter !== highlightFilter) && (filter !== glowFilter))) : [];
+
+        preservedFilters.push(highlightFilter, glowFilter);
+
+        sprite.filters = preservedFilters;
+        sprite.color = 0xBEEBFF;
+        sprite.blendMode = BLEND_MODES.SCREEN;
+        sprite.alpha = Math.min(state.alpha, 175);
+    }
+
+    private restoreHighlightVisual(sprite: IRoomObjectSprite): void
+    {
+        if(!sprite) return;
+
+        const state = this._highlightSpriteState.get(sprite);
+
+        if(state)
+        {
+            sprite.alpha = state.alpha;
+            sprite.color = state.color;
+            sprite.blendMode = state.blendMode;
+
+            this._highlightSpriteState.delete(sprite);
+        }
+
+        if(sprite.filters && sprite.filters.length)
+        {
+            const highlightFilter = this._highlightFilter;
+            const glowFilter = this._highlightGlowFilter;
+            const nextFilters = sprite.filters.filter(filter => ((filter !== highlightFilter) && (filter !== glowFilter)));
+
+            if(nextFilters.length !== sprite.filters.length) sprite.filters = nextFilters.length ? nextFilters : [];
+        }
     }
 
     protected getSpriteAssetName(scale: number, layerId: number): string {

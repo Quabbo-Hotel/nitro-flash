@@ -1,5 +1,8 @@
 import { BLEND_MODES } from '@pixi/constants';
 import { Resource, Texture } from '@pixi/core';
+import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
+import type { ColorMatrix } from '@pixi/filter-color-matrix';
+import { GlowFilter } from 'pixi-filters';
 import { AdvancedMap, AlphaTolerance, AvatarAction, AvatarGuideStatus, AvatarSetType, IAdvancedMap, IAvatarEffectListener, IAvatarImage, IAvatarImageListener, IGraphicAsset, IObjectVisualizationData, IRoomGeometry, IRoomObject, IRoomObjectModel, IRoomObjectSprite, RoomObjectSpriteType, RoomObjectVariable } from '../../../../../api';
 import { RoomObjectSpriteVisualization } from '../../../../../room';
 import { ExpressionAdditionFactory, FloatingIdleZAddition, GameClickTargetAddition, GuideStatusBubbleAddition, IAvatarAddition, MutedBubbleAddition, NumberBubbleAddition, TypingBubbleAddition } from './additions';
@@ -78,6 +81,10 @@ export class AvatarVisualization extends RoomObjectSpriteVisualization implement
     private _geometryUpdateCounter: number;
 
     private _additions: Map<number, IAvatarAddition>;
+    private _highlightFilter: ColorMatrixFilter;
+    private _highlightVisualApplied: boolean;
+    private _highlightBaseAlpha: number;
+    private _highlightGlowFilter: GlowFilter;
 
     constructor()
     {
@@ -117,6 +124,10 @@ export class AvatarVisualization extends RoomObjectSpriteVisualization implement
         this._useObject = 0;
         this._ownUser = false;
         this._focusAlpha = 255;
+        this._highlightFilter = null;
+        this._highlightVisualApplied = false;
+        this._highlightBaseAlpha = 255;
+        this._highlightGlowFilter = null;
 
         this._isLaying = false;
         this._layInside = false;
@@ -282,28 +293,11 @@ export class AvatarVisualization extends RoomObjectSpriteVisualization implement
 
             if(sprite)
             {
-                const highlightEnabled = ((this.object.model.getValue<number>(RoomObjectVariable.FIGURE_HIGHLIGHT_ENABLE) === 1) && (this.object.model.getValue<number>(RoomObjectVariable.FIGURE_HIGHLIGHT) === 1));
+                const highlightActive = ((this.object.model.getValue<number>(RoomObjectVariable.FIGURE_HIGHLIGHT_ENABLE) === 1) && (this.object.model.getValue<number>(RoomObjectVariable.FIGURE_HIGHLIGHT) === 1));
 
-                const avatarImage = this._avatarImage.getImage(AvatarSetType.FULL, highlightEnabled);
+                const avatarImage = this._avatarImage.getImage(AvatarSetType.FULL, highlightActive);
 
-                if(avatarImage)
-                {
-                    sprite.texture = avatarImage;
-
-                    if(highlightEnabled)
-                    {
-                        // sprite.filters  = [
-                        //     new GlowFilter({
-                        //         color: 0xFFFFFF,
-                        //         distance: 6
-                        //     })
-                        // ];
-                    }
-                    else
-                    {
-                        sprite.filters = [];
-                    }
-                }
+                if(avatarImage) sprite.texture = avatarImage;
 
                 if(sprite.texture)
                 {
@@ -330,6 +324,8 @@ export class AvatarVisualization extends RoomObjectSpriteVisualization implement
                 {
                     sprite.spriteType = RoomObjectSpriteType.AVATAR;
                 }
+
+                this.updateHighlightVisual(sprite, highlightActive);
             }
 
             const typingBubble = this.getAddition(AvatarVisualization.TYPING_BUBBLE_ID) as TypingBubbleAddition;
@@ -1138,6 +1134,101 @@ export class AvatarVisualization extends RoomObjectSpriteVisualization implement
             this._shadow = null;
 
             sprite.visible = false;
+        }
+    }
+
+    private ensureHighlightFilter(): ColorMatrixFilter
+    {
+        if(!this._highlightFilter)
+        {
+            const filter = new ColorMatrixFilter();
+            const highlightMatrix = [
+                0.15, 0.25, 0.40, 0, 0,
+                0.15, 0.25, 0.40, 0, 0,
+                0.45, 0.60, 1.00, 0, 0.05,
+                0,    0,    0,    1, 0
+            ] as unknown as ColorMatrix;
+
+            filter.matrix = highlightMatrix;
+
+            this._highlightFilter = filter;
+        }
+
+        return this._highlightFilter;
+    }
+
+    private ensureHighlightGlowFilter(): GlowFilter
+    {
+        if(!this._highlightGlowFilter)
+        {
+            this._highlightGlowFilter = new GlowFilter({
+                color: 0xC8F2FF,
+                distance: 6,
+                outerStrength: 2.1,
+                innerStrength: 0,
+                quality: 3
+            });
+        }
+
+        return this._highlightGlowFilter;
+    }
+
+    private updateHighlightVisual(sprite: IRoomObjectSprite, active: boolean): void
+    {
+        if(!sprite) return;
+
+        if(active)
+        {
+            if(!this._highlightVisualApplied)
+            {
+                this._highlightBaseAlpha = ((sprite.alpha === undefined) || (sprite.alpha === null)) ? 255 : sprite.alpha;
+                this._highlightVisualApplied = true;
+            }
+
+            const highlightFilter = this.ensureHighlightFilter();
+            const glowFilter = this.ensureHighlightGlowFilter();
+            const preservedFilters = sprite.filters ? sprite.filters.filter(filter => ((filter !== highlightFilter) && (filter !== glowFilter))) : [];
+
+            preservedFilters.push(highlightFilter, glowFilter);
+
+            sprite.filters = preservedFilters;
+
+            sprite.color = 0xBEEBFF;
+            sprite.blendMode = BLEND_MODES.SCREEN;
+
+            const desiredAlpha = Math.min(this._highlightBaseAlpha, 175);
+
+            sprite.alpha = desiredAlpha;
+
+            return;
+        }
+
+        if(this._highlightVisualApplied)
+        {
+            this._highlightVisualApplied = false;
+            sprite.color = 0xFFFFFF;
+            sprite.blendMode = BLEND_MODES.NORMAL;
+
+            if(sprite.filters && sprite.filters.length)
+            {
+                const highlightFilter = this._highlightFilter;
+                const glowFilter = this._highlightGlowFilter;
+                const nextFilters = sprite.filters.filter(filter => ((filter !== highlightFilter) && (filter !== glowFilter)));
+
+                sprite.filters = nextFilters.length ? nextFilters : [];
+            }
+
+            sprite.alpha = this._highlightBaseAlpha;
+            this._highlightBaseAlpha = 255;
+
+            return;
+        }
+
+        if(sprite.filters && sprite.filters.length)
+        {
+            const nextFilters = sprite.filters.filter(filter => filter !== this._highlightFilter);
+
+            if(nextFilters.length !== sprite.filters.length) sprite.filters = nextFilters.length ? nextFilters : [];
         }
     }
 

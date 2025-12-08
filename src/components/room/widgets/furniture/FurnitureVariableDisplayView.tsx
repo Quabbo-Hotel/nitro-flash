@@ -16,10 +16,10 @@ export const FurnitureVariableDisplayView: FC<{}> = props => {
             {Array.from(displayData.entries()).map(([virtualId, data], index) => {
                 return (
                     <ObjectLocationView key={`var-display-${virtualId}`} objectId={virtualId} category={RoomObjectCategory.FLOOR}>
-                        <Column className="nitro-widget-variable-display nitro-context-menu" gap={0} style={{ minWidth: '110px' }}>
+                        <Column className="variable-only var-context-menu">
                             <ContextMenuListView overflow="hidden" gap={1} className="h-100">
-                                <Flex alignItems="center" justifyContent="center" style={{ padding: '4px 8px' }}>
-                                    <Text center bold variant="white" fontSize={3}>
+                                <Flex alignItems="center" justifyContent="center">
+                                    <Text center>
                                         {data.label ?? (data.value !== null ? data.value : 'No Value')}
                                     </Text>
                                 </Flex>

@@ -467,14 +467,10 @@ export class AvatarLogic extends MovingObjectLogic
             case MouseEventType.ROLL_OVER:
                 eventType = RoomObjectMouseEvent.MOUSE_ENTER;
 
-                if(this.object.model) this.object.model.setValue(RoomObjectVariable.FIGURE_HIGHLIGHT, 1);
-
                 if(this.eventDispatcher) this.eventDispatcher.dispatchEvent(new RoomObjectFurnitureActionEvent(RoomObjectFurnitureActionEvent.MOUSE_BUTTON, this.object));
                 break;
             case MouseEventType.ROLL_OUT:
                 eventType = RoomObjectMouseEvent.MOUSE_LEAVE;
-
-                if(this.object.model) this.object.model.setValue(RoomObjectVariable.FIGURE_HIGHLIGHT, 0);
 
                 if(this.eventDispatcher) this.eventDispatcher.dispatchEvent(new RoomObjectFurnitureActionEvent(RoomObjectFurnitureActionEvent.MOUSE_ARROW, this.object));
                 break;

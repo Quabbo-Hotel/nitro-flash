@@ -12,6 +12,7 @@ interface ContextMenuViewProps extends BaseProps<HTMLDivElement>
     fades?: boolean;
     onClose: () => void;
     collapsable?: boolean;
+    isVariable?: boolean;
 }
 
 const LOCATION_STACK_SIZE: number = 25;
@@ -27,7 +28,7 @@ let FADE_TIME = 1;
 
 export const ContextMenuView: FC<ContextMenuViewProps> = props =>
 {
-    const { objectId = -1, category = -1, userType = -1, fades = false, onClose = null, position = 'absolute', classNames = [], style = {}, children = null, collapsable = false, ...rest } = props;
+    const { objectId = -1, category = -1, userType = -1, fades = false, onClose = null, position = 'absolute', classNames = [], style = {}, children = null, collapsable = false, isVariable = false, ...rest } = props;
     const [ pos, setPos ] = useState<{ x: number, y: number }>({ x: null, y: null });
     const [ opacity, setOpacity ] = useState(1);
     const [ isFading, setIsFading ] = useState(false);
@@ -100,10 +101,12 @@ export const ContextMenuView: FC<ContextMenuViewProps> = props =>
 
         newClassNames.push((pos.x !== null) ? 'visible' : 'invisible');
 
+        if(isVariable) newClassNames.push('variable');
+
         if(classNames.length) newClassNames.push(...classNames);
 
         return newClassNames;
-    }, [ pos, classNames, isCollapsed ]);
+    }, [ pos, classNames, isCollapsed, isVariable ]);
 
     const getStyle = useMemo(() =>
     {
@@ -163,8 +166,14 @@ export const ContextMenuView: FC<ContextMenuViewProps> = props =>
         FADE_TIME = 1;
     }, []);
     
-    return <Base innerRef={ elementRef } position={ position } classNames={ getClassNames } style={ getStyle } { ...rest }>
-        { !(collapsable && COLLAPSED) && children }
-        { collapsable && <ContextMenuCaretView onClick={ () => setIsCollapsed(!isCollapsed) } collapsed={ isCollapsed } /> }
-    </Base>;
+    return isVariable ? (
+        <Base innerRef={ elementRef } position={ position } classNames={ ['var-context-menu', 'variable-only'] } style={ getStyle } { ...rest }>
+            { children }
+        </Base>
+    ) : (
+        <Base innerRef={ elementRef } position={ position } classNames={ getClassNames } style={ getStyle } { ...rest }>
+            { !(collapsable && COLLAPSED) && children }
+            { collapsable && <ContextMenuCaretView onClick={ () => setIsCollapsed(!isCollapsed) } collapsed={ isCollapsed } /> }
+        </Base>
+    );
 }
