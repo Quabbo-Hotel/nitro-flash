@@ -74,15 +74,12 @@
 
     .nitro-camera-report {
         cursor: pointer;
-        background-image: url("@/assets/flash/camera/report.png");
         width: 19px;
         height: 20px;
 
         &:hover {
-            background-image: url("@/assets/flash/camera/report_hover.png");
 
             &:active {
-                background-image: url("@/assets/flash/camera/report_click.png");
             }
 
         }
@@ -99,14 +96,12 @@
 
     .nitro-camera-button-left {
         cursor: pointer;
-        background-image: url("@/assets/flash/camera/camera_button_left.png");
         width: 64px;
         height: 64px;
     }
 
     .nitro-camera-button-right {
         cursor: pointer;
-        background-image: url("@/assets/flash/camera/camera_button_right.png");
         width: 64px;
         height: 64px;
     }

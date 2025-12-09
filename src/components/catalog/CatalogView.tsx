@@ -16,13 +16,15 @@ export const CatalogView: FC<{}> = props =>
 
     useEffect(() =>
     {
-        const linkTracker: ILinkEventTracker = {
+            const linkTracker: ILinkEventTracker = {
             linkReceived: (url: string) =>
             {
                 const parts = url.split('/');
-        
+
+                console.debug('[catalog] linkReceived:', url, parts);
+
                 if(parts.length < 2) return;
-        
+
                 switch(parts[1])
                 {
                     case 'show':
@@ -42,7 +44,6 @@ export const CatalogView: FC<{}> = props =>
                                 switch(parts[2])
                                 {
                                     case 'offerId':
-                                        setIsVisible(true);
                                         openPageByOfferId(parseInt(parts[3]));
                                         return;
                                 }
@@ -57,7 +58,7 @@ export const CatalogView: FC<{}> = props =>
                         {
                             setIsVisible(true);
                         }
-        
+
                         return;
                 }
             },

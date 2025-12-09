@@ -1,4 +1,4 @@
-import { CrackableDataType, GroupInformationComposer, GroupInformationEvent, NowPlayingEvent, RoomControllerLevel, RoomObjectCategory, RoomObjectOperationType, RoomObjectVariable, RoomWidgetEnumItemExtradataParameter, RoomWidgetFurniInfoUsagePolicyEnum, SetObjectDataMessageComposer, SongInfoReceivedEvent, StringDataType } from '@nitrots/nitro-renderer';
+import { CrackableDataType, GroupInformationComposer, GroupInformationEvent, GetProductOfferComposer, NowPlayingEvent, RoomControllerLevel, RoomObjectCategory, RoomObjectOperationType, RoomObjectVariable, RoomWidgetEnumItemExtradataParameter, RoomWidgetFurniInfoUsagePolicyEnum, SetObjectDataMessageComposer, SongInfoReceivedEvent, StringDataType } from '@nitrots/nitro-renderer';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { AvatarInfoFurni, CreateLinkEvent, GetGroupInformation, GetNitroInstance, GetRoomEngine, LocalizeText, SendMessageComposer } from '../../../../../api';
@@ -260,8 +260,22 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
         switch(action)
         {
             case 'buy_one':
-                CreateLinkEvent(`catalog/open/offerId/${ avatarInfo.purchaseOfferId }`);
-                return;
+                {
+                    const offerId = ((avatarInfo.rentOfferId > -1) ? avatarInfo.rentOfferId : avatarInfo.purchaseOfferId);
+
+                    if(offerId > -1)
+                    {
+                        CreateLinkEvent(`catalog/open/offerId/${ offerId }`);
+
+                        setTimeout(() =>
+                        {
+                            SendMessageComposer(new GetProductOfferComposer(offerId));
+                        }, 1);
+                    }
+                    
+
+                    return;
+                }
             case 'move':
                 GetRoomEngine().processRoomObjectOperation(avatarInfo.id, avatarInfo.category, RoomObjectOperationType.OBJECT_MOVE);
                 break;
