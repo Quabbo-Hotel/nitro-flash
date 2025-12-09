@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { CatalogPurchaseState, CreateLinkEvent, DispatchUiEvent, GetClubMemberLevel, LocalizeText, LocalStorageKeys, Offer, SendMessageComposer } from '../../../../../api';
 import { Button, LayoutLoadingSpinnerView } from '../../../../../common';
 import { CatalogEvent, CatalogInitGiftEvent, CatalogPurchasedEvent, CatalogPurchaseFailureEvent, CatalogPurchaseNotAllowedEvent, CatalogPurchaseSoldOutEvent } from '../../../../../events';
-import { useCatalog, useLocalStorage, usePurse, useUiEvent } from '../../../../../hooks';
+import { useCatalog, useCatalogSkipPurchaseConfirmation, usePurse, useUiEvent } from '../../../../../hooks';
 
 interface CatalogPurchaseWidgetViewProps
 {
@@ -16,7 +16,7 @@ export const CatalogPurchaseWidgetView: FC<CatalogPurchaseWidgetViewProps> = pro
     const { noGiftOption = false, purchaseCallback = null } = props;
     const [ purchaseWillBeGift, setPurchaseWillBeGift ] = useState(false);
     const [ purchaseState, setPurchaseState ] = useState(CatalogPurchaseState.NONE);
-    const [ catalogSkipPurchaseConfirmation, setCatalogSkipPurchaseConfirmation ] = useLocalStorage(LocalStorageKeys.CATALOG_SKIP_PURCHASE_CONFIRMATION, false);
+    const [ catalogSkipPurchaseConfirmation, setCatalogSkipPurchaseConfirmation ] = useCatalogSkipPurchaseConfirmation();
     const { currentOffer = null, currentPage = null, purchaseOptions = null, setPurchaseOptions = null } = useCatalog();
     const { getCurrencyAmount = null } = usePurse();
 
@@ -28,7 +28,16 @@ export const CatalogPurchaseWidgetView: FC<CatalogPurchaseWidgetViewProps> = pro
                 setPurchaseState(CatalogPurchaseState.NONE);
                 return;
             case CatalogPurchaseFailureEvent.PURCHASE_FAILED:
-                setPurchaseState(CatalogPurchaseState.FAILED);
+                // If server sent a soft failure (code 0) treat it as a no-op so the button doesn't stay in error state.
+                const code = (event as any).code ?? -1;
+                if(code === 0)
+                {
+                    setPurchaseState(CatalogPurchaseState.NONE);
+                }
+                else
+                {
+                    setPurchaseState(CatalogPurchaseState.FAILED);
+                }
                 return;
             case CatalogPurchaseNotAllowedEvent.NOT_ALLOWED:
                 setPurchaseState(CatalogPurchaseState.FAILED);
@@ -152,7 +161,7 @@ export const CatalogPurchaseWidgetView: FC<CatalogPurchaseWidgetViewProps> = pro
                 return <Button variant="danger">{ LocalizeText('generic.failed') + ' - ' + LocalizeText('catalog.alert.limited_edition_sold_out.title') }</Button>;
             case CatalogPurchaseState.NONE:
             default:
-                return <Button variant="success" disabled={ (purchaseOptions.extraParamRequired && (!purchaseOptions.extraData || !purchaseOptions.extraData.length)) } onClick={ event => setPurchaseState(CatalogPurchaseState.CONFIRM) }>{ LocalizeText('catalog.purchase_confirmation.' + (currentOffer.isRentOffer ? 'rent' : 'buy')) }</Button>;
+                return <Button variant="success" disabled={ (purchaseOptions.extraParamRequired && (!purchaseOptions.extraData || !purchaseOptions.extraData.length)) } onClick={ event => (catalogSkipPurchaseConfirmation ? purchase() : setPurchaseState(CatalogPurchaseState.CONFIRM)) }>{ LocalizeText('catalog.purchase_confirmation.' + (currentOffer.isRentOffer ? 'rent' : 'buy')) }</Button>;
         }
     }
 
