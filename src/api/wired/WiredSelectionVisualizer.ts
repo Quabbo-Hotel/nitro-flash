@@ -1,4 +1,4 @@
-import { FurnitureVisualization, IRoomObject, IRoomObjectSpriteVisualization, NitroFilter, RoomObjectCategory, RoomObjectVariable } from '@nitrots/nitro-renderer';
+import { FurnitureVisualization, IRoomObject, IRoomObjectSpriteVisualization, NitroFilter, RoomObjectCategory } from '@nitrots/nitro-renderer';
 import { WiredSelectionFilter } from '.';
 import { GetRoomEngine } from '..';
 
@@ -32,24 +32,17 @@ export class WiredSelectionVisualizer
         if (!visualization) return;
 
         visualization.lookThroughCustom = true;
+
     }
 
     public static show(furniId: number): void
     {
-        const roomObject = WiredSelectionVisualizer.getRoomObject(furniId);
-
-        if(!roomObject) return;
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, true);
+        WiredSelectionVisualizer.applySelectionShader(WiredSelectionVisualizer.getRoomObject(furniId));
     }
 
     public static hide(furniId: number): void
     {
-        const roomObject = WiredSelectionVisualizer.getRoomObject(furniId);
-
-        if(!roomObject) return;
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, false);
+        WiredSelectionVisualizer.clearSelectionShader(WiredSelectionVisualizer.getRoomObject(furniId));
     }
 
     public static clearSelectionShaderFromFurni(furniIds: number[]): void
@@ -104,15 +97,7 @@ export class WiredSelectionVisualizer
     {
         const roomEngine = GetRoomEngine();
 
-        if(!roomEngine) return null;
-
-        const roomId = roomEngine.activeRoomId;
-
-        let roomObject = roomEngine.getRoomObject(roomId, objectId, RoomObjectCategory.FLOOR);
-
-        if(!roomObject) roomObject = roomEngine.getRoomObject(roomId, objectId, RoomObjectCategory.WALL);
-
-        return roomObject;
+        return roomEngine.getRoomObject(roomEngine.activeRoomId, objectId, RoomObjectCategory.FLOOR);
     }
 
     private static applySelectionShader(roomObject: IRoomObject): void
@@ -129,8 +114,6 @@ export class WiredSelectionVisualizer
 
             sprite.filters = [ WiredSelectionVisualizer._selectionShader ];
         }
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, true);
     }
 
     private static applySelectionShaderWithFilter(roomObject: IRoomObject, filter: NitroFilter): void
@@ -147,8 +130,6 @@ export class WiredSelectionVisualizer
 
             sprite.filters = [ filter ];
         }
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, true);
     }
 
     private static clearSelectionShader(roomObject: IRoomObject): void
@@ -160,15 +141,5 @@ export class WiredSelectionVisualizer
         if(!visualization) return;
 
         for(const sprite of visualization.sprites) sprite.filters = [];
-
-        WiredSelectionVisualizer.setFurnitureHighlight(roomObject, false);
-    }
-
-    private static setFurnitureHighlight(roomObject: IRoomObject, enabled: boolean): void
-    {
-        if(!roomObject || !roomObject.model) return;
-
-        roomObject.model.setValue(RoomObjectVariable.FURNITURE_HIGHLIGHT_ENABLE, enabled ? 1 : 0);
-        roomObject.model.setValue(RoomObjectVariable.FURNITURE_HIGHLIGHT, enabled ? 1 : 0);
     }
 }

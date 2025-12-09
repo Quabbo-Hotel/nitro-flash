@@ -27,6 +27,7 @@ export class OutgoingHeader
     public static WIRED_CLIPBOARD_COPY = 6054;
     public static WIRED_CLIPBOARD_PASTE = 6055;
     public static WIRED_CLIPBOARD_TOGGLE_AUTOPASTE = 6056;
+    public static PUT_MORE_FROM_INVENTORY = 6057;
     
     //CUSTOM FURNIFIX / 1 CLICK
     public static CLICK_FURNI = 6002;

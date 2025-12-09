@@ -43,6 +43,7 @@ import { RequestGlobalVariablesComposer } from './messages/outgoing/room/variabl
 import { RequestGlobalWithVariablesComposer } from './messages/outgoing/room/variables/RequestGlobalWithVariablesComposer';
 import { RequestSharedRoomVariablesComposer } from './messages/outgoing/room/variables/RequestSharedRoomVariablesComposer';
 import { RequestContextVariablesComposer } from './messages/outgoing/room/variables/RequestContextVariablesComposer';
+import { PutMoreFromInventoryComposer } from './messages/outgoing/room/engine/PutMoreFromInventoryComposer';
 
 export class NitroMessages implements IMessageConfiguration {
     private _events: Map<number, Function>;
@@ -662,6 +663,7 @@ export class NitroMessages implements IMessageConfiguration {
         this._composers.set(OutgoingHeader.REQUEST_GLOBAL_WITH_VARIABLES, RequestGlobalWithVariablesComposer);
         this._composers.set(OutgoingHeader.REQUEST_SHARED_ROOM_VARIABLES, RequestSharedRoomVariablesComposer);
         this._composers.set(OutgoingHeader.REQUEST_CONTEXT_VARIABLES, RequestContextVariablesComposer);
+        this._composers.set(OutgoingHeader.PUT_MORE_FROM_INVENTORY, PutMoreFromInventoryComposer);
         this._composers.set(OutgoingHeader.TOGGLE_HIGHLIGHT_MODE, ToggleHighlightModeComposer);
         this._composers.set(OutgoingHeader.TOGGLE_FURNI_INSPECTION_LOCK, ToggleFurniInspectionLockComposer);
         this._composers.set(OutgoingHeader.INSPECT_USER_VARIABLES, InspectUserVariablesComposer);

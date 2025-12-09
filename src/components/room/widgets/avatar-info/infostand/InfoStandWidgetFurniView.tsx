@@ -1,9 +1,12 @@
-import { CrackableDataType, GroupInformationComposer, GroupInformationEvent, GetProductOfferComposer, NowPlayingEvent, RoomControllerLevel, RoomObjectCategory, RoomObjectOperationType, RoomObjectVariable, RoomWidgetEnumItemExtradataParameter, RoomWidgetFurniInfoUsagePolicyEnum, SetObjectDataMessageComposer, SongInfoReceivedEvent, StringDataType } from '@nitrots/nitro-renderer';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { CrackableDataType, GroupInformationComposer, GroupInformationEvent, GetProductOfferComposer, NowPlayingEvent, RoomControllerLevel, RoomObjectCategory, RoomObjectOperationType, RoomObjectVariable, RoomWidgetEnumItemExtradataParameter, RoomWidgetFurniInfoUsagePolicyEnum, SetObjectDataMessageComposer, SongInfoReceivedEvent, StringDataType, FurnitureListComposer } from '@nitrots/nitro-renderer';
+import { PutMoreFromInventoryComposer } from '@nitrots/nitro-renderer/src/nitro/communication/messages/outgoing/room/engine/PutMoreFromInventoryComposer';
+import { FC, useCallback, useEffect, useState, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { AvatarInfoFurni, CreateLinkEvent, GetGroupInformation, GetNitroInstance, GetRoomEngine, LocalizeText, SendMessageComposer } from '../../../../../api';
+import { AvatarInfoFurni, CreateLinkEvent, GetGroupInformation, GetNitroInstance, GetRoomEngine, LocalizeText, SendMessageComposer, attemptItemPlacement } from '../../../../../api';
+import { useInventoryFurni } from '../../../../../hooks';
 import { Base, Button, Column, Flex, LayoutBadgeImageView, LayoutLimitedEditionCompactPlateView, LayoutRarityLevelView, Text, UserProfileIconView } from '../../../../../common';
-import { useMessageEvent, useRoom, useSoundEvent } from '../../../../../hooks';
+import { useMessageEvent, useRoom, useSoundEvent, useNotification, useUiEvent } from '../../../../../hooks';
+import { InventoryFurniAddedEvent } from '../../../../../events';
 
 interface InfoStandWidgetFurniViewProps
 {
@@ -212,6 +215,46 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
         setSongCreator(songInfo?.creator ?? '');
     }, [ songId ]);
 
+    const { getItemsByType } = useInventoryFurni();
+    const { showConfirm = null } = useNotification();
+
+    const pendingAutoPlaceTypeRef = useRef<number | null>(null);
+
+    useUiEvent<InventoryFurniAddedEvent>(InventoryFurniAddedEvent.FURNI_ADDED, event =>
+    {
+        const parser = (event as InventoryFurniAddedEvent) as InventoryFurniAddedEvent;
+
+        const pendingType = pendingAutoPlaceTypeRef.current;
+
+        if(!pendingType) return;
+
+        if(parser.spriteId !== pendingType) return;
+
+        // Clear pending first so re-entrancy won't loop.
+        pendingAutoPlaceTypeRef.current = null;
+
+        // Try to place the newly added furni.
+        setTimeout(() =>
+        {
+            try
+            {
+                const groups = getItemsByType ? getItemsByType(parser.spriteId) : null;
+
+                if(groups && groups.length)
+                {
+                    for(const group of groups)
+                    {
+                        if(group && group.getUnlockedCount())
+                        {
+                            if(attemptItemPlacement(group)) return;
+                        }
+                    }
+                }
+            }
+            catch(err){}
+        }, 50);
+    });
+
     const onFurniSettingChange = useCallback((index: number, value: string) =>
     {
         const clone = Array.from(furniValues);
@@ -326,8 +369,110 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
                 SendMessageComposer(new SetObjectDataMessageComposer(avatarInfo.id, map));
                 break;
             }
+            case 'put_more': {
+                try {
+                    const roomObject = GetRoomEngine().getRoomObject(roomSession.roomId, avatarInfo.id, avatarInfo.category);
+
+                    if(roomObject)
+                    {
+                        const typeId = roomObject.model.getValue<number>(RoomObjectVariable.FURNITURE_TYPE_ID);
+
+                        const groups = getItemsByType ? getItemsByType(typeId) : null;
+
+                        if(groups && groups.length)
+                        {
+                            // Try to place the first matching group locally.
+                            for(const group of groups)
+                            {
+                                if(group && group.getUnlockedCount())
+                                {
+                                    if(attemptItemPlacement(group)) return;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(error){}
+
+                // Fallback: ask the user if they'd like to buy more. If yes, open the catalog (same as buy_one).
+                const openCatalog = () =>
+                {
+                    const offerId = ((avatarInfo.rentOfferId > -1) ? avatarInfo.rentOfferId : avatarInfo.purchaseOfferId);
+
+                    if(offerId > -1)
+                    {
+                        CreateLinkEvent(`catalog/open/offerId/${ offerId }`);
+
+                        setTimeout(() =>
+                        {
+                            SendMessageComposer(new GetProductOfferComposer(offerId));
+                        }, 1);
+                    }
+                }
+
+                if(showConfirm)
+                {
+                    showConfirm('No te quedan, ¿quieres comprar más?', () =>
+                    {
+                        try
+                        {
+                            const roomObject2 = GetRoomEngine().getRoomObject(roomSession.roomId, avatarInfo.id, avatarInfo.category);
+
+                            if(roomObject2)
+                            {
+                                const typeId2 = roomObject2.model.getValue<number>(RoomObjectVariable.FURNITURE_TYPE_ID);
+
+                                pendingAutoPlaceTypeRef.current = typeId2;
+
+                                setTimeout(() =>
+                                {
+                                    if(pendingAutoPlaceTypeRef.current === typeId2)
+                                    {
+                                        SendMessageComposer(new FurnitureListComposer());
+                                    }
+                                }, 1000);
+                            }
+                        }
+                        catch(e) {}
+
+                        openCatalog();
+                    }, null);
+
+                    return;
+                }
+
+                // Fallback for environments without the notification hook (shouldn't happen): use native confirm.
+                const wantsToBuy = window.confirm('No tiene, ¿quieres comprar más?');
+
+                if(!wantsToBuy) return;
+
+                try
+                {
+                    const roomObject2 = GetRoomEngine().getRoomObject(roomSession.roomId, avatarInfo.id, avatarInfo.category);
+
+                    if(roomObject2)
+                    {
+                        const typeId2 = roomObject2.model.getValue<number>(RoomObjectVariable.FURNITURE_TYPE_ID);
+
+                        pendingAutoPlaceTypeRef.current = typeId2;
+
+                        setTimeout(() =>
+                        {
+                            if(pendingAutoPlaceTypeRef.current === typeId2)
+                            {
+                                SendMessageComposer(new FurnitureListComposer());
+                            }
+                        }, 1000);
+                    }
+                }
+                catch(e) {}
+
+                openCatalog();
+
+                return;
+            }
         }
-    }, [ avatarInfo, pickupMode, customKeys, customValues, getFurniSettingsAsString ]);
+    }, [ avatarInfo, pickupMode, customKeys, customValues, getFurniSettingsAsString, showConfirm, getItemsByType ]);
 
     const getGroupBadgeCode = useCallback(() =>
     {
@@ -381,6 +526,9 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
                             <Flex>
                                 <Button className="volter-button" onClick={ event => processButtonAction('buy_one') }>
                                     { LocalizeText('infostand.button.buy') }
+                                </Button>
+                                <Button style={{ padding:"10px", marginLeft:"4px" }} className="volter-button" onClick={ event => processButtonAction('put_more') }>
+                                    { LocalizeText('Colocar más') || 'Put more' }
                                 </Button>
                             </Flex> }
                     </Column>
