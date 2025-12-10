@@ -124,6 +124,9 @@ export class MovingObjectLogic extends RoomObjectLogicBase
 
         this._changeTime = this._lastUpdateTime;
 
+        const duration = (message.animationTime && (message.animationTime > 0)) ? message.animationTime : MovingObjectLogic.DEFAULT_UPDATE_INTERVAL;
+        this.updateInterval = duration;
+
         this._locationDelta.assign(message.targetLocation);
         this._locationDelta.subtract(this._location);
     }

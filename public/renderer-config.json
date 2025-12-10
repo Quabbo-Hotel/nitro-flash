@@ -1,7 +1,7 @@
 {
     "socket.url": "ws://127.0.0.1:2096",
     "comet.http.uploadHost": "https://comet.hobbu.net",
-    "asset.url": "http://assets",
+    "asset.url": "https://assets.hobbu.net",
     "image.library.url": "${asset.url}/swf/c_images/",
     "hof.furni.url": "${asset.url}/swf/dcr/hof_furni",
     "images.url": "${asset.url}/nitro-assets/images",

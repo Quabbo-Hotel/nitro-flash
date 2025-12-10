@@ -23,23 +23,27 @@ export class BulkSlideUsersAndItemsParser implements IMessageParser
         toY: number;
         toZ: string;
     }>;
+    private _animationTime: number;
 
 
     constructor()
     {
         this._itemSlides = [];
         this._userSlides = [];
+        this._animationTime = 0;
     }
 
     public flush(): boolean {
         this._itemSlides = [];
         this._userSlides = [];
+        this._animationTime = 0;
         return true;
     }
 
     public parse(wrapper: IMessageDataWrapper): boolean {
         if(!wrapper) return false;
 
+        this._animationTime = wrapper.readInt();
         const itemCount = wrapper.readInt();
         const userCount = wrapper.readInt();
         this._itemSlides = [];
@@ -119,5 +123,10 @@ export class BulkSlideUsersAndItemsParser implements IMessageParser
     }>
     {
         return this._userSlides;
+    }
+
+    public get animationTime(): number
+    {
+        return this._animationTime;
     }
 }

@@ -618,6 +618,7 @@ export class RoomMessageHandler extends Disposable
 
         const parser = event.getParser();
         const itemSlides = parser.itemSlides;
+        const animationTime = parser.animationTime || 500;
 
         if (!itemSlides || itemSlides.length === 0) return;
 
@@ -634,7 +635,8 @@ export class RoomMessageHandler extends Disposable
                 this._currentRoomId,
                 slide.virtualId,
                 from,
-                to
+                to,
+                animationTime
             );
 
             // Actualizar la rotación si cambió
@@ -652,6 +654,7 @@ export class RoomMessageHandler extends Disposable
         const parser = event.getParser();
         const itemSlides = parser.itemSlides;
         const userSlides = parser.userSlides;
+        const animationTime = parser.animationTime || 500;
 
         // Procesar items
         if (itemSlides && itemSlides.length > 0) {
@@ -667,7 +670,8 @@ export class RoomMessageHandler extends Disposable
                     this._currentRoomId,
                     slide.virtualId,
                     from,
-                    to
+                    to,
+                    animationTime
                 );
 
                 // Actualizar la rotación si cambió
@@ -697,6 +701,8 @@ export class RoomMessageHandler extends Disposable
                     0, // baseY
                     null, // direction (no cambiar)
                     NaN, // headDirection (no cambiar)
+                    animationTime,
+                    true
                 );
             }
         }

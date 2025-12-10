@@ -13,8 +13,10 @@ export class ObjectAvatarUpdateMessage extends ObjectMoveUpdateMessage {
         headDirection: number, 
         canStandUp: boolean, 
         baseY: number,
+        isSlide: boolean = false,
+        animationTime: number = ObjectMoveUpdateMessage.DEFAULT_ANIMATION_TIME,
     ) {
-        super(location, targetLocation, direction, false);
+        super(location, targetLocation, direction, isSlide, animationTime);
         
         this._headDirection = headDirection;
         this._canStandUp = canStandUp;
