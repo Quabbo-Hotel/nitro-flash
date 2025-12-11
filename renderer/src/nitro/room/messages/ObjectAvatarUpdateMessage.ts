@@ -14,12 +14,14 @@ export class ObjectAvatarUpdateMessage extends ObjectMoveUpdateMessage {
         canStandUp: boolean, 
         baseY: number,
         isSlide: boolean = false,
+        updateInterval?: number
     ) {
         super(location, targetLocation, direction, isSlide);
         
         this._headDirection = headDirection;
         this._canStandUp = canStandUp;
         this._baseY = baseY;
+        if(typeof updateInterval !== 'undefined') this.setUpdateInterval(updateInterval);
     }
 
     public get headDirection(): number

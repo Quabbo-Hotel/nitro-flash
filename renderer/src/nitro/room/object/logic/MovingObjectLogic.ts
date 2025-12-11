@@ -94,6 +94,8 @@ export class MovingObjectLogic extends RoomObjectLogicBase
                 this._locationDelta.x = 0;
                 this._locationDelta.y = 0;
                 this._locationDelta.z = 0;
+                // Movement finished — restore default update interval so subsequent moves use normal timing
+                this._updateInterval = MovingObjectLogic.DEFAULT_UPDATE_INTERVAL;
             }
         }
 
@@ -126,6 +128,11 @@ export class MovingObjectLogic extends RoomObjectLogicBase
 
         this._locationDelta.assign(message.targetLocation);
         this._locationDelta.subtract(this._location);
+        // If the incoming message provides an update interval (animation duration), use it
+        if(typeof message.updateInterval !== 'undefined' && message.updateInterval !== null)
+        {
+            this.updateInterval = message.updateInterval;
+        }
     }
 
     protected getLocationOffset(): IVector3D

@@ -1986,13 +1986,16 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         if(roomOwnObject && roomOwnObject.logic && maskUpdate) roomOwnObject.logic.processUpdateMessage(maskUpdate);
     }
 
-    public rollRoomObjectFloor(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D): void
+    public rollRoomObjectFloor(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, animationTime?: number): void
     {
         const object = this.getRoomObjectFloor(roomId, objectId);
 
         if(!object) return;
 
-        object.processUpdateMessage(new ObjectMoveUpdateMessage(location, targetLocation, null, !!targetLocation));
+        const msg = new ObjectMoveUpdateMessage(location, targetLocation, null, !!targetLocation);
+        if(typeof animationTime !== 'undefined') msg.setUpdateInterval(animationTime);
+
+        object.processUpdateMessage(msg);
     }
 
     public updateRoomObjectWallLocation(roomId: number, objectId: number, location: IVector3D): boolean
@@ -2050,7 +2053,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         return true;
     }
 
-    public updateRoomObjectUserLocation(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, canStandUp: boolean = false, baseY: number = 0, direction: IVector3D = null, headDirection: number = NaN): boolean
+    public updateRoomObjectUserLocation(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, canStandUp: boolean = false, baseY: number = 0, direction: IVector3D = null, headDirection: number = NaN, animationTime?: number): boolean
     {
         const object = this.getRoomObjectUser(roomId, objectId);
 
@@ -2062,7 +2065,9 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
         if(isNaN(headDirection)) headDirection = object.model.getValue<number>(RoomObjectVariable.HEAD_DIRECTION);
 
-        object.processUpdateMessage(new ObjectAvatarUpdateMessage(this.fixedUserLocation(roomId, location), this.fixedUserLocation(roomId, targetLocation), direction, headDirection, canStandUp, baseY));
+        const msg = new ObjectAvatarUpdateMessage(this.fixedUserLocation(roomId, location), this.fixedUserLocation(roomId, targetLocation), direction, headDirection, canStandUp, baseY, !!targetLocation, animationTime);
+
+        object.processUpdateMessage(msg);
 
         const roomSession = ((this._roomSessionManager && this._roomSessionManager.getSession(roomId)) || null);
 
