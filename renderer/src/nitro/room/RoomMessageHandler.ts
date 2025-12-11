@@ -636,9 +636,9 @@ export class RoomMessageHandler extends Disposable
                 to
             );
 
-            // Actualizar la rotación si cambió
+            // Actualizar la rotación si cambió (convertir de pasos de 45° a grados)
             if (slide.fromRotation !== slide.toRotation) {
-                const direction: IVector3D = new Vector3d(slide.toRotation);
+                const direction: IVector3D = new Vector3d(slide.toRotation * 45);
                 this._roomCreator.updateRoomObjectFloor(this._currentRoomId, slide.virtualId, null, direction, null, null);
             }
         }
@@ -669,9 +669,9 @@ export class RoomMessageHandler extends Disposable
                     to
                 );
 
-                // Actualizar la rotación si cambió
+                // Actualizar la rotación si cambió (convertir de pasos de 45° a grados)
                 if (slide.fromRotation !== slide.toRotation) {
-                    const direction: IVector3D = new Vector3d(slide.toRotation);
+                    const direction: IVector3D = new Vector3d(slide.toRotation * 45);
                     this._roomCreator.updateRoomObjectFloor(this._currentRoomId, slide.virtualId, null, direction, null, null);
                 }
             }
