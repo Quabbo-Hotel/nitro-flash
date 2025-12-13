@@ -9,14 +9,16 @@ export class ObjectRolling
     private _location: IVector3D;
     private _targetLocation: IVector3D;
     private _movementType: string;
+    private _animationTime: number;
 
-    constructor(id: number, location: IVector3D, targetLocation: IVector3D, movementType: string = null)
+    constructor(id: number, location: IVector3D, targetLocation: IVector3D, movementType: string = null, animationTime: number = 500)
     {
         this._id = id;
         this._location = location;
         console.log(location)
         this._targetLocation = targetLocation;
         this._movementType = movementType;
+        this._animationTime = animationTime;
     }
 
     public get id(): number
@@ -37,5 +39,10 @@ export class ObjectRolling
     public get movementType(): string
     {
         return this._movementType;
+    }
+
+    public get animationTime(): number
+    {
+        return this._animationTime;
     }
 }
