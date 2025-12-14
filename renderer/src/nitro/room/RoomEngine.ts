@@ -1,5 +1,6 @@
 import { RenderTexture, Resource, Texture } from '@pixi/core';
 import { Container, DisplayObject } from '@pixi/display';
+import { Graphics } from '@pixi/graphics';
 import { Matrix, Point, Rectangle } from '@pixi/math';
 import { IRoomAreaSelectionManager } from 'api/nitro/room/utils/IRoomAreaSelectionManager';
 import { IConnection, IDisposable, IFurnitureStackingHeightMap, IGetImageListener, IImageResult, ILegacyWallGeometry, IMessageComposer, INitroCommunicationManager, INitroEvent, IObjectData, IPetColorResult, IPetCustomPart, IRoomContentListener, IRoomContentLoader, IRoomCreator, IRoomEngine, IRoomEngineServices, IRoomGeometry, IRoomInstance, IRoomManager, IRoomManagerListener, IRoomObject, IRoomObjectController, IRoomObjectLogicFactory, IRoomObjectVisualizationFactory, IRoomRenderer, IRoomRendererFactory, IRoomRenderingCanvas, IRoomSessionManager, ISelectedRoomObjectData, ISessionDataManager, ITileObjectMap, IUpdateReceiver, IVector3D, LegacyDataType, MouseEventType, NitroConfiguration, NitroLogger, ObjectDataFactory, RoomControllerLevel, RoomObjectCategory, RoomObjectUserType, RoomObjectVariable, ToolbarIconEnum, Vector3d } from '../../api';
@@ -21,6 +22,15 @@ import { RoomVariableEnum } from './RoomVariableEnum';
 import { RoomCamera, RoomData, RoomFurnitureData, RoomInstanceData, RoomObjectBadgeImageAssetListener, SpriteDataCollector } from './utils';
 import { RoomAreaSelectionManager } from './utils/RoomAreaSelectionManager';
 
+interface SpotlightOverlayState
+{
+    radiusPercent: number;
+    featherPercent: number;
+    opacityPercent: number;
+    lastCenterX?: number;
+    lastCenterY?: number;
+}
+
 export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreator, IRoomEngineServices, IRoomManagerListener, IRoomContentListener, IUpdateReceiver, IDisposable
 {
     public static ROOM_OBJECT_ID: number = -1;
@@ -34,6 +44,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
     public static OVERLAY: string = 'overlay';
     public static OBJECT_ICON_SPRITE: string = 'object_icon_sprite';
+    private static SPOTLIGHT_OVERLAY: string = 'spotlight_overlay';
 
     private static DRAG_THRESHOLD: number = 15;
     private static TEMPORARY_ROOM: string = 'temporary_room';
@@ -73,6 +84,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
     private _badgeListenerObjects: Map<string, RoomObjectBadgeImageAssetListener[]>;
     private _logicFactory: IRoomObjectLogicFactory;
     private _areaSelectionManager: IRoomAreaSelectionManager;
+    private _spotlightStates: Map<number, SpotlightOverlayState>;
 
 
     constructor(communication: INitroCommunicationManager)
@@ -116,6 +128,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         this._roomAllowsDragging = true;
         this._badgeListenerObjects = new Map();
         this._areaSelectionManager = new RoomAreaSelectionManager(this);
+        this._spotlightStates = new Map();
 
         this.runVisibilityUpdate = this.runVisibilityUpdate.bind(this);
         this.processRoomObjectEvent = this.processRoomObjectEvent.bind(this);
@@ -221,6 +234,8 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
     public setActiveRoomId(roomId: number): void
     {
         this._activeRoomId = roomId;
+
+        this.refreshSpotlightOverlay(roomId);
     }
 
     public destroyRoom(roomId: number): void
@@ -249,6 +264,15 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
             this._roomInstanceDatas.delete(existing.roomId);
 
             existing.dispose();
+        }
+
+        this._spotlightStates.delete(roomId);
+
+        if(roomId === this._activeRoomId)
+        {
+            const canvas = this.getActiveRoomInstanceRenderingCanvas();
+
+            this.removeSpotlightOverlayFromCanvas(canvas);
         }
 
         this.events.dispatchEvent(new RoomEngineEvent(RoomEngineEvent.DISPOSED, roomId));
@@ -507,6 +531,8 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
                 overlay.interactive = false;
 
                 displayObject.addChild(overlay);
+
+                this.applySpotlightOverlayToCanvas(roomId, canvas);
             }
         }
 
@@ -531,6 +557,11 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
             roomCanvas.setScale(scale, point, offsetPoint, override, asDelta);
 
             this.events.dispatchEvent(new RoomEngineEvent(RoomEngineEvent.ROOM_ZOOMED, roomId));
+
+            if(roomId === this._activeRoomId)
+            {
+                this.applySpotlightOverlayToCanvas(roomId, roomCanvas);
+            }
         }
     }
 
@@ -585,6 +616,11 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         renderingCanvas.screenOffsetX = x;
         renderingCanvas.screenOffsetY = y;
 
+        if((roomId === this._activeRoomId) && this._spotlightStates.has(roomId))
+        {
+            this.applySpotlightOverlayToCanvas(roomId, renderingCanvas);
+        }
+
         return true;
     }
 
@@ -608,6 +644,11 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         if(!canvas) return;
 
         canvas.initialize(width, height);
+
+        if((roomId === this._activeRoomId) && this._spotlightStates.has(roomId))
+        {
+            this.applySpotlightOverlayToCanvas(roomId, canvas);
+        }
     }
 
     public getRoomInstanceGeometry(roomId: number, canvasId: number = -1): IRoomGeometry
@@ -825,6 +866,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         this._roomManager.update(time, update);
 
         this.updateRoomCameras(time);
+        this.tickSpotlightOverlay();
 
         if(this._mouseCursorUpdate) this.setPointer();
 
@@ -1069,6 +1111,8 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
             camera.activateFollowing(this.cameraFollowDuration);
         }
+
+        if(this._spotlightStates.has(roomId)) this.refreshSpotlightOverlay(roomId);
     }
 
     private get cameraFollowDuration(): number
@@ -1986,16 +2030,13 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         if(roomOwnObject && roomOwnObject.logic && maskUpdate) roomOwnObject.logic.processUpdateMessage(maskUpdate);
     }
 
-    public rollRoomObjectFloor(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, animationTime?: number): void
+    public rollRoomObjectFloor(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D): void
     {
         const object = this.getRoomObjectFloor(roomId, objectId);
 
         if(!object) return;
 
-        const msg = new ObjectMoveUpdateMessage(location, targetLocation, null, !!targetLocation);
-        if(typeof animationTime !== 'undefined') msg.setUpdateInterval(animationTime);
-
-        object.processUpdateMessage(msg);
+        object.processUpdateMessage(new ObjectMoveUpdateMessage(location, targetLocation, null, !!targetLocation));
     }
 
     public updateRoomObjectWallLocation(roomId: number, objectId: number, location: IVector3D): boolean
@@ -2053,7 +2094,7 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         return true;
     }
 
-    public updateRoomObjectUserLocation(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, canStandUp: boolean = false, baseY: number = 0, direction: IVector3D = null, headDirection: number = NaN, animationTime?: number): boolean
+    public updateRoomObjectUserLocation(roomId: number, objectId: number, location: IVector3D, targetLocation: IVector3D, canStandUp: boolean = false, baseY: number = 0, direction: IVector3D = null, headDirection: number = NaN): boolean
     {
         const object = this.getRoomObjectUser(roomId, objectId);
 
@@ -2065,15 +2106,14 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
 
         if(isNaN(headDirection)) headDirection = object.model.getValue<number>(RoomObjectVariable.HEAD_DIRECTION);
 
-        const msg = new ObjectAvatarUpdateMessage(this.fixedUserLocation(roomId, location), this.fixedUserLocation(roomId, targetLocation), direction, headDirection, canStandUp, baseY, !!targetLocation, animationTime);
-
-        object.processUpdateMessage(msg);
+        object.processUpdateMessage(new ObjectAvatarUpdateMessage(this.fixedUserLocation(roomId, location), this.fixedUserLocation(roomId, targetLocation), direction, headDirection, canStandUp, baseY));
 
         const roomSession = ((this._roomSessionManager && this._roomSessionManager.getSession(roomId)) || null);
 
         if(roomSession && (roomSession.ownRoomIndex === objectId))
         {
             this._logicFactory.events.dispatchEvent(new RoomToObjectOwnAvatarMoveEvent(RoomToObjectOwnAvatarMoveEvent.ROAME_MOVE_TO, targetLocation));
+            if(this._spotlightStates.has(roomId)) this.refreshSpotlightOverlay(roomId);
         }
 
         return true;
@@ -2255,6 +2295,26 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         if(!object) return;
 
         object.processUpdateMessage(new ObjectAvatarOwnMessage());
+    }
+
+    public updateSpotlightOverlay(roomId: number, enabled: boolean, radiusPercent: number, featherPercent: number, opacityPercent: number): void
+    {
+        if(enabled)
+        {
+            this._spotlightStates.set(roomId, {
+                radiusPercent: Math.max(10, Math.min(95, radiusPercent)),
+                featherPercent: Math.max(0, Math.min(70, featherPercent)),
+                opacityPercent: Math.max(0, Math.min(100, opacityPercent)),
+                lastCenterX: undefined,
+                lastCenterY: undefined
+            });
+        }
+        else
+        {
+            this._spotlightStates.delete(roomId);
+        }
+
+        this.refreshSpotlightOverlay(roomId);
     }
 
     public useRoomObject(objectId: number, category: number): boolean
@@ -3300,6 +3360,197 @@ export class RoomEngine extends NitroManager implements IRoomEngine, IRoomCreato
         const sprite = this.getRenderingCanvasOverlay(canvas);
 
         this.removeOverlayIconSprite(sprite, RoomEngine.OBJECT_ICON_SPRITE);
+    }
+
+    private refreshSpotlightOverlay(roomId: number): void
+    {
+        if(roomId !== this._activeRoomId) return;
+
+        const canvas = this.getActiveRoomInstanceRenderingCanvas();
+
+        this.applySpotlightOverlayToCanvas(roomId, canvas);
+    }
+
+    private applySpotlightOverlayToCanvas(roomId: number, canvas: IRoomRenderingCanvas, centerOverride: Point = null): void
+    {
+        if(!canvas) return;
+
+        const overlay = this.getRenderingCanvasOverlay(canvas);
+
+        if(!overlay) return;
+
+        const existing = overlay.getChildByName(RoomEngine.SPOTLIGHT_OVERLAY) as Graphics;
+
+        if(roomId !== this._activeRoomId)
+        {
+            if(existing)
+            {
+                overlay.removeChild(existing);
+                existing.destroy();
+            }
+
+            return;
+        }
+
+        const state = this._spotlightStates.get(roomId);
+
+        if(!state)
+        {
+            if(existing)
+            {
+                overlay.removeChild(existing);
+                existing.destroy();
+            }
+
+            return;
+        }
+
+        const width = Math.max(1, Math.round(canvas.width));
+        const height = Math.max(1, Math.round(canvas.height));
+
+        const radiusPercent = Math.max(10, Math.min(95, state.radiusPercent));
+        const featherPercent = Math.max(0, Math.min(70, state.featherPercent));
+        const opacityPercent = Math.max(0, Math.min(100, state.opacityPercent));
+
+        if(opacityPercent <= 0)
+        {
+            if(existing)
+            {
+                overlay.removeChild(existing);
+                existing.destroy();
+            }
+
+            return;
+        }
+
+        const centerPoint = centerOverride || this.getSpotlightCenter(roomId, canvas);
+        const centerX = centerPoint ? centerPoint.x : (width / 2);
+        const centerY = centerPoint ? centerPoint.y : (height / 2);
+
+        state.lastCenterX = centerX;
+        state.lastCenterY = centerY;
+
+        const minDimension = Math.min(width, height);
+        const radius = Math.max(20, (minDimension * (radiusPercent / 100)));
+        const feather = Math.max(0, (minDimension * (featherPercent / 100)));
+        const maxRadius = Math.max(radius, radius + feather);
+        const gradientDistance = Math.max(0, (maxRadius - radius));
+        const outerAlpha = (opacityPercent / 100);
+
+        const graphic = existing || new Graphics();
+
+        graphic.name = RoomEngine.SPOTLIGHT_OVERLAY;
+        graphic.interactive = false;
+        graphic.renderable = true;
+        graphic.visible = true;
+        graphic.x = 0;
+        graphic.y = 0;
+
+        graphic.clear();
+
+        // Dark area outside the gradient
+        graphic.beginFill(0x000000, outerAlpha);
+        graphic.drawRect(0, 0, width, height);
+        graphic.beginHole();
+        graphic.drawCircle(centerX, centerY, maxRadius);
+        graphic.endHole();
+        graphic.endFill();
+
+        if(gradientDistance > 0)
+        {
+            const ringCount = Math.max(1, Math.round(gradientDistance / 12));
+            const ringSize = (gradientDistance / ringCount);
+
+            for(let ring = (ringCount - 1); ring >= 0; ring--)
+            {
+                const innerRadius = (radius + (ring * ringSize));
+                const outerRadius = innerRadius + ringSize;
+                const alphaProgress = ((ring + 1) / (ringCount + 1));
+                const ringAlpha = Math.min(outerAlpha, (outerAlpha * alphaProgress));
+
+                graphic.beginFill(0x000000, ringAlpha);
+                graphic.drawCircle(centerX, centerY, outerRadius);
+                graphic.beginHole();
+                graphic.drawCircle(centerX, centerY, innerRadius);
+                graphic.endHole();
+                graphic.endFill();
+            }
+        }
+
+        if(!existing) overlay.addChild(graphic);
+    }
+
+    private tickSpotlightOverlay(): void
+    {
+        if(!this._spotlightStates.size) return;
+
+        const state = this._spotlightStates.get(this._activeRoomId);
+
+        if(!state) return;
+
+        const canvas = this.getActiveRoomInstanceRenderingCanvas();
+
+        if(!canvas) return;
+
+        const centerPoint = this.getSpotlightCenter(this._activeRoomId, canvas);
+
+        if(!centerPoint) return;
+
+        if((state.lastCenterX !== undefined) && (state.lastCenterY !== undefined))
+        {
+            if((Math.abs(state.lastCenterX - centerPoint.x) < 0.5) && (Math.abs(state.lastCenterY - centerPoint.y) < 0.5))
+            {
+                return;
+            }
+        }
+
+        state.lastCenterX = centerPoint.x;
+        state.lastCenterY = centerPoint.y;
+
+        this.applySpotlightOverlayToCanvas(this._activeRoomId, canvas, centerPoint);
+    }
+
+    private removeSpotlightOverlayFromCanvas(canvas: IRoomRenderingCanvas): void
+    {
+        if(!canvas) return;
+
+        const overlay = this.getRenderingCanvasOverlay(canvas);
+
+        if(!overlay) return;
+
+        const existing = overlay.getChildByName(RoomEngine.SPOTLIGHT_OVERLAY) as Graphics;
+
+        if(existing)
+        {
+            overlay.removeChild(existing);
+            existing.destroy();
+        }
+    }
+
+    private getSpotlightCenter(roomId: number, canvas: IRoomRenderingCanvas): Point
+    {
+        if(!canvas || !this._roomSessionManager) return null;
+
+        const session = this._roomSessionManager.getSession(roomId);
+
+        if(!session) return null;
+
+        const ownObjectId = session.ownRoomIndex;
+
+        if((ownObjectId === undefined) || (ownObjectId === null) || (ownObjectId < 0)) return null;
+
+        const rawPoint = this.getRoomObjectScreenLocation(roomId, ownObjectId, RoomObjectCategory.UNIT, canvas.id);
+
+        if(!rawPoint) return null;
+
+        const width = Math.max(1, Math.round(canvas.width));
+        const height = Math.max(1, Math.round(canvas.height));
+        const verticalOffset = -10;
+
+        return new Point(
+            Math.max(0, Math.min(width, rawPoint.x)),
+            Math.max(0, Math.min(height, (rawPoint.y + verticalOffset)))
+        );
     }
 
     private getRenderingCanvasOverlay(k: IRoomRenderingCanvas): NitroSprite

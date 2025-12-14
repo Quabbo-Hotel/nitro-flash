@@ -1,6 +1,6 @@
 import { AvatarGuideStatus, IConnection, IRoomCreator, IVector3D, LegacyDataType, ObjectRolling, PetType, RoomObjectType, RoomObjectUserType, RoomObjectVariable, Vector3d } from '../../api';
 import { Disposable } from '../../core';
-import { BulkHeightMapUpdateEvent, BulkMovement, BulkObjectsRollingEvent, BulkObjectsRollingParser, BulkUpdateFloorItemsEvent, DiceValueMessageEvent, FloorHeightMapEvent, FurnitureAliasesComposer, FurnitureAliasesEvent, FurnitureDataEvent, FurnitureFloorAddEvent, FurnitureFloorDataParser, FurnitureFloorEvent, FurnitureFloorRemoveEvent, FurnitureFloorUpdateEvent, FurnitureWallAddEvent, FurnitureWallDataParser, FurnitureWallEvent, FurnitureWallRemoveEvent, FurnitureWallUpdateEvent, GetRoomEntryDataMessageComposer, GuideSessionEndedMessageEvent, GuideSessionErrorMessageEvent, GuideSessionStartedMessageEvent, IgnoreResultEvent, ItemDataUpdateMessageEvent, ObjectsDataUpdateEvent, ObjectsRollingEvent, OneWayDoorStatusMessageEvent, PetExperienceEvent, PetFigureUpdateEvent, PlayerOnClickThroughEvent, PlayerVimKeysEvent, PlayerWalkKeysEvent, RoomEntryTileMessageEvent, RoomEntryTileMessageParser, RoomHeightMapEvent, RoomHeightMapUpdateEvent, RoomPaintEvent, RoomReadyMessageEvent, RoomUnitChatEvent, RoomUnitChatShoutEvent, RoomUnitChatWhisperEvent, RoomUnitDanceEvent, RoomUnitEffectEvent, RoomUnitEvent, RoomUnitExpressionEvent, RoomUnitFocusEvent, RoomUnitHandItemEvent, RoomUnitIdleEvent, RoomUnitInfoEvent, RoomUnitNumberEvent, RoomUnitRemoveEvent, RoomUnitStatusCustomEvent, RoomUnitStatusEvent, RoomUnitTypingEvent, RoomVisualizationSettingsEvent, UserInfoEvent, YouArePlayingGameEvent } from '../communication';
+import { BulkHeightMapUpdateEvent, BulkMovement, BulkObjectsRollingEvent, BulkObjectsRollingParser, BulkUpdateFloorItemsEvent, DiceValueMessageEvent, FloorHeightMapEvent, FurnitureAliasesComposer, FurnitureAliasesEvent, FurnitureDataEvent, FurnitureFloorAddEvent, FurnitureFloorDataParser, FurnitureFloorEvent, FurnitureFloorRemoveEvent, FurnitureFloorUpdateEvent, FurnitureWallAddEvent, FurnitureWallDataParser, FurnitureWallEvent, FurnitureWallRemoveEvent, FurnitureWallUpdateEvent, GetRoomEntryDataMessageComposer, GuideSessionEndedMessageEvent, GuideSessionErrorMessageEvent, GuideSessionStartedMessageEvent, IgnoreResultEvent, ItemDataUpdateMessageEvent, ObjectsDataUpdateEvent, ObjectsRollingEvent, OneWayDoorStatusMessageEvent, PetExperienceEvent, PetFigureUpdateEvent, PlayerOnClickThroughEvent, PlayerVimKeysEvent, PlayerWalkKeysEvent, RoomEntryTileMessageEvent, RoomEntryTileMessageParser, RoomHeightMapEvent, RoomHeightMapUpdateEvent, RoomPaintEvent, RoomReadyMessageEvent, RoomSpotlightOverlayEvent, RoomUnitChatEvent, RoomUnitChatShoutEvent, RoomUnitChatWhisperEvent, RoomUnitDanceEvent, RoomUnitEffectEvent, RoomUnitEvent, RoomUnitExpressionEvent, RoomUnitFocusEvent, RoomUnitHandItemEvent, RoomUnitIdleEvent, RoomUnitInfoEvent, RoomUnitNumberEvent, RoomUnitRemoveEvent, RoomUnitStatusCustomEvent, RoomUnitStatusEvent, RoomUnitTypingEvent, RoomVisualizationSettingsEvent, UserInfoEvent, YouArePlayingGameEvent } from '../communication';
 import { RoomPlaneParser } from './object/RoomPlaneParser';
 import { RoomVariableEnum } from './RoomVariableEnum';
 import { FurnitureStackingHeightMap, LegacyWallGeometry } from './utils';
@@ -50,6 +50,8 @@ export class RoomMessageHandler extends Disposable {
         if (this._connection || !connection) return;
 
         this._connection = connection;
+
+        this._connection.addMessageEvent(new RoomSpotlightOverlayEvent(this.onRoomSpotlightOverlayEvent.bind(this)));
 
         this._connection.addMessageEvent(new UserInfoEvent(this.onUserInfoEvent.bind(this)));
         this._connection.addMessageEvent(new RoomReadyMessageEvent(this.onRoomReadyMessageEvent.bind(this)));
@@ -330,7 +332,15 @@ export class RoomMessageHandler extends Disposable {
 
         this._roomCreator.setFurnitureStackingHeightMap(this._currentRoomId, heightMap);
     }
+    private onRoomSpotlightOverlayEvent(event: RoomSpotlightOverlayEvent): void {
+        if (!(event instanceof RoomSpotlightOverlayEvent) || !event.connection || !this._roomCreator) return;
 
+        const parser = event.getParser();
+
+        if (!parser) return;
+
+        this._roomCreator.updateSpotlightOverlay(this._currentRoomId, parser.enabled, parser.radiusPercent, parser.featherPercent, parser.opacityPercent);
+    }
     private onRoomHeightMapUpdateEvent(event: RoomHeightMapUpdateEvent): void {
         if (!(event instanceof RoomHeightMapUpdateEvent) || !event.connection || !this._roomCreator) return;
 
@@ -396,101 +406,101 @@ export class RoomMessageHandler extends Disposable {
         this._latestEntryTileEvent = event;
     }
     // En RoomMessageHandler.ts
-private onBulkRoomRollingEvent(event: BulkObjectsRollingEvent): void {
-    if (!(event instanceof BulkObjectsRollingEvent) || !event.connection || !this._roomCreator) return;
+    private onBulkRoomRollingEvent(event: BulkObjectsRollingEvent): void {
+        if (!(event instanceof BulkObjectsRollingEvent) || !event.connection || !this._roomCreator) return;
 
-    const parser = event.getParser();
-    
-    // Procesar todos los movimientos del bulk
-    this.processBulkRolling(parser);
-}
+        const parser = event.getParser();
 
-private processBulkRolling(parser: BulkObjectsRollingParser): void {
-    // Procesar todos los movimientos del bulk
-    for (const movement of parser.movements) {
-        if (movement.type === 'item') {
-            this.processBulkItemMovement(movement);
-        } else if (movement.type === 'avatar') {
-            this.processBulkAvatarMovement(movement);
+        // Procesar todos los movimientos del bulk
+        this.processBulkRolling(parser);
+    }
+
+    private processBulkRolling(parser: BulkObjectsRollingParser): void {
+        // Procesar todos los movimientos del bulk
+        for (const movement of parser.movements) {
+            if (movement.type === 'item') {
+                this.processBulkItemMovement(movement);
+            } else if (movement.type === 'avatar') {
+                this.processBulkAvatarMovement(movement);
+            }
         }
     }
-}
 
-private processBulkItemMovement(movement: BulkMovement): void {
-    // Usar rollRoomObjectFloor si existe
-    if (this._roomCreator.rollRoomObjectFloor) {
-        this._roomCreator.rollRoomObjectFloor(
+    private processBulkItemMovement(movement: BulkMovement): void {
+        // Usar rollRoomObjectFloor si existe
+        if (this._roomCreator.rollRoomObjectFloor) {
+            this._roomCreator.rollRoomObjectFloor(
+                this._currentRoomId,
+                movement.id,
+                movement.from,
+                movement.to,
+                movement.animationTime,
+            );
+
+            // Actualizar rotación si existe
+            if (movement.rotation !== null && movement.rotation !== undefined) {
+                // Actualizar la dirección del item
+                this._roomCreator.updateRoomObjectFloor(
+                    this._currentRoomId,
+                    movement.id,
+                    null, // mantener posición
+                    new Vector3d(movement.rotation, 0, 0), // nueva rotación
+                    -1, // mantener estado
+                    null // mantener data
+                );
+            }
+        } else {
+            // Fallback: actualizar posición directamente
+            this._roomCreator.updateRoomObjectFloor(
+                this._currentRoomId,
+                movement.id,
+                movement.to,
+                new Vector3d(movement.rotation || 0, 0, 0),
+                -1,
+                null
+            );
+        }
+    }
+
+    private processBulkAvatarMovement(movement: BulkMovement): void {
+        // Mover el avatar con animación
+        this._roomCreator.updateRoomObjectUserLocation(
             this._currentRoomId,
             movement.id,
             movement.from,
             movement.to,
+            false, // canStandUp
+            0, // baseY
+            null, // direction
+            NaN, // headDirection
             movement.animationTime,
         );
-        
-        // Actualizar rotación si existe
-        if (movement.rotation !== null && movement.rotation !== undefined) {
-            // Actualizar la dirección del item
-            this._roomCreator.updateRoomObjectFloor(
+
+        // Aplicar postura si existe
+        if (movement.posture && movement.posture.length) {
+            this._roomCreator.updateRoomObjectUserPosture(
                 this._currentRoomId,
                 movement.id,
-                null, // mantener posición
-                new Vector3d(movement.rotation, 0, 0), // nueva rotación
-                -1, // mantener estado
-                null // mantener data
+                movement.posture,
+                movement.postureParam || ''
             );
-        }
-    } else {
-        // Fallback: actualizar posición directamente
-        this._roomCreator.updateRoomObjectFloor(
-            this._currentRoomId,
-            movement.id,
-            movement.to,
-            new Vector3d(movement.rotation || 0, 0, 0),
-            -1,
-            null
-        );
-    }
-}
 
-private processBulkAvatarMovement(movement: BulkMovement): void {
-    // Mover el avatar con animación
-    this._roomCreator.updateRoomObjectUserLocation(
-        this._currentRoomId,
-        movement.id,
-        movement.from,
-        movement.to,
-        false, // canStandUp
-        0, // baseY
-        null, // direction
-        NaN, // headDirection
-        movement.animationTime,
-    );
-
-    // Aplicar postura si existe
-    if (movement.posture && movement.posture.length) {
-        this._roomCreator.updateRoomObjectUserPosture(
-            this._currentRoomId, 
-            movement.id, 
-            movement.posture, 
-            movement.postureParam || ''
-        );
-        
-        // Re-aplicar postura después de la animación
-        const animationMs = movement.animationTime || 0;
-        if (animationMs > 0) {
-            setTimeout(() => {
-                if (this._roomCreator) {
-                    this._roomCreator.updateRoomObjectUserPosture(
-                        this._currentRoomId, 
-                        movement.id, 
-                        movement.posture, 
-                        movement.postureParam || ''
-                    );
-                }
-            }, Math.max(50, animationMs + 50));
+            // Re-aplicar postura después de la animación
+            const animationMs = movement.animationTime || 0;
+            if (animationMs > 0) {
+                setTimeout(() => {
+                    if (this._roomCreator) {
+                        this._roomCreator.updateRoomObjectUserPosture(
+                            this._currentRoomId,
+                            movement.id,
+                            movement.posture,
+                            movement.postureParam || ''
+                        );
+                    }
+                }, Math.max(50, animationMs + 50));
+            }
         }
     }
-}
     private onRoomRollingEvent(event: ObjectsRollingEvent): void {
         if (!(event instanceof ObjectsRollingEvent) || !event.connection || !this._roomCreator) return;
 

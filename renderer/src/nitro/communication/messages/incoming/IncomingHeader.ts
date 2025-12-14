@@ -510,5 +510,4 @@ export class IncomingHeader
     public static BULK_SLIDE_ITEMS_USERS = 5301;
     public static BULK_HEIGHT_MAP_UPDATE = 5302;
     public static BULK_SLIDE_USERS_AND_ITEMS = 5303;
-    public static UNIT_STATUS_CUSTOM = 6065;
 }
