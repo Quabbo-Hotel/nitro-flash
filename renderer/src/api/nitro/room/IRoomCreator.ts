@@ -61,4 +61,8 @@ export interface IRoomCreator {
         toRotation: number
 
     ): void;
+    updateRoomObjectFloorDirection(roomId: number, objectId: number, direction: IVector3D): boolean;
+    updateRoomObjectUserPosture(roomId: number, objectId: number, posture: string, param?: string): boolean;
+    getRoomObjectUser(roomId: number, objectId: number): IRoomObjectController;
+    rollRoomObjectFloor(roomId: number, objectId: number, from: IVector3D, to: IVector3D, animationTime?: number): void;
 }

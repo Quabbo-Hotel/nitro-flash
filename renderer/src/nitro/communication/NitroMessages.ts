@@ -43,6 +43,7 @@ import { RequestGlobalWithVariablesComposer } from './messages/outgoing/room/var
 import { RequestSharedRoomVariablesComposer } from './messages/outgoing/room/variables/RequestSharedRoomVariablesComposer';
 import { RequestContextVariablesComposer } from './messages/outgoing/room/variables/RequestContextVariablesComposer';
 import { PutMoreFromInventoryComposer } from './messages/outgoing/room/engine/PutMoreFromInventoryComposer';
+import { BulkObjectsRollingEvent } from './messages/incoming/room/engine/BulkObjectsRollingEvent';
 
 export class NitroMessages implements IMessageConfiguration {
     private _events: Map<number, Function>;
@@ -449,6 +450,7 @@ export class NitroMessages implements IMessageConfiguration {
         this._events.set(IncomingHeader.ROOM_INFO_OWNER, RoomEntryInfoMessageEvent);
         this._events.set(IncomingHeader.ROOM_SCORE, RoomScoreEvent);
         this._events.set(IncomingHeader.ROOM_ROLLING, ObjectsRollingEvent);
+        this._events.set(IncomingHeader.BULK_ROOM_ROLLING, BulkObjectsRollingEvent);
         this._events.set(IncomingHeader.FURNITURE_FLOOR_ADD, FurnitureFloorAddEvent);
         this._events.set(IncomingHeader.FURNITURE_FLOOR, FurnitureFloorEvent);
         this._events.set(IncomingHeader.FURNITURE_FLOOR_REMOVE, FurnitureFloorRemoveEvent);
