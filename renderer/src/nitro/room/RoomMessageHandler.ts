@@ -457,6 +457,7 @@ export class RoomMessageHandler extends Disposable
                     rollData.id,
                     rollData.location,
                     rollData.targetLocation,
+                    parser.itemsAnimationTime || 500,
                 );
             }
         }
@@ -474,6 +475,7 @@ export class RoomMessageHandler extends Disposable
                 0, // baseY (6to) - valor por defecto: 0
                 null, // direction (7mo) - valor por defecto: null
                 NaN, // headDirection (8vo) - valor por defecto: NaN
+                parser.unitAnimationTime || 500,
             );
 
             const object = this._roomCreator.getRoomObjectUser(this._currentRoomId, unitRollData.id);
@@ -636,6 +638,7 @@ export class RoomMessageHandler extends Disposable
                 slide.virtualId,
                 from,
                 to,
+                500,
             );
 
             // Actualizar la rotación si cambió
@@ -668,6 +671,7 @@ export class RoomMessageHandler extends Disposable
                     slide.virtualId,
                     from,
                     to,
+                    500,
                 );
 
                 // Actualizar la rotación si cambió

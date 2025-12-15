@@ -5,13 +5,15 @@ export class ObjectMoveUpdateMessage extends RoomObjectUpdateMessage
 {
     private _targetLocation: IVector3D;
     private _isSlide: boolean;
+    private _animationTime: number;
 
-    constructor(location: IVector3D, targetLocation: IVector3D, direction: IVector3D, isSlide: boolean = false)
+    constructor(location: IVector3D, targetLocation: IVector3D, direction: IVector3D, isSlide: boolean = false, animationTime: number = 500)
     {
         super(location, direction);
 
         this._targetLocation = targetLocation;
         this._isSlide = isSlide;
+        this._animationTime = animationTime;
     }
 
     public get targetLocation(): IVector3D
@@ -24,6 +26,11 @@ export class ObjectMoveUpdateMessage extends RoomObjectUpdateMessage
     public get isSlide(): boolean
     {
         return this._isSlide;
+    }
+
+    public get animationTime(): number
+    {
+        return this._animationTime;
     }
 
 }

@@ -126,6 +126,10 @@ export class MovingObjectLogic extends RoomObjectLogicBase
 
         this._locationDelta.assign(message.targetLocation);
         this._locationDelta.subtract(this._location);
+        // If the message carries a specific animation duration, use it for the update interval
+        if(typeof (message as any).animationTime === 'number') {
+            this.updateInterval = (message as any).animationTime;
+        }
     }
 
     protected getLocationOffset(): IVector3D
