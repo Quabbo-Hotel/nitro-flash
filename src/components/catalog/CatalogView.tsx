@@ -78,7 +78,7 @@ export const CatalogView: FC<{}> = props =>
                     <NitroCardTabsView subClassName="w-100">
                         { rootNode && (rootNode.children.length > 0) && rootNode.children.map(child =>
                         {
-                            if(!child.isVisible) return null;
+                            if(!child || !child.isVisible) return null;
 
                             return (
                                 <NitroCardTabsItemView key={ child.pageId } isActive={ child.isActive } onClick={ event =>
