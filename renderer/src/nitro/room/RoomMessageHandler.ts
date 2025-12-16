@@ -1,12 +1,11 @@
 import { AvatarGuideStatus, IConnection, IRoomCreator, IVector3D, LegacyDataType, ObjectRolling, PetType, RoomObjectType, RoomObjectUserType, RoomObjectVariable, Vector3d } from '../../api';
 import { Disposable } from '../../core';
-import { BulkHeightMapUpdateEvent, BulkUpdateFloorItemsEvent, DiceValueMessageEvent, FloorHeightMapEvent, FurnitureAliasesComposer, FurnitureAliasesEvent, FurnitureDataEvent, FurnitureFloorAddEvent, FurnitureFloorDataParser, FurnitureFloorEvent, FurnitureFloorRemoveEvent, FurnitureFloorUpdateEvent, FurnitureWallAddEvent, FurnitureWallDataParser, FurnitureWallEvent, FurnitureWallRemoveEvent, FurnitureWallUpdateEvent, GetRoomEntryDataMessageComposer, GuideSessionEndedMessageEvent, GuideSessionErrorMessageEvent, GuideSessionStartedMessageEvent, IgnoreResultEvent, ItemDataUpdateMessageEvent, ObjectsDataUpdateEvent, ObjectsRollingEvent, OneWayDoorStatusMessageEvent, PetExperienceEvent, PetFigureUpdateEvent, PlayerOnClickThroughEvent, PlayerVimKeysEvent, PlayerWalkKeysEvent, RoomEntryTileMessageEvent, RoomEntryTileMessageParser, RoomHeightMapEvent, RoomHeightMapUpdateEvent, RoomPaintEvent, RoomReadyMessageEvent, RoomSpotlightOverlayEvent, RoomUnitChatEvent, RoomUnitChatShoutEvent, RoomUnitChatWhisperEvent, RoomUnitDanceEvent, RoomUnitEffectEvent, RoomUnitEvent, RoomUnitExpressionEvent, RoomUnitFocusEvent, RoomUnitHandItemEvent, RoomUnitIdleEvent, RoomUnitInfoEvent, RoomUnitNumberEvent, RoomUnitRemoveEvent, RoomUnitStatusEvent, RoomUnitTypingEvent, RoomVisualizationSettingsEvent, UserInfoEvent, YouArePlayingGameEvent } from '../communication';
+import { BulkHeightMapUpdateEvent, BulkObjectsRollingEvent, BulkUpdateFloorItemsEvent, DiceValueMessageEvent, FloorHeightMapEvent, FurnitureAliasesComposer, FurnitureAliasesEvent, FurnitureDataEvent, FurnitureFloorAddEvent, FurnitureFloorDataParser, FurnitureFloorEvent, FurnitureFloorRemoveEvent, FurnitureFloorUpdateEvent, FurnitureWallAddEvent, FurnitureWallDataParser, FurnitureWallEvent, FurnitureWallRemoveEvent, FurnitureWallUpdateEvent, GetRoomEntryDataMessageComposer, GuideSessionEndedMessageEvent, GuideSessionErrorMessageEvent, GuideSessionStartedMessageEvent, IgnoreResultEvent, ItemDataUpdateMessageEvent, ObjectsDataUpdateEvent, ObjectsRollingEvent, OneWayDoorStatusMessageEvent, PetExperienceEvent, PetFigureUpdateEvent, PlayerOnClickThroughEvent, PlayerVimKeysEvent, PlayerWalkKeysEvent, RoomEntryTileMessageEvent, RoomEntryTileMessageParser, RoomHeightMapEvent, RoomHeightMapUpdateEvent, RoomPaintEvent, RoomReadyMessageEvent, RoomSpotlightOverlayEvent, RoomUnitChatEvent, RoomUnitChatShoutEvent, RoomUnitChatWhisperEvent, RoomUnitDanceEvent, RoomUnitEffectEvent, RoomUnitEvent, RoomUnitExpressionEvent, RoomUnitFocusEvent, RoomUnitHandItemEvent, RoomUnitIdleEvent, RoomUnitInfoEvent, RoomUnitNumberEvent, RoomUnitRemoveEvent, RoomUnitStatusEvent, RoomUnitTypingEvent, RoomVisualizationSettingsEvent, UserInfoEvent, YouArePlayingGameEvent } from '../communication';
 import { RoomPlaneParser } from './object/RoomPlaneParser';
 import { RoomVariableEnum } from './RoomVariableEnum';
 import { FurnitureStackingHeightMap, LegacyWallGeometry } from './utils';
 
-export class RoomMessageHandler extends Disposable
-{
+export class RoomMessageHandler extends Disposable {
     private _connection: IConnection;
     private _roomCreator: IRoomCreator;
     private _planeParser: RoomPlaneParser;
@@ -18,8 +17,7 @@ export class RoomMessageHandler extends Disposable
     private _guideId: number;
     private _requesterId: number;
 
-    constructor(roomCreator: IRoomCreator)
-    {
+    constructor(roomCreator: IRoomCreator) {
         super();
 
         this._connection = null;
@@ -34,24 +32,21 @@ export class RoomMessageHandler extends Disposable
         this._requesterId = -1;
     }
 
-    protected onDispose(): void
-    {
+    protected onDispose(): void {
         super.onDispose();
 
         this._connection = null;
         this._roomCreator = null;
         this._latestEntryTileEvent = null;
 
-        if (this._planeParser)
-        {
+        if (this._planeParser) {
             this._planeParser.dispose();
 
             this._planeParser = null;
         }
     }
 
-    public setConnection(connection: IConnection)
-    {
+    public setConnection(connection: IConnection) {
         if (this._connection || !connection) return;
 
         this._connection = connection;
@@ -107,12 +102,65 @@ export class RoomMessageHandler extends Disposable
         this._connection.addMessageEvent(new GuideSessionStartedMessageEvent(this.onGuideSessionStartedMessageEvent.bind(this)));
         this._connection.addMessageEvent(new GuideSessionEndedMessageEvent(this.onGuideSessionEndedMessageEvent.bind(this)));
         this._connection.addMessageEvent(new GuideSessionErrorMessageEvent(this.onGuideSessionErrorMessageEvent.bind(this)));
+        this._connection.addMessageEvent(new BulkObjectsRollingEvent(this.onBulkSlidesEvent.bind(this)));
     }
+    private onBulkSlidesEvent(event: BulkObjectsRollingEvent): void {
+        if (!(event instanceof BulkObjectsRollingEvent) || !event.connection || !this._roomCreator) return;
 
-    public setRoomId(id: number): void
-    {
-        if (this._currentRoomId !== 0)
-        {
+        const parser = event.getParser();
+
+        // Procesar slides de items
+        const itemSlides = parser.itemSlides;
+        const avatarSlides = parser.avatarSlides;
+
+        if (itemSlides && itemSlides.length) {
+            for (const itemSlide of itemSlides) {
+                this._roomCreator.rollRoomObjectFloor(
+                    this._currentRoomId,
+                    itemSlide.itemId,
+                    itemSlide.from,
+                    itemSlide.to,
+                    itemSlide.animationTime
+                );
+            }
+        }
+
+        // Procesar slides de avatares
+        if (avatarSlides && avatarSlides.length) {
+            for (const avatarSlide of avatarSlides) {
+                this._roomCreator.updateRoomObjectUserLocation(
+                    this._currentRoomId,
+                    avatarSlide.avatarId,
+                    avatarSlide.from,
+                    avatarSlide.to,
+                    false, // canStandUp
+                    0, // baseY
+                    null, // direction
+                    NaN, // headDirection
+                    avatarSlide.animationTime
+                );
+
+                const object = this._roomCreator.getRoomObjectUser(this._currentRoomId, avatarSlide.avatarId);
+
+                if (object && object.type !== RoomObjectUserType.MONSTER_PLANT) {
+                    if (avatarSlide.avatarStatus) {
+                        const idx = avatarSlide.avatarStatus.indexOf(' ');
+                        if (idx > 0) {
+                            const type = avatarSlide.avatarStatus.substring(0, idx);
+                            const param = avatarSlide.avatarStatus.substring(idx + 1);
+                            this._roomCreator.updateRoomObjectUserPosture(this._currentRoomId, avatarSlide.avatarId, type, param);
+                        } else {
+                            this._roomCreator.updateRoomObjectUserPosture(this._currentRoomId, avatarSlide.avatarId, avatarSlide.avatarStatus);
+                        }
+                    } else {
+                        this._roomCreator.updateRoomObjectUserPosture(this._currentRoomId, avatarSlide.avatarId, 'std');
+                    }
+                }
+            }
+        }
+    }
+    public setRoomId(id: number): void {
+        if (this._currentRoomId !== 0) {
             if (this._roomCreator) this._roomCreator.destroyRoom(this._currentRoomId);
         }
 
@@ -120,14 +168,12 @@ export class RoomMessageHandler extends Disposable
         this._latestEntryTileEvent = null;
     }
 
-    public clearRoomId(): void
-    {
+    public clearRoomId(): void {
         this._currentRoomId = 0;
         this._latestEntryTileEvent = null;
     }
 
-    private onUserInfoEvent(event: UserInfoEvent): void
-    {
+    private onUserInfoEvent(event: UserInfoEvent): void {
         if (!(event instanceof UserInfoEvent) || !event.connection) return;
 
         const parser = event.getParser();
@@ -137,22 +183,18 @@ export class RoomMessageHandler extends Disposable
         this._ownUserId = parser.userInfo.userId;
     }
 
-    private onRoomReadyMessageEvent(event: RoomReadyMessageEvent): void
-    {
+    private onRoomReadyMessageEvent(event: RoomReadyMessageEvent): void {
         const parser = event.getParser();
 
-        if (this._currentRoomId !== parser.roomId)
-        {
+        if (this._currentRoomId !== parser.roomId) {
             this.setRoomId(parser.roomId);
         }
 
-        if (this._roomCreator)
-        {
+        if (this._roomCreator) {
             this._roomCreator.setRoomInstanceModelName(parser.roomId, parser.name);
         }
 
-        if (this._initialConnection)
-        {
+        if (this._initialConnection) {
             event.connection.send(new FurnitureAliasesComposer());
 
             this._initialConnection = false;
@@ -163,8 +205,7 @@ export class RoomMessageHandler extends Disposable
         event.connection.send(new GetRoomEntryDataMessageComposer());
     }
 
-    private onRoomPaintEvent(event: RoomPaintEvent): void
-    {
+    private onRoomPaintEvent(event: RoomPaintEvent): void {
         if (!(event instanceof RoomPaintEvent)) return;
 
         const parser = event.getParser();
@@ -175,14 +216,12 @@ export class RoomMessageHandler extends Disposable
         const wallType = parser.wallType;
         const landscapeType = parser.landscapeType;
 
-        if (this._roomCreator)
-        {
+        if (this._roomCreator) {
             this._roomCreator.updateRoomInstancePlaneType(this._currentRoomId, floorType, wallType, landscapeType);
         }
     }
 
-    private onPlayerOnClickThroughEvent(event: PlayerOnClickThroughEvent): void
-    {
+    private onPlayerOnClickThroughEvent(event: PlayerOnClickThroughEvent): void {
         if (!event) return;
 
         const parser = event.getParser();
@@ -192,8 +231,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.setRoomEngineGameMode(this._currentRoomId, parser.isPlaying);
     }
 
-    private onPlayerWalkKeysEvent(event: PlayerWalkKeysEvent): void
-    {
+    private onPlayerWalkKeysEvent(event: PlayerWalkKeysEvent): void {
         if (!event) return;
 
         const parser = event.getParser();
@@ -204,8 +242,7 @@ export class RoomMessageHandler extends Disposable
         (window as any).walkKeysEnabled = parser.isEnabled;
     }
 
-    private onPlayerVimKeysEvent(event: PlayerVimKeysEvent): void
-    {
+    private onPlayerVimKeysEvent(event: PlayerVimKeysEvent): void {
         if (!event) return;
 
         const parser = event.getParser();
@@ -216,8 +253,7 @@ export class RoomMessageHandler extends Disposable
         (window as any).vimKeysEnabled = parser.isEnabled;
     }
 
-    private onRoomModelEvent(event: FloorHeightMapEvent): void
-    {
+    private onRoomModelEvent(event: FloorHeightMapEvent): void {
         if (!(event instanceof FloorHeightMapEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -246,26 +282,21 @@ export class RoomMessageHandler extends Disposable
 
         let y = 0;
 
-        while (y < height)
-        {
+        while (y < height) {
             let x = 0;
 
-            while (x < width)
-            {
+            while (x < width) {
                 const tileHeight = parser.getHeight(x, y);
 
-                if (((((y > 0) && (y < (height - 1))) || ((x > 0) && (x < (width - 1)))) && (!(tileHeight == RoomPlaneParser.TILE_BLOCKED))) && ((entryTile == null) || ((x == entryTile.x) && (y == entryTile.y))))
-                {
-                    if (((parser.getHeight(x, (y - 1)) == RoomPlaneParser.TILE_BLOCKED) && (parser.getHeight((x - 1), y) == RoomPlaneParser.TILE_BLOCKED)) && (parser.getHeight(x, (y + 1)) == RoomPlaneParser.TILE_BLOCKED))
-                    {
+                if (((((y > 0) && (y < (height - 1))) || ((x > 0) && (x < (width - 1)))) && (!(tileHeight == RoomPlaneParser.TILE_BLOCKED))) && ((entryTile == null) || ((x == entryTile.x) && (y == entryTile.y)))) {
+                    if (((parser.getHeight(x, (y - 1)) == RoomPlaneParser.TILE_BLOCKED) && (parser.getHeight((x - 1), y) == RoomPlaneParser.TILE_BLOCKED)) && (parser.getHeight(x, (y + 1)) == RoomPlaneParser.TILE_BLOCKED)) {
                         doorX = (x + 0.5);
                         doorY = y;
                         doorZ = tileHeight;
                         doorDirection = 90;
                     }
 
-                    if (((parser.getHeight(x, (y - 1)) == RoomPlaneParser.TILE_BLOCKED) && (parser.getHeight((x - 1), y) == RoomPlaneParser.TILE_BLOCKED)) && (parser.getHeight((x + 1), y) == RoomPlaneParser.TILE_BLOCKED))
-                    {
+                    if (((parser.getHeight(x, (y - 1)) == RoomPlaneParser.TILE_BLOCKED) && (parser.getHeight((x - 1), y) == RoomPlaneParser.TILE_BLOCKED)) && (parser.getHeight((x + 1), y) == RoomPlaneParser.TILE_BLOCKED)) {
                         doorX = x;
                         doorY = (y + 0.5);
                         doorZ = tileHeight;
@@ -285,14 +316,12 @@ export class RoomMessageHandler extends Disposable
         this._planeParser.initializeFromTileData(parser.wallHeight);
         this._planeParser.setTileHeight(Math.floor(doorX), Math.floor(doorY), (doorZ + this._planeParser.wallHeight));
 
-        if (parser.scale === 64)
-        {
+        if (parser.scale === 64) {
             this._planeParser.restrictsDragging = true;
             this._planeParser.restrictsScaling = true;
             this._planeParser.restrictedScale = 0.5;
         }
-        else
-        {
+        else {
             this._planeParser.restrictsDragging = false;
             this._planeParser.restrictsScaling = false;
             this._planeParser.restrictedScale = 1;
@@ -303,12 +332,10 @@ export class RoomMessageHandler extends Disposable
 
         let heightIterator = (parser.height - 1);
 
-        while (heightIterator >= 0)
-        {
+        while (heightIterator >= 0) {
             let widthIterator = (parser.width - 1);
 
-            while (widthIterator >= 0)
-            {
+            while (widthIterator >= 0) {
                 wallGeometry.setHeight(widthIterator, heightIterator, this._planeParser.getTileHeight(widthIterator, heightIterator));
                 widthIterator--;
             }
@@ -328,8 +355,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.createRoomInstance(this._currentRoomId, roomMap);
     }
 
-    private onRoomHeightMapEvent(event: RoomHeightMapEvent): void
-    {
+    private onRoomHeightMapEvent(event: RoomHeightMapEvent): void {
         if (!(event instanceof RoomHeightMapEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -342,12 +368,10 @@ export class RoomMessageHandler extends Disposable
 
         let y = 0;
 
-        while (y < height)
-        {
+        while (y < height) {
             let x = 0;
 
-            while (x < width)
-            {
+            while (x < width) {
                 heightMap.setTileHeight(x, y, parser.getTileHeight(x, y));
                 heightMap.setStackingBlocked(x, y, parser.getStackingBlocked(x, y));
                 heightMap.setIsRoomTile(x, y, parser.isRoomTile(x, y));
@@ -361,8 +385,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.setFurnitureStackingHeightMap(this._currentRoomId, heightMap);
     }
 
-    private onRoomHeightMapUpdateEvent(event: RoomHeightMapUpdateEvent): void
-    {
+    private onRoomHeightMapUpdateEvent(event: RoomHeightMapUpdateEvent): void {
         if (!(event instanceof RoomHeightMapUpdateEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -373,8 +396,7 @@ export class RoomMessageHandler extends Disposable
 
         if (!heightMap) return;
 
-        while (parser.next())
-        {
+        while (parser.next()) {
             heightMap.setTileHeight(parser.x, parser.y, parser.tileHeight());
             heightMap.setStackingBlocked(parser.x, parser.y, parser.isStackingBlocked());
             heightMap.setIsRoomTile(parser.x, parser.y, parser.isRoomTile());
@@ -383,8 +405,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.refreshTileObjectMap(this._currentRoomId, 'RoomMessageHandler.onRoomHeightMapUpdateEvent()');
     }
 
-    private onBulkHeightMapUpdateEvent(event: BulkHeightMapUpdateEvent): void
-    {
+    private onBulkHeightMapUpdateEvent(event: BulkHeightMapUpdateEvent): void {
         if (!(event instanceof BulkHeightMapUpdateEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -396,8 +417,7 @@ export class RoomMessageHandler extends Disposable
         if (!heightMap) return;
 
         // Update the heightmap with the stacking heights from the tiles
-        for (const item of parser.items)
-        {
+        for (const item of parser.items) {
             if (!item) continue;
 
             heightMap.setTileHeight(item.x, item.y, item.height);
@@ -406,8 +426,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.refreshTileObjectMap(this._currentRoomId, 'RoomMessageHandler.onBulkHeightMapUpdateEvent()');
     }
 
-    private onRoomThicknessEvent(event: RoomVisualizationSettingsEvent): void
-    {
+    private onRoomThicknessEvent(event: RoomVisualizationSettingsEvent): void {
         if (!(event instanceof RoomVisualizationSettingsEvent)) return;
 
         const parser = event.getParser();
@@ -419,22 +438,19 @@ export class RoomMessageHandler extends Disposable
         const thicknessWall = parser.thicknessWall;
         const thicknessFloor = parser.thicknessFloor;
 
-        if (this._roomCreator)
-        {
+        if (this._roomCreator) {
             this._roomCreator.updateRoomInstancePlaneVisibility(this._currentRoomId, visibleWall, visibleFloor);
             this._roomCreator.updateRoomInstancePlaneThickness(this._currentRoomId, thicknessWall, thicknessFloor);
         }
     }
 
-    private onRoomDoorEvent(event: RoomEntryTileMessageEvent): void
-    {
+    private onRoomDoorEvent(event: RoomEntryTileMessageEvent): void {
         if (!(event instanceof RoomEntryTileMessageEvent)) return;
 
         this._latestEntryTileEvent = event;
     }
 
-    private onRoomRollingEvent(event: ObjectsRollingEvent): void
-    {
+    private onRoomRollingEvent(event: ObjectsRollingEvent): void {
         if (!(event instanceof ObjectsRollingEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -444,10 +460,8 @@ export class RoomMessageHandler extends Disposable
 
         const furnitureRolling = parser.itemsRolling;
 
-        if (furnitureRolling && furnitureRolling.length)
-        {
-            for (const rollData of furnitureRolling)
-            {
+        if (furnitureRolling && furnitureRolling.length) {
+            for (const rollData of furnitureRolling) {
                 if (!rollData) continue;
 
                 this._roomCreator.rollRoomObjectFloor(
@@ -462,8 +476,7 @@ export class RoomMessageHandler extends Disposable
 
         const unitRollData = parser.unitRolling;
 
-        if (unitRollData)
-        {
+        if (unitRollData) {
             this._roomCreator.updateRoomObjectUserLocation(
                 this._currentRoomId,
                 unitRollData.id,
@@ -478,12 +491,10 @@ export class RoomMessageHandler extends Disposable
 
             const object = this._roomCreator.getRoomObjectUser(this._currentRoomId, unitRollData.id);
 
-            if (object && object.type !== RoomObjectUserType.MONSTER_PLANT)
-            {
+            if (object && object.type !== RoomObjectUserType.MONSTER_PLANT) {
                 let posture = 'std';
 
-                switch (unitRollData.movementType)
-                {
+                switch (unitRollData.movementType) {
                     case ObjectRolling.MOVE:
                         posture = 'mv';
                         break;
@@ -511,22 +522,19 @@ export class RoomMessageHandler extends Disposable
         }
     }
 
-    private onObjectsDataUpdateEvent(event: ObjectsDataUpdateEvent): void
-    {
+    private onObjectsDataUpdateEvent(event: ObjectsDataUpdateEvent): void {
         if (!(event instanceof ObjectsDataUpdateEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
 
         if (!parser) return;
 
-        for (const object of parser.objects)
-        {
+        for (const object of parser.objects) {
             this._roomCreator.updateRoomObjectFloor(this._currentRoomId, object.id, null, null, object.state, object.data);
         }
     }
 
-    private onFurnitureAliasesEvent(event: FurnitureAliasesEvent): void
-    {
+    private onFurnitureAliasesEvent(event: FurnitureAliasesEvent): void {
         if (!(event instanceof FurnitureAliasesEvent) || !event.connection || !this._roomCreator) return;
 
         const alises = event.getParser().aliases;
@@ -534,8 +542,7 @@ export class RoomMessageHandler extends Disposable
         this._connection.send(new GetRoomEntryDataMessageComposer());
     }
 
-    private onFurnitureFloorAddEvent(event: FurnitureFloorAddEvent): void
-    {
+    private onFurnitureFloorAddEvent(event: FurnitureFloorAddEvent): void {
         if (!(event instanceof FurnitureFloorAddEvent) || !event.connection || !this._roomCreator) return;
 
         const item = event.getParser().item;
@@ -545,8 +552,7 @@ export class RoomMessageHandler extends Disposable
         this.addRoomObjectFurnitureFloor(this._currentRoomId, item);
     }
 
-    private onFurnitureFloorEvent(event: FurnitureFloorEvent): void
-    {
+    private onFurnitureFloorEvent(event: FurnitureFloorEvent): void {
         if (!(event instanceof FurnitureFloorEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -557,8 +563,7 @@ export class RoomMessageHandler extends Disposable
 
         let iterator = 0;
 
-        while (iterator < totalObjects)
-        {
+        while (iterator < totalObjects) {
             const object = parser.items[iterator];
 
             if (object) this.addRoomObjectFurnitureFloor(this._currentRoomId, object);
@@ -567,29 +572,24 @@ export class RoomMessageHandler extends Disposable
         }
     }
 
-    private onFurnitureFloorRemoveEvent(event: FurnitureFloorRemoveEvent): void
-    {
+    private onFurnitureFloorRemoveEvent(event: FurnitureFloorRemoveEvent): void {
         if (!(event instanceof FurnitureFloorRemoveEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
 
         if (!parser) return;
 
-        if (parser.delay > 0)
-        {
-            setTimeout(() =>
-            {
+        if (parser.delay > 0) {
+            setTimeout(() => {
                 this._roomCreator.removeRoomObjectFloor(this._currentRoomId, parser.itemId, (parser.isExpired) ? -1 : parser.userId, true);
             }, parser.delay);
         }
-        else
-        {
+        else {
             this._roomCreator.removeRoomObjectFloor(this._currentRoomId, parser.itemId, (parser.isExpired) ? -1 : parser.userId, true);
         }
     }
 
-    private onFurnitureFloorUpdateEvent(event: FurnitureFloorUpdateEvent): void
-    {
+    private onFurnitureFloorUpdateEvent(event: FurnitureFloorUpdateEvent): void {
         if (!(event instanceof FurnitureFloorUpdateEvent) || !event.connection || !this._roomCreator) return;
 
         const item = event.getParser().item;
@@ -604,8 +604,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectFloorExpiration(this._currentRoomId, item.itemId, item.expires);
     }
 
-    private onBulkUpdateFloorItemsEvent(event: BulkUpdateFloorItemsEvent): void
-    {
+    private onBulkUpdateFloorItemsEvent(event: BulkUpdateFloorItemsEvent): void {
         if (!(event instanceof BulkUpdateFloorItemsEvent) || !event.connection || !this._roomCreator) return;
 
         const items = event.getParser().items;
@@ -613,8 +612,7 @@ export class RoomMessageHandler extends Disposable
         if (!items || items.length === 0) return;
 
         // Procesar cada item del bulk update
-        for (const item of items) 
-        {
+        for (const item of items) {
             if (!item) continue;
 
             const location: IVector3D = new Vector3d(item.x, item.y, item.z);
@@ -626,8 +624,7 @@ export class RoomMessageHandler extends Disposable
         }
     }
 
-    private onFurnitureWallAddEvent(event: FurnitureWallAddEvent): void
-    {
+    private onFurnitureWallAddEvent(event: FurnitureWallAddEvent): void {
         if (!(event instanceof FurnitureWallAddEvent) || !event.connection || !this._roomCreator) return;
 
         const data = event.getParser().item;
@@ -637,8 +634,7 @@ export class RoomMessageHandler extends Disposable
         this.addRoomObjectFurnitureWall(this._currentRoomId, data);
     }
 
-    private onFurnitureWallEvent(event: FurnitureWallEvent): void
-    {
+    private onFurnitureWallEvent(event: FurnitureWallEvent): void {
         if (!(event instanceof FurnitureWallEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -649,8 +645,7 @@ export class RoomMessageHandler extends Disposable
 
         let iterator = 0;
 
-        while (iterator < totalObjects)
-        {
+        while (iterator < totalObjects) {
             const data = parser.items[iterator];
 
             if (data) this.addRoomObjectFurnitureWall(this._currentRoomId, data);
@@ -659,8 +654,7 @@ export class RoomMessageHandler extends Disposable
         }
     }
 
-    private onFurnitureWallRemoveEvent(event: FurnitureWallRemoveEvent): void
-    {
+    private onFurnitureWallRemoveEvent(event: FurnitureWallRemoveEvent): void {
         if (!(event instanceof FurnitureWallRemoveEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -670,8 +664,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.removeRoomObjectWall(this._currentRoomId, parser.itemId, parser.userId);
     }
 
-    private onFurnitureWallUpdateEvent(event: FurnitureWallUpdateEvent): void
-    {
+    private onFurnitureWallUpdateEvent(event: FurnitureWallUpdateEvent): void {
         if (!(event instanceof FurnitureWallUpdateEvent) || !event.connection || !this._roomCreator) return;
 
         const wallGeometry = this._roomCreator.getLegacyWallGeometry(this._currentRoomId);
@@ -689,8 +682,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectWallExpiration(this._currentRoomId, item.itemId, item.secondsToExpiration);
     }
 
-    private onFurnitureDataEvent(event: FurnitureDataEvent): void
-    {
+    private onFurnitureDataEvent(event: FurnitureDataEvent): void {
         if (!(event instanceof FurnitureDataEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -698,8 +690,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectFloor(this._currentRoomId, parser.furnitureId, null, null, parser.objectData.state, parser.objectData);
     }
 
-    private onItemDataUpdateMessageEvent(event: ItemDataUpdateMessageEvent): void
-    {
+    private onItemDataUpdateMessageEvent(event: ItemDataUpdateMessageEvent): void {
         if (!(event instanceof ItemDataUpdateMessageEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -707,8 +698,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectWallItemData(this._currentRoomId, parser.furnitureId, parser.data);
     }
 
-    private onOneWayDoorStatusMessageEvent(event: OneWayDoorStatusMessageEvent): void
-    {
+    private onOneWayDoorStatusMessageEvent(event: OneWayDoorStatusMessageEvent): void {
         if (!(event instanceof OneWayDoorStatusMessageEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -716,8 +706,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectFloor(this._currentRoomId, parser.itemId, null, null, parser.state, new LegacyDataType());
     }
 
-    private onDiceValueMessageEvent(event: DiceValueMessageEvent): void
-    {
+    private onDiceValueMessageEvent(event: DiceValueMessageEvent): void {
         if (!(event instanceof DiceValueMessageEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -725,30 +714,26 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectFloor(this._currentRoomId, parser.itemId, null, null, parser.value, new LegacyDataType());
     }
 
-    private onRoomUnitDanceEvent(event: RoomUnitDanceEvent): void
-    {
+    private onRoomUnitDanceEvent(event: RoomUnitDanceEvent): void {
         if (!(event instanceof RoomUnitDanceEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, event.getParser().unitId, RoomObjectVariable.FIGURE_DANCE, event.getParser().danceId);
     }
 
-    private onRoomUnitEffectEvent(event: RoomUnitEffectEvent): void
-    {
+    private onRoomUnitEffectEvent(event: RoomUnitEffectEvent): void {
         if (!(event instanceof RoomUnitEffectEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserEffect(this._currentRoomId, event.getParser().unitId, event.getParser().effectId, event.getParser().delay);
     }
 
-    private onRoomUnitEvent(event: RoomUnitEvent): void
-    {
+    private onRoomUnitEvent(event: RoomUnitEvent): void {
         if (!(event instanceof RoomUnitEvent) || !event.connection || !this._roomCreator) return;
 
         const users = event.getParser().users;
 
         if (!users || !users.length) return;
 
-        for (const user of users)
-        {
+        for (const user of users) {
             if (!user) continue;
 
             const location = new Vector3d(user.x, user.y, user.z);
@@ -756,18 +741,15 @@ export class RoomMessageHandler extends Disposable
 
             this._roomCreator.addRoomObjectUser(this._currentRoomId, user.roomIndex, location, direction, user.dir, user.userType, user.figure);
 
-            if (user.webID === this._ownUserId)
-            {
+            if (user.webID === this._ownUserId) {
                 this._roomCreator.setRoomSessionOwnUser(this._currentRoomId, user.roomIndex);
                 this._roomCreator.updateRoomObjectUserOwn(this._currentRoomId, user.roomIndex);
             }
 
             this._roomCreator.updateRoomObjectUserFigure(this._currentRoomId, user.roomIndex, user.figure, user.sex, user.subType, user.isRiding);
 
-            if (RoomObjectUserType.getTypeString(user.userType) === RoomObjectUserType.PET)
-            {
-                if (this._roomCreator.getPetTypeId(user.figure) === PetType.MONSTERPLANT)
-                {
+            if (RoomObjectUserType.getTypeString(user.userType) === RoomObjectUserType.PET) {
+                if (this._roomCreator.getPetTypeId(user.figure) === PetType.MONSTERPLANT) {
                     this._roomCreator.updateRoomObjectUserPosture(this._currentRoomId, user.roomIndex, user.petPosture);
                 }
             }
@@ -778,8 +760,7 @@ export class RoomMessageHandler extends Disposable
         this.updateGuideMarker();
     }
 
-    private onRoomUnitFocusEvent(event: RoomUnitFocusEvent): void
-    {
+    private onRoomUnitFocusEvent(event: RoomUnitFocusEvent): void {
         if (!(event instanceof RoomUnitFocusEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -791,8 +772,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, parser.unitId, RoomObjectVariable.FIGURE_FOCUS_ALPHA, alpha);
     }
 
-    private onRoomSpotlightOverlayEvent(event: RoomSpotlightOverlayEvent): void
-    {
+    private onRoomSpotlightOverlayEvent(event: RoomSpotlightOverlayEvent): void {
         if (!(event instanceof RoomSpotlightOverlayEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -802,36 +782,31 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateSpotlightOverlay(this._currentRoomId, parser.enabled, parser.radiusPercent, parser.featherPercent, parser.opacityPercent);
     }
 
-    private onRoomUnitExpressionEvent(event: RoomUnitExpressionEvent): void
-    {
+    private onRoomUnitExpressionEvent(event: RoomUnitExpressionEvent): void {
         if (!(event instanceof RoomUnitExpressionEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, event.getParser().unitId, RoomObjectVariable.FIGURE_EXPRESSION, event.getParser().expression);
     }
 
-    private onRoomUnitHandItemEvent(event: RoomUnitHandItemEvent): void
-    {
+    private onRoomUnitHandItemEvent(event: RoomUnitHandItemEvent): void {
         if (!(event instanceof RoomUnitHandItemEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, event.getParser().unitId, RoomObjectVariable.FIGURE_CARRY_OBJECT, event.getParser().handId);
     }
 
-    private onRoomUnitIdleEvent(event: RoomUnitIdleEvent): void
-    {
+    private onRoomUnitIdleEvent(event: RoomUnitIdleEvent): void {
         if (!(event instanceof RoomUnitIdleEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, event.getParser().unitId, RoomObjectVariable.FIGURE_SLEEP, (event.getParser().isIdle ? 1 : 0));
     }
 
-    private onRoomUnitInfoEvent(event: RoomUnitInfoEvent): void
-    {
+    private onRoomUnitInfoEvent(event: RoomUnitInfoEvent): void {
         if (!(event instanceof RoomUnitInfoEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserFigure(this._currentRoomId, event.getParser().unitId, event.getParser().figure, event.getParser().gender);
     }
 
-    private onRoomUnitNumberEvent(event: RoomUnitNumberEvent): void
-    {
+    private onRoomUnitNumberEvent(event: RoomUnitNumberEvent): void {
         if (!(event instanceof RoomUnitNumberEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -841,8 +816,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, parser.unitId, RoomObjectVariable.FIGURE_NUMBER_VALUE, parser.value);
     }
 
-    private onRoomUnitRemoveEvent(event: RoomUnitRemoveEvent): void
-    {
+    private onRoomUnitRemoveEvent(event: RoomUnitRemoveEvent): void {
         if (!(event instanceof RoomUnitRemoveEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.removeRoomObjectUser(this._currentRoomId, event.getParser().unitId);
@@ -850,8 +824,7 @@ export class RoomMessageHandler extends Disposable
         this.updateGuideMarker();
     }
 
-    private onRoomUnitStatusEvent(event: RoomUnitStatusEvent): void
-    {
+    private onRoomUnitStatusEvent(event: RoomUnitStatusEvent): void {
         if (!(event instanceof RoomUnitStatusEvent) || !event.connection || !this._roomCreator) return;
 
         const statuses = event.getParser().statuses;
@@ -864,8 +837,7 @@ export class RoomMessageHandler extends Disposable
 
         const zScale = (roomInstance.model.getValue<number>(RoomVariableEnum.ROOM_Z_SCALE) || 1);
 
-        for (const status of statuses)
-        {
+        for (const status of statuses) {
             if (!status) continue;
 
             let height = status.height;
@@ -887,14 +859,11 @@ export class RoomMessageHandler extends Disposable
             let postureType = RoomObjectVariable.STD;
             let parameter = '';
 
-            if (status.actions && status.actions.length)
-            {
-                for (const action of status.actions)
-                {
+            if (status.actions && status.actions.length) {
+                for (const action of status.actions) {
                     if (!action) continue;
 
-                    switch (action.action)
-                    {
+                    switch (action.action) {
                         case 'flatctrl':
                             this._roomCreator.updateRoomObjectUserFlatControl(this._currentRoomId, status.id, action.value);
                             break;
@@ -931,8 +900,7 @@ export class RoomMessageHandler extends Disposable
         this.updateGuideMarker();
     }
 
-    private onRoomUnitChatEvent(event: RoomUnitChatEvent): void
-    {
+    private onRoomUnitChatEvent(event: RoomUnitChatEvent): void {
         if (!event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -943,15 +911,13 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, parser.roomIndex, RoomObjectVariable.FIGURE_TALK, (parser.message.length / 10));
     }
 
-    private onRoomUnitTypingEvent(event: RoomUnitTypingEvent): void
-    {
+    private onRoomUnitTypingEvent(event: RoomUnitTypingEvent): void {
         if (!(event instanceof RoomUnitTypingEvent) || !event.connection || !this._roomCreator) return;
 
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, event.getParser().unitId, RoomObjectVariable.FIGURE_IS_TYPING, event.getParser().isTyping ? 1 : 0);
     }
 
-    private onPetFigureUpdateEvent(event: PetFigureUpdateEvent): void
-    {
+    private onPetFigureUpdateEvent(event: PetFigureUpdateEvent): void {
         if (!(event instanceof PetFigureUpdateEvent) || !event.connection || !this._roomCreator) return;
 
         const parser = event.getParser();
@@ -961,8 +927,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectUserFigure(this._currentRoomId, parser.roomIndex, parser.figureData.figuredata, '', '', parser.isRiding);
     }
 
-    private onPetExperienceEvent(event: PetExperienceEvent): void
-    {
+    private onPetExperienceEvent(event: PetExperienceEvent): void {
         const parser = event.getParser();
 
         if (!parser) return;
@@ -970,8 +935,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, parser.roomIndex, RoomObjectVariable.FIGURE_GAINED_EXPERIENCE, parser.gainedExperience);
     }
 
-    private onYouArePlayingGameEvent(event: YouArePlayingGameEvent): void
-    {
+    private onYouArePlayingGameEvent(event: YouArePlayingGameEvent): void {
         if (!event) return;
 
         const parser = event.getParser();
@@ -981,25 +945,21 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.setRoomEngineGameMode(this._currentRoomId, parser.isPlaying);
     }
 
-    private addRoomObjectFurnitureFloor(roomId: number, data: FurnitureFloorDataParser): void
-    {
+    private addRoomObjectFurnitureFloor(roomId: number, data: FurnitureFloorDataParser): void {
         if (!data || !this._roomCreator) return;
 
         const location = new Vector3d(data.x, data.y, data.z);
         const direction = new Vector3d(data.direction);
 
-        if (data.spriteName)
-        {
+        if (data.spriteName) {
             this._roomCreator.addFurnitureFloorByTypeName(roomId, data.itemId, data.spriteName, location, direction, data.state, data.data, data.extra, data.expires, data.usagePolicy, data.userId, data.username, true, true, data.stackHeight);
         }
-        else
-        {
+        else {
             this._roomCreator.addFurnitureFloor(roomId, data.itemId, data.spriteId, location, direction, data.state, data.data, data.extra, data.expires, data.usagePolicy, data.userId, data.username, true, true, data.stackHeight);
         }
     }
 
-    private addRoomObjectFurnitureWall(roomId: number, data: FurnitureWallDataParser): void
-    {
+    private addRoomObjectFurnitureWall(roomId: number, data: FurnitureWallDataParser): void {
         if (!data || !this._roomCreator) return;
 
         const wallGeometry = this._roomCreator.getLegacyWallGeometry(roomId);
@@ -1008,12 +968,10 @@ export class RoomMessageHandler extends Disposable
 
         let location: IVector3D = null;
 
-        if (!data.isOldFormat)
-        {
+        if (!data.isOldFormat) {
             location = wallGeometry.getLocation(data.width, data.height, data.localX, data.localY, data.direction);
         }
-        else
-        {
+        else {
             //location = wallGeometry.getLocationOldFormat(data.y, data.z, data.direction);
         }
 
@@ -1022,8 +980,7 @@ export class RoomMessageHandler extends Disposable
         this._roomCreator.addFurnitureWall(roomId, data.itemId, data.spriteId, location, direction, data.state, data.stuffData, data.secondsToExpiration, data.usagePolicy, data.userId, data.username);
     }
 
-    private onIgnoreResultEvent(event: IgnoreResultEvent): void
-    {
+    private onIgnoreResultEvent(event: IgnoreResultEvent): void {
         if (!event) return;
 
         const parser = event.getParser();
@@ -1038,8 +995,7 @@ export class RoomMessageHandler extends Disposable
 
         if (!userData) return;
 
-        switch (parser.result)
-        {
+        switch (parser.result) {
             case 1:
             case 2:
                 this._roomCreator.updateRoomObjectUserAction(this._currentRoomId, userData.roomIndex, RoomObjectVariable.FIGURE_IS_MUTED, 1);
@@ -1050,8 +1006,7 @@ export class RoomMessageHandler extends Disposable
         }
     }
 
-    private onGuideSessionStartedMessageEvent(event: GuideSessionStartedMessageEvent): void
-    {
+    private onGuideSessionStartedMessageEvent(event: GuideSessionStartedMessageEvent): void {
         const parser = event.getParser();
 
         this._guideId = parser.guideUserId;
@@ -1060,26 +1015,22 @@ export class RoomMessageHandler extends Disposable
         this.updateGuideMarker();
     }
 
-    private onGuideSessionEndedMessageEvent(k: GuideSessionEndedMessageEvent): void
-    {
+    private onGuideSessionEndedMessageEvent(k: GuideSessionEndedMessageEvent): void {
         this.removeGuideMarker();
     }
 
-    private onGuideSessionErrorMessageEvent(k: GuideSessionErrorMessageEvent): void
-    {
+    private onGuideSessionErrorMessageEvent(k: GuideSessionErrorMessageEvent): void {
         this.removeGuideMarker();
     }
 
-    private updateGuideMarker(): void
-    {
+    private updateGuideMarker(): void {
         const userId = this._roomCreator.sessionDataManager.userId;
 
         this.setUserGuideStatus(this._guideId, ((this._requesterId === userId) ? AvatarGuideStatus.GUIDE : AvatarGuideStatus.NONE));
         this.setUserGuideStatus(this._requesterId, ((this._guideId === userId) ? AvatarGuideStatus.REQUESTER : AvatarGuideStatus.NONE));
     }
 
-    private removeGuideMarker(): void
-    {
+    private removeGuideMarker(): void {
         this.setUserGuideStatus(this._guideId, AvatarGuideStatus.NONE);
         this.setUserGuideStatus(this._requesterId, AvatarGuideStatus.NONE);
 
@@ -1087,8 +1038,7 @@ export class RoomMessageHandler extends Disposable
         this._requesterId = -1;
     }
 
-    private setUserGuideStatus(userId: number, status: number): void
-    {
+    private setUserGuideStatus(userId: number, status: number): void {
         if (!this._roomCreator || !this._roomCreator.roomSessionManager) return;
 
         const roomSession = this._roomCreator.roomSessionManager.getSession(this._currentRoomId);
@@ -1140,8 +1090,7 @@ export class RoomMessageHandler extends Disposable
     //     };
     // }
 
-    public get currentRoomId(): number
-    {
+    public get currentRoomId(): number {
         return this._currentRoomId;
     }
 }
