@@ -4,16 +4,18 @@ import { Base, Column, ColumnProps, Flex } from '..';
 
 interface NitroCardHeaderViewProps extends ColumnProps {
     headerText: string;
+    isInfoToHabboPages?: boolean;
     isWired?: boolean;
     isGalleryPhoto?: boolean;
     noCloseButton?: boolean;
     hideButtonClose?: boolean;
     onReportPhoto?: (event: MouseEvent) => void;
     onCloseClick: (event: MouseEvent) => void;
+    onClickInfoHabboPages?: (event: MouseEvent) => void;
 }
 
 export const NitroCardHeaderView: FC<NitroCardHeaderViewProps> = props => {
-    const { headerText = null, isWired = false, isGalleryPhoto = false, noCloseButton = false, hideButtonClose = false, onReportPhoto = null, onCloseClick = null, justifyContent = 'center', alignItems = 'center', classNames = [], children = null, ...rest } = props;
+    const { headerText = null, onClickInfoHabboPages = null, isInfoToHabboPages = false, isWired = false, isGalleryPhoto = false, noCloseButton = false, hideButtonClose = false, onReportPhoto = null, onCloseClick = null, justifyContent = 'center', alignItems = 'center', classNames = [], children = null, ...rest } = props;
 
     const getClassNames = useMemo(() => {
         const newClassNames: string[] = ['drag-handler', 'container-fluid', 'nitro-card-header'];
@@ -31,7 +33,9 @@ export const NitroCardHeaderView: FC<NitroCardHeaderViewProps> = props => {
     return (
         <Column center position="relative" classNames={getClassNames} {...rest}>
             <Flex fullWidth center className="nitro-card-header-holder">
-
+                {isInfoToHabboPages &&
+                    <Base position="absolute" className="end-6 nitro-card-header-info-habbopages" onClick={onClickInfoHabboPages}></Base>
+                }
                 {isGalleryPhoto &&
                     <>
                         <span className="nitro-card-header-text">{headerText}</span><Base position="absolute" className="end-4 nitro-card-header-report-camera" onClick={onReportPhoto}>

@@ -21,3 +21,4 @@ export * from './LayoutRoomThumbnailView';
 export * from './LayoutTrophyView';
 export * from './limited-edition';
 export * from './UserProfileIconView';
+export * from './LayoutSearchSavesView';
