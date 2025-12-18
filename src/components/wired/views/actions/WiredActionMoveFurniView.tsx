@@ -21,6 +21,23 @@ const directionOptions: { value: number, icon: string }[] = [
         value: 7,
         icon: 'nw'
     },
+    // Diagonal directions (new)
+    {
+        value: 8,
+        icon: 'e'
+    },
+    {
+        value: 9,
+        icon: 's'
+    },
+    {
+        value: 10,
+        icon: 'w'
+    },
+    {
+        value: 11,
+        icon: 'n'
+    },
     {
         value: 2,
         icon: 'mv-2'
@@ -59,6 +76,10 @@ export const WiredActionMoveFurniView: FC<{}> = props =>
         }
     }, [ trigger ]);
 
+    const topDirections = directionOptions.slice(0, 4);
+    const middleDirections = directionOptions.slice(4, 8);
+    const bottomDirections = directionOptions.slice(8);
+
     return (
         <WiredActionBaseView requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_BY_ID_BY_TYPE_OR_FROM_CONTEXT } hasSpecialInput={ true } save={ save }>
             <Column gap={ 1 }>
@@ -68,15 +89,32 @@ export const WiredActionMoveFurniView: FC<{}> = props =>
                     <Text>{ LocalizeText('wiredfurni.params.movefurni.0') }</Text>
                 </Flex>
                 <Flex gap={ 1 }>
-                    { directionOptions.map(option =>
-                    {
-                        return (
-                            <Flex alignItems="center" key={ option.value } gap={ 1 }>
-                                <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
-                                <i className={ `icon icon-${ option.icon }` } />
-                            </Flex>
-                        )
-                    }) }
+                    { topDirections.map(option => (
+                        <Flex alignItems="center" key={ option.value } gap={ 1 }>
+                            <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
+                            <i className={ `icon icon-${ option.icon }` } />
+                        </Flex>
+                    )) }
+                    <div className="col" />
+                </Flex>
+
+                <Flex gap={ 1 } className="mt-1">
+                    { middleDirections.map(option => (
+                        <Flex alignItems="center" key={ option.value } gap={ 1 }>
+                            <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
+                            <i className={ `icon icon-${ option.icon }` } />
+                        </Flex>
+                    )) }
+                    <div className="col" />
+                </Flex>
+
+                <Flex gap={ 1 } className="mt-1">
+                    { bottomDirections.map(option => (
+                        <Flex alignItems="center" key={ option.value } gap={ 1 }>
+                            <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
+                            <i className={ `icon icon-${ option.icon }` } />
+                        </Flex>
+                    )) }
                     <div className="col" />
                 </Flex>
             </Column>
