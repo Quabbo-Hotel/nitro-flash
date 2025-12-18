@@ -21,6 +21,7 @@ import { WiredConditionTimeElapsedMoreView } from './WiredConditionTimeElapsedMo
 import { WiredConditionUserCountInRoomView } from './WiredConditionUserCountInRoomView';
 import { WiredConditionVarValueMatchView } from './WiredConditionVarValueMatchView';
 import { WiredConditionVarAgeMatchView } from './WiredConditionVarAgeMatchView';
+import { WiredConditionActorDirectionView } from './WiredConditionActorDirectionView';
 
 export const WiredConditionLayoutView = (code: number) =>
 {
@@ -81,6 +82,8 @@ export const WiredConditionLayoutView = (code: number) =>
                 return <WiredConditionVarValueMatchView />;
             case WiredConditionlayout.VAR_AGE_MATCH:
                 return <WiredConditionVarAgeMatchView />;
+            case WiredConditionlayout.ACTOR_DIRECTION:
+                return <WiredConditionActorDirectionView />;
     }
 
     return null;

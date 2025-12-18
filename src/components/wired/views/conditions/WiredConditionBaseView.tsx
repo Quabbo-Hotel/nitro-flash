@@ -65,13 +65,14 @@ export const WiredConditionBaseView: FC<PropsWithChildren<WiredConditionBaseView
     return (
         <WiredBaseView wiredType="condition" requiresFurni={requiresFurni} hasSpecialInput={hasSpecialInput} save={onSave}>
             {children}
-
+<hr className="m-0 bg-dark" />
             {(allOrOne || allOrOneOptions === 1) && (
                 <Column gap={1}>
                     <Text bold>{LocalizeText('wired_select_mode_u_want')}</Text>
                     {[0, 1].map(mode =>
                         <Flex key={mode} gap={1}>
                             <input
+                            className="form-check-input"
                                 type="radio"
                                 name="wiredToggle"
                                 checked={(allOrOneType === mode)}
@@ -96,7 +97,7 @@ export const WiredConditionBaseView: FC<PropsWithChildren<WiredConditionBaseView
                     )}
                 </Column>
             )}
-
+<hr className="m-0 bg-dark" />
 
             {furniOptions === 1 && (
                 <Column>
@@ -129,19 +130,26 @@ export const WiredConditionBaseView: FC<PropsWithChildren<WiredConditionBaseView
 
             {userOptions === 1 && (
                 <Column>
-                    <Text bold>Users</Text>
+                    <Text center bold>{LocalizeText('select.user.source.actions')}</Text>
                     <div className='align-advancedoptionsone'>
                         <div className="button-group">
-                            <button
-                                onClick={() => setUserType(0)}
-                                className={` icon-neighbor-0 ${userType === 0 ? 'button-icons-selector-general-selected' : 'button-icons-selector-general'}`}
-                            /><button
-                                onClick={() => setUserType(1)}
-                                className={` icon-neighbor-5 ${userType === 1 ? 'button-icons-selector-general-selected' : 'button-icons-selector-general'}`}
-                            /><button
-                                onClick={() => setUserType(2)}
-                                className={` icon-neighbor-2 ${userType === 2 ? 'button-icons-selector-general-selected' : 'button-icons-selector-general'}`}
-                            />
+                            <Flex center className={` placeholder-adv-options ${userType === 0 ? 'placeholder-adv-options-selected ' : 'placeholder-adv-options'}`}>
+                                <div
+                                    onClick={() => setUserType(0)}
+                                    className={` icon-neighbor-0 button-icons-selector-general`} />
+                            </Flex>
+                            <Flex center className={` placeholder-adv-options ${userType === 1 ? 'placeholder-adv-options-selected ' : 'placeholder-adv-options'}`}>
+                                <div
+                                    onClick={() => setUserType(1)}
+                                    className={` icon-neighbor-5 button-icons-selector-general`}
+                                />
+                            </Flex>
+                            <Flex center className={` placeholder-adv-options ${userType === 2 ? 'placeholder-adv-options-selected ' : 'placeholder-adv-options'}`}>
+                                <div
+                                    onClick={() => setUserType(2)}
+                                    className={` icon-neighbor-2 button-icons-selector-general`}
+                                />
+                            </Flex>
                         </div>
                     </div>
                     {userType !== undefined && (

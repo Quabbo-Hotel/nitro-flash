@@ -25,7 +25,7 @@ export const WiredAddonAnimationTimeView: FC = () => {
         <WiredAddonBaseView hasSpecialInput={true} save={save} requiresFurni={0}>
             <Column gap={1}>
                 <Text gfbold>
-                    {LocalizeText('wiredfurni.params.usercountmax', ['value'], [max.toString()])}
+                    Tiempo de animación {max} ms
                 </Text>
 
             </Column>
@@ -35,7 +35,7 @@ export const WiredAddonAnimationTimeView: FC = () => {
                     max={2000}
                     step={50}
                     value={max}
-                    onChange={value => setMax(value)} />
+                    onChange={value => setMax(Math.round(value / 50) * 50)} />
         
         </WiredAddonBaseView>
     );

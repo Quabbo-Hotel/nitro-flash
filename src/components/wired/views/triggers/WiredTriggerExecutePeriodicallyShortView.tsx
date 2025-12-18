@@ -1,13 +1,12 @@
-import { FriendlyTime } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useState } from 'react';
-import ReactSlider from 'react-slider';
-import { LocalizeText, WiredFurniType } from '../../../../api';
+import { WiredSliderArrows } from '../WiredSliderArrows';
 import { Column, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredTriggerBaseView } from './WiredTriggerBaseView';
-import { WiredSliderArrows } from '../WiredSliderArrows';
+import { WiredFurniType } from '../../../../api';
 
-export const WiredTriggeExecutePeriodicallyLongView: FC<{}> = props =>
+
+export const WiredTriggerExecutePeriodicallyShortView: FC<{}> = props =>
 {
     const [ time, setTime ] = useState(1);
     const { trigger = null, setIntParams = null } = useWired();
@@ -22,12 +21,13 @@ export const WiredTriggeExecutePeriodicallyLongView: FC<{}> = props =>
     return (
         <WiredTriggerBaseView requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_NONE } hasSpecialInput={ true } save={ save }>
             <Column gap={ 1 }>
-                <Text gfbold>{ LocalizeText('wiredfurni.params.setlongtime', [ 'time' ], [ FriendlyTime.format(time * 5).toString() ]) }</Text>
+                <Text gfbold>Establecer tiempo: { time * 10 } ms</Text>
                 <WiredSliderArrows
-                    min={ 1 }
-                    max={ 120 }
-                    value={ time }
-                    onChange={ event => setTime(event) } />
+                    min={1}
+                    max={60}
+                    step={5}
+                    value={time}
+                    onChange={value => setTime(Math.round(value / 5) * 5)} />
             </Column>
         </WiredTriggerBaseView>
     );

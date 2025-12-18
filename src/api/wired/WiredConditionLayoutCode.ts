@@ -34,4 +34,5 @@ export class WiredConditionlayout
     public static NEG_HAS_VAR: number = 31;
     public static VAR_VALUE_MATCH: number = 32;
     public static VAR_AGE_MATCH: number = 33;
+    public static ACTOR_DIRECTION: number = 34;
 }

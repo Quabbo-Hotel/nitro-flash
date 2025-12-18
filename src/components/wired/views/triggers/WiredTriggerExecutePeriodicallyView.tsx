@@ -4,6 +4,7 @@ import { GetWiredTimeLocale, LocalizeText, WiredFurniType } from '../../../../ap
 import { Column, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredTriggerBaseView } from './WiredTriggerBaseView';
+import { WiredSliderArrows } from '../WiredSliderArrows';
 
 export const WiredTriggeExecutePeriodicallyView: FC<{}> = props =>
 {
@@ -21,8 +22,7 @@ export const WiredTriggeExecutePeriodicallyView: FC<{}> = props =>
         <WiredTriggerBaseView requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_NONE } hasSpecialInput={ true } save={ save }>
             <Column gap={ 1 }>
                 <Text gfbold>{ LocalizeText('wiredfurni.params.settime', [ 'seconds' ], [ GetWiredTimeLocale(time) ]) }</Text>
-                <ReactSlider
-                    className={ 'nitro-slider' }
+                <WiredSliderArrows
                     min={ 1 }
                     max={ 60 }
                     value={ time }

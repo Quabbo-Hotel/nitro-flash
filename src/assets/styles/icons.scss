@@ -204,11 +204,13 @@
         width: 13px;
         height: 14px;
     }
+
     &.icon-wired-addon {
         background-image: url('@/assets/images/wired/icon_addon.png');
         width: 13px;
         height: 14px;
     }
+
     &.icon-wired-selector {
         background-image: url('@/assets/images/wired/icon_selector.png');
         width: 13px;
@@ -785,6 +787,7 @@
         width: 17px;
         height: 17px;
     }
+
     &.icon-furnifix {
         background-image: url('@/assets/images/icons/furnifix.png');
         width: 27px;
@@ -839,6 +842,27 @@
         height: 38px;
     }
 
+    &.icon-e {
+        background-image: url('@/assets/images/wired/icons/e.png');
+        width: 13px;
+        height: 7px;
+    }
+    &.icon-w {
+        background-image: url('@/assets/images/wired/icons/w.png');
+        width: 13px;
+        height: 7px;
+    }
+    &.icon-n {
+        background-image: url('@/assets/images/wired/icons/n.png');
+        width: 13px;
+        height: 7px;
+    }
+    &.icon-s {
+        background-image: url('@/assets/images/wired/icons/s.png');
+        width: 13px;
+        height: 7px;
+    }
+
     &.icon-se {
         background-image: url('@/assets/images/wired/icons/se.png');
         width: 13px;
@@ -857,8 +881,6 @@
         background-image: url('@/assets/images/wired/icons/ne.png');
         width: 13px;
         height: 7px;
-
-
     }
 
 

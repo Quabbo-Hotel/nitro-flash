@@ -20,4 +20,5 @@ export class WiredTriggerLayout
     public static COMMAND_EXEC: number = 18;
     public static KEYBOARD_INPUT: number = 19;
     public static VARIABLE_EVENT: number = 20;
+    public static EXECUTE_PERIODICALLY_SHORT: number = 21;
 }

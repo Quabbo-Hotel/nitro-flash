@@ -11,6 +11,7 @@ import { WiredTriggerCollisionView } from './WiredTriggerCollisionView';
 import { WiredTriggerCommandExecView } from './WiredTriggerCommandExecView';
 import { WiredTriggeExecuteOnceView } from './WiredTriggerExecuteOnceView';
 import { WiredTriggeExecutePeriodicallyLongView } from './WiredTriggerExecutePeriodicallyLongView';
+import { WiredTriggerExecutePeriodicallyShortView } from './WiredTriggerExecutePeriodicallyShortView';
 import { WiredTriggeExecutePeriodicallyView } from './WiredTriggerExecutePeriodicallyView';
 import { WiredTriggerGameEndsView } from './WiredTriggerGameEndsView';
 import { WiredTriggerGameStartsView } from './WiredTriggerGameStartsView';
@@ -64,6 +65,8 @@ export const WiredTriggerLayoutView = (code: number) =>
             return <WiredTriggerKeyboardActionView />;
             case WiredTriggerLayout.VARIABLE_EVENT:
                 return <WiredTriggerVariableEventView />;
+                case WiredTriggerLayout.EXECUTE_PERIODICALLY_SHORT:
+                return <WiredTriggerExecutePeriodicallyShortView />;
     }
 
     return null;
