@@ -28,15 +28,15 @@ export const WiredActionMatchToSnapshotView: FC<{}> = props => {
             <Column gap={1}>
                 <Text bold>{LocalizeText('wiredfurni.params.conditions')}</Text>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input" type="checkbox" id="stateFlag" checked={!!stateFlag} onChange={event => setStateFlag(event.target.checked ? 1 : 0)} />
+                    <input className="form-check-radio-wired" type="checkbox" id="stateFlag" checked={!!stateFlag} onChange={event => setStateFlag(event.target.checked ? 1 : 0)} />
                     <Text>{LocalizeText('wiredfurni.params.condition.state')}</Text>
                 </Flex>aa
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input" type="checkbox" id="directionFlag" checked={!!directionFlag} onChange={event => setDirectionFlag(event.target.checked ? 1 : 0)} />
+                    <input className="form-check-radio-wired" type="checkbox" id="directionFlag" checked={!!directionFlag} onChange={event => setDirectionFlag(event.target.checked ? 1 : 0)} />
                     <Text>{LocalizeText('wiredfurni.params.condition.direction')}</Text>
                 </Flex>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input" type="checkbox" id="positionFlag" checked={!!positionFlag} onChange={event => setPositionFlag(event.target.checked ? 1 : 0)} />
+                    <input className="form-check-radio-wired" type="checkbox" id="positionFlag" checked={!!positionFlag} onChange={event => setPositionFlag(event.target.checked ? 1 : 0)} />
                     <Text>{LocalizeText('wiredfurni.params.condition.position')}</Text>
                 </Flex>
                 <Flex alignItems="center" gap={1}>

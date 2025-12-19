@@ -48,7 +48,7 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
 
                 <Flex gap={ 1 }>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         id="modeNormal"
                         checked={ mode === 0 }
@@ -61,7 +61,7 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
 
                 <Flex gap={ 1 }>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         id="modeInverse"
                         checked={ mode === 1 }
@@ -74,7 +74,7 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
 
                 <Flex gap={ 1 }>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         id="modeRandom"
                         checked={ mode === 2 }
@@ -87,7 +87,7 @@ export const WiredActionToggleFurniStateView: FC<{}> = props =>
 
                 <Flex gap={ 1 }>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         id="modeSpecific"
                         checked={ mode === 3 }

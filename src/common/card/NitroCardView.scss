@@ -268,7 +268,7 @@ $nitro-card-tabs-height: 35px;
 
         .friend-headers {
             font-family: Goldfish;
-            background: linear-gradient(180deg, rgba(138,218,255,1) 50%, rgba(89,191,255,1) 50%);
+            background: linear-gradient(180deg, rgba(138, 218, 255, 1) 50%, rgba(89, 191, 255, 1) 50%);
             border: 1px solid #000;
             border-bottom: none;
             -webkit-box-shadow: inset 0px 1px 0px 0px #59bfff;
@@ -400,6 +400,7 @@ $nitro-card-tabs-height: 35px;
                     background-image: url("@/assets/flash/friendlist/friendlist_close_active.png");
                 }
             }
+
             .nitro-card-header-info-habbopages {
                 cursor: pointer;
                 background-image: url("@/assets/flash/boxes/card/questionmark.png");
@@ -407,9 +408,9 @@ $nitro-card-tabs-height: 35px;
                 height: 20px;
                 right: 32px;
 
-                    &:hover {
-                        background-image: url("@/assets/flash/boxes/card/questionmark_hover.png");
-        
+                &:hover {
+                    background-image: url("@/assets/flash/boxes/card/questionmark_hover.png");
+
                     &:active {
                         background-image: url("@/assets/flash/boxes/card/questionmark_click.png");
                     }
@@ -523,12 +524,10 @@ $nitro-card-tabs-height: 35px;
                 border-radius: $border-radius;
                 box-shadow: 0 0 0 1.6px $white;
                 border: 2px solid #921911;
-                background: repeating-linear-gradient(
-                                rgba(245, 80, 65, 1),
-                                rgba(245, 80, 65, 1) 50%,
-                                rgba(194, 48, 39, 1) 50%,
-                                rgba(194, 48, 39, 1) 100%
-                );
+                background: repeating-linear-gradient(rgba(245, 80, 65, 1),
+                        rgba(245, 80, 65, 1) 50%,
+                        rgba(194, 48, 39, 1) 50%,
+                        rgba(194, 48, 39, 1) 100%);
 
                 &:hover {
                     filter: brightness(1.2);
@@ -586,6 +585,7 @@ $nitro-card-tabs-height: 35px;
     margin-left: 10px;
     display: flex;
     flex-wrap: nowrap;
+
     .nav-link {
         width: 100%;
         justify-content: center;
@@ -601,7 +601,8 @@ $nitro-card-tabs-height: 35px;
         background: rgba($white, 0.5);
     }
 }
-.wired-menu-dropdown{
+
+.wired-menu-dropdown {
     border-image-source: url("@/assets/images/borders/greyblack-border.png");
     border-image-slice: 10 10 10 10 fill;
     border-image-width: 10px 10px 10px 10px;
@@ -613,10 +614,11 @@ $nitro-card-tabs-height: 35px;
     width: calc(100% + 20px);
     right: 18px;
     overflow: hidden;
-    
+
 
 }
-.wired-menu-item{
+
+.wired-menu-item {
     text-align: left;
     width: 100%;
     border: none;
@@ -624,16 +626,18 @@ $nitro-card-tabs-height: 35px;
     background: none;
     color: white;
 }
+
 .wired-menu {
     display: block;
-	position: absolute;
-	left: 8px;
-	top: 6px;
-	font-size: 10px;
+    position: absolute;
+    left: 8px;
+    top: 6px;
+    font-size: 10px;
     width: 100%;
-	z-index: 2;
-    
+    z-index: 2;
+
 }
+
 .check-menu-wired {
     appearance: none;
     -webkit-appearance: none;
@@ -653,47 +657,74 @@ $nitro-card-tabs-height: 35px;
 }
 
 .check-menu-wired:checked {
-    background-image: url("@/assets/images/wired/icons/checkbox-marked.png"); /* tu icono marcado */
+    background-image: url("@/assets/images/wired/icons/checkbox-marked.png");
     position: relative;
     left: 6px;
     top: -1px;
 }
-.wired-menu-separator{
+.form-check-radio-wired {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 12px;
+    height: 12px;
+    position: relative;
+    background-size: cover;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    background-image: url("@/assets/images/wired/icons/radio-input-notmarked.png");
+    margin-right: 5px;
+    margin-left: 3px;
+}
+
+.form-check-radio-wired:checked {
+    background-image: url("@/assets/images/wired/icons/radio-input-marked.png");
+    position: relative;
+    margin-right: 5px;
+    margin-left: 3px;
+}
+
+.wired-menu-separator {
     width: 90%;
     height: 1px;
     margin-top: 1px;
     margin-bottom: 1px;
     border-top: 1px solid #666;
 }
-.grid-menu-wired{
+
+.grid-menu-wired {
     display: grid;
     grid-template-columns: 20px 1fr;
     gap: 5px;
     padding: 5px 0px;
-    
-    
+
+
 }
-.grid-menu-wired:hover{
+
+.grid-menu-wired:hover {
     cursor: pointer;
 }
 
-.grid-menu-wired-center:hover{
-    border-left: 1px solid #000000 ;
-    border-right: 1px solid #000000 ;
+.grid-menu-wired-center:hover {
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
     border-image-repeat: repeat repeat;
     background-color: #626262;
 }
-.grid-menu-wired-top:hover{
+
+.grid-menu-wired-top:hover {
     border-image-source: url("@/assets/images/borders/top.png");
     border-image-slice: 10 10 10 10 fill;
     border-image-width: 10px 10px 10px 10px;
     border-image-repeat: repeat repeat;
     background-color: #626262;
-   border-top-left-radius: 6px;
+    border-top-left-radius: 6px;
     border-top-right-radius: 6px;
 }
 
-.grid-menu-wired-bottom:hover{
+.grid-menu-wired-bottom:hover {
     border-image-source: url("@/assets/images/borders/bottom.png");
     border-image-slice: 10 10 10 10 fill;
     border-image-width: 10px 10px 10px 10px;

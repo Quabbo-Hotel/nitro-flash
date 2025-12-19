@@ -81,11 +81,11 @@ export const WiredActionSendSignal: FC<{}> = props =>
             <hr className="m-0 bg-dark" />
             <Text bold>{LocalizeText('wiredfurni.params.conditions')}</Text>
             <Flex alignItems="center" gap={1}>
-                <input className="form-check-input" type="checkbox" id="signalForEachFurni" checked={!!signalForEachFurni} onChange={event => setSignalForEachFurni(event.target.checked ? 1 : 0)} />
+                <input className="form-check-radio-wired" type="checkbox" id="signalForEachFurni" checked={!!signalForEachFurni} onChange={event => setSignalForEachFurni(event.target.checked ? 1 : 0)} />
                 <Text>Enviar señal por cada furni</Text>
             </Flex>
             <Flex alignItems="center" gap={1}>
-                <input className="form-check-input" type="checkbox" id="signalForEachUser" checked={!!signalForEachUser} onChange={event => setSignalForEachUser(event.target.checked ? 1 : 0)} />
+                <input className="form-check-radio-wired" type="checkbox" id="signalForEachUser" checked={!!signalForEachUser} onChange={event => setSignalForEachUser(event.target.checked ? 1 : 0)} />
                 <Text>Enviar señal por cada usuario</Text>
             </Flex>
             

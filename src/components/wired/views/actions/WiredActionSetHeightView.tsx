@@ -46,7 +46,7 @@ export const WiredActionSetHeightView: FC<{}> = props => {
             <Text>{'Selecciona el modo de altura:'}</Text>
             <Column gap={1}>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input"
+                    <input className="form-check-radio-wired"
                         type="radio"
                         name="timerMode"
                         value={0}
@@ -55,7 +55,7 @@ export const WiredActionSetHeightView: FC<{}> = props => {
                     Aumentar
                 </Flex>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input"
+                    <input className="form-check-radio-wired"
                         type="radio"
                         name="timerMode"
                         value={1}
@@ -65,7 +65,7 @@ export const WiredActionSetHeightView: FC<{}> = props => {
                     Disminuir
                 </Flex>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input"
+                    <input className="form-check-radio-wired"
                         type="radio"
                         name="timerMode"
                         value={3}

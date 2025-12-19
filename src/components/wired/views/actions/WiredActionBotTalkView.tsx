@@ -39,11 +39,11 @@ export const WiredActionBotTalkView: FC<{}> = props =>
             </Column>
             <Column gap={ 1 }>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="talkMode" id="talkMode1" checked={ (talkMode === 0) } onChange={ event => setTalkMode(0) } />
+                    <input className="form-check-radio-wired" type="radio" name="talkMode" id="talkMode1" checked={ (talkMode === 0) } onChange={ event => setTalkMode(0) } />
                     <Text>{ LocalizeText('wiredfurni.params.talk') }</Text>
                 </Flex>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="talkMode" id="talkMode2" checked={ (talkMode === 1) } onChange={ event => setTalkMode(1) } />
+                    <input className="form-check-radio-wired" type="radio" name="talkMode" id="talkMode2" checked={ (talkMode === 1) } onChange={ event => setTalkMode(1) } />
                     <Text>{ LocalizeText('wiredfurni.params.shout') }</Text>
                 </Flex>
             </Column>

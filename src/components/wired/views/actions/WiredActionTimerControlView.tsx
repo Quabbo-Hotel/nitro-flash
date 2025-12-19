@@ -36,6 +36,7 @@ export const WiredActionTimerControlView: FC<{}> = props =>
             <Column gap={ 1 }>
                 <label>
                     <input
+                    className='form-check-radio-wired'
                         type="radio"
                         name="timerMode"
                         value={0}
@@ -46,6 +47,7 @@ export const WiredActionTimerControlView: FC<{}> = props =>
                 </label>
                 <label>
                     <input
+                    className='form-check-radio-wired'
                         type="radio"
                         name="timerMode"
                         value={1}
@@ -56,6 +58,7 @@ export const WiredActionTimerControlView: FC<{}> = props =>
                 </label>
                 <label>
                     <input
+                    className='form-check-radio-wired'
                         type="radio"
                         name="timerMode"
                         value={3}

@@ -34,14 +34,14 @@ export const WiredResetSubstractPointsView: FC<{}> = () => {
         >
             <Column gap={1}>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input"
+                    <input className="form-check-radio-wired"
                         type="radio"
                         name="actionType"
                         checked={actionType === 0} onChange={() => setActionType(0)} />
                     {LocalizeText('wired.action.reset_points')}
                 </Flex>
                 <Flex alignItems="center" gap={1}>
-                    <input className="form-check-input"
+                    <input className="form-check-radio-wired"
                         type="radio"
                         name="actionType"
                         checked={actionType === 1} 

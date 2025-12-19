@@ -64,7 +64,7 @@ export const WiredActionMoveFurniToView: FC<{}> = props =>
                     {
                         return (
                             <Flex key={ value.value } alignItems="center" gap={ 1 }>
-                                <input className="form-check-input" type="radio" name="movement" id={ `movement${ value.value }` } checked={ (movement === value.value) } onChange={ event => setMovement(value.value) } />
+                                <input className="form-check-radio-wired" type="radio" name="movement" id={ `movement${ value.value }` } checked={ (movement === value.value) } onChange={ event => setMovement(value.value) } />
                                 <Text><i className={ `icon icon-${ value.icon }` } /></Text>
                             </Flex>
                         )

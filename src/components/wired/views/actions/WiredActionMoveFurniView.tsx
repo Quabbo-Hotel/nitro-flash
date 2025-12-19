@@ -85,13 +85,13 @@ export const WiredActionMoveFurniView: FC<{}> = props =>
             <Column gap={ 1 }>
                 <Text gfbold>{ LocalizeText('wiredfurni.params.movefurni') }</Text>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="selectedTeam" id="movement0" checked={ (movement === 0) } onChange={ event => setMovement(0) } />
+                    <input className="form-check-radio-wired" type="radio" name="selectedTeam" id="movement0" checked={ (movement === 0) } onChange={ event => setMovement(0) } />
                     <Text>{ LocalizeText('wiredfurni.params.movefurni.0') }</Text>
                 </Flex>
                 <Flex gap={ 1 }>
                     { topDirections.map(option => (
                         <Flex alignItems="center" key={ option.value } gap={ 1 }>
-                            <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
+                            <input className="form-check-radio-wired" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
                             <i className={ `icon icon-${ option.icon }` } />
                         </Flex>
                     )) }
@@ -101,7 +101,7 @@ export const WiredActionMoveFurniView: FC<{}> = props =>
                 <Flex gap={ 1 } className="mt-1">
                     { middleDirections.map(option => (
                         <Flex alignItems="center" key={ option.value } gap={ 1 }>
-                            <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
+                            <input className="form-check-radio-wired" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
                             <i className={ `icon icon-${ option.icon }` } />
                         </Flex>
                     )) }
@@ -111,7 +111,7 @@ export const WiredActionMoveFurniView: FC<{}> = props =>
                 <Flex gap={ 1 } className="mt-1">
                     { bottomDirections.map(option => (
                         <Flex alignItems="center" key={ option.value } gap={ 1 }>
-                            <input className="form-check-input" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
+                            <input className="form-check-radio-wired" type="radio" name="movement" id={ `movement${ option.value }` } checked={ (movement === option.value) } onChange={ event => setMovement(option.value) } />
                             <i className={ `icon icon-${ option.icon }` } />
                         </Flex>
                     )) }
@@ -125,7 +125,7 @@ export const WiredActionMoveFurniView: FC<{}> = props =>
                 {
                     return (
                         <Flex alignItems="center" key={ option } gap={ 1 }>
-                            <input className="form-check-input" type="radio" name="rotation" id={ `rotation${ option }` } checked={ (rotation === option) } onChange={ event => setRotation(option) } />
+                            <input className="form-check-radio-wired" type="radio" name="rotation" id={ `rotation${ option }` } checked={ (rotation === option) } onChange={ event => setRotation(option) } />
                             <Text>
                                 { [ 1, 2 ].includes(option) && <i className={ `icon icon-rot-${ option }` } /> }
                                 { LocalizeText(`wiredfurni.params.rotatefurni.${ option }`) }

@@ -24,7 +24,7 @@ export const WiredActionJoinTeamView: FC<{}> = props =>
                 {
                     return (
                         <Flex key={ team } gap={ 1 }>
-                            <input className="form-check-input" type="radio" name="selectedTeam" id={ `selectedTeam${ team }` } checked={ (selectedTeam === team) } onChange={ event => setSelectedTeam(team) } />
+                            <input className="form-check-radio-wired" type="radio" name="selectedTeam" id={ `selectedTeam${ team }` } checked={ (selectedTeam === team) } onChange={ event => setSelectedTeam(team) } />
                             <Text>{ LocalizeText(`wiredfurni.params.team.${ team }`) }</Text>
                         </Flex>
                     )

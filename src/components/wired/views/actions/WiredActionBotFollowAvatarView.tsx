@@ -30,11 +30,11 @@ export const WiredActionBotFollowAvatarView: FC<{}> = props =>
             </Column>
             <Column gap={ 1 }>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="followMode" id="followMode1" checked={ (followMode === 1) } onChange={ event => setFollowMode(1) } />
+                    <input className="form-check-radio-wired" type="radio" name="followMode" id="followMode1" checked={ (followMode === 1) } onChange={ event => setFollowMode(1) } />
                     <Text>{ LocalizeText('wiredfurni.params.start.following') }</Text>
                 </Flex>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="followMode" id="followMode2" checked={ (followMode === 0) } onChange={ event => setFollowMode(0) } />
+                    <input className="form-check-radio-wired" type="radio" name="followMode" id="followMode2" checked={ (followMode === 0) } onChange={ event => setFollowMode(0) } />
                     <Text>{ LocalizeText('wiredfurni.params.stop.following') }</Text>
                 </Flex>
             </Column>

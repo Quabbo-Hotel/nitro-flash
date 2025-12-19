@@ -16,5 +16,6 @@ export class WiredAddonLayoutCode
     public static REFERENCE_VARIABLE: number = 13;
     public static CONTEXT_VARIABLE: number = 14;
     public static EXECUTION_LIMIT: number = 15;
+    public static OR_EVAL: number = 16;
 
 }

@@ -15,6 +15,7 @@ import { WiredAddonTextOutputVariableView } from './WiredAddonTextOutputVariable
 import { WiredAddonReferenceVariableView } from './WiredAddonReferenceVariableView';
 import { WiredAddonContextVariableView } from './WiredAddonContextVariableView';
 import { WiredAddonExecutionLimitView } from './WiredAddonExecutionLimitView';
+import { WiredAddonOrEvalView } from './WiredAddonOrEvalView';
 
 
 
@@ -55,6 +56,8 @@ export const WiredAddonLayoutView = (code: number) =>
             return <WiredAddonContextVariableView />;
         case WiredAddonLayoutCode.EXECUTION_LIMIT:
             return <WiredAddonExecutionLimitView />;
+        case WiredAddonLayoutCode.OR_EVAL:
+            return <WiredAddonOrEvalView />;
 
 
 

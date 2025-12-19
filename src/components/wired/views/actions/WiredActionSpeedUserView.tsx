@@ -36,7 +36,7 @@ export const WiredActionSpeedUserView: FC<{}> = props =>
                         {[0, 1].map(mode => (
                             <Flex key={mode} gap={1}>
                                 <input
-                                    className="form-check-input"
+                                    className="form-check-radio-wired"
                                     type="radio"
                                     name="fastWalkMode"
                                     checked={selectedMode === mode}

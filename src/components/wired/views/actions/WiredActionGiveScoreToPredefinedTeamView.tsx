@@ -56,7 +56,7 @@ export const WiredActionGiveScoreToPredefinedTeamView: FC<{}> = props =>
                 {
                     return (
                         <Flex key={ value } gap={ 1 }>
-                            <input className="form-check-input" type="radio" name="selectedTeam" id={ `selectedTeam${ value }` } checked={ (selectedTeam === value) } onChange={ event => setSelectedTeam(value) } />
+                            <input className="form-check-radio-wired" type="radio" name="selectedTeam" id={ `selectedTeam${ value }` } checked={ (selectedTeam === value) } onChange={ event => setSelectedTeam(value) } />
                             <Text>{ LocalizeText('wiredfurni.params.team.' + value) }</Text>
                         </Flex>
                     );

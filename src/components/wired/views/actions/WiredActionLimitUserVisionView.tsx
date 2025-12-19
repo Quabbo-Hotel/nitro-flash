@@ -87,7 +87,7 @@ export const WiredActionLimitUserVisionView: FC = () =>
                     </Button>
                 </Flex>
 
-                <Column gap={ 0.5 }>
+                <Column>
                     <Flex alignItems="center" justifyContent="between" gap={ 1 }>
                         <Text bold>{ LocalizeText('wiredfurni.params.limitvision.range') }</Text>
                         <input
@@ -113,7 +113,7 @@ export const WiredActionLimitUserVisionView: FC = () =>
                     <input
                         id="limit-vision-chat-toggle"
                         type="checkbox"
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         checked={ seeChat }
                         onChange={ event => setSeeChat(event.target.checked) } />
                     <label className="form-check-label" htmlFor="limit-vision-chat-toggle">
