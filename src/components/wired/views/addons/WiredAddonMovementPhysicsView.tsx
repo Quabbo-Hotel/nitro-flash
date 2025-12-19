@@ -141,11 +141,11 @@ export const WiredAddonMovementPhysicsView: FC = () => {
 
                 <Flex alignItems="center" justifyContent='center' gap={1} style={{ marginTop: "5px", marginBottom: "5px" }}>
                     <input className="check-menu-wired" type="checkbox" id="blockedByFurni" checked={blockedByFurni} onChange={e => { const checked = e.target.checked; setBlockedByFurni(checked); if (!checked) setTypeOfAdvancedOptionTwo(0); }} />
-                    <Text style={{ textIndent: "10px" }}>{LocalizeText('wiredfurni.params.mov.physic.throughFurni')}</Text>
+                    <Text style={{ textIndent: "10px" }}>{LocalizeText('wiredfurni.params.mov.physic.blockedByFurni')}</Text>
                 </Flex>
                 {blockedByFurni && <>
                 <Text center>Fuente de furnis/items</Text>
-                {/* Advanced Option Three */}
+                {/* Advanced Option Two */}
                 <div className='align-advancedoptionsone'>
                     <div className="button-group">
                         <Flex center className={` placeholder-adv-options ${typeOfAdvancedOptionTwo === 0 ? 'placeholder-adv-options-selected ' : 'placeholder-adv-options'}`}>
