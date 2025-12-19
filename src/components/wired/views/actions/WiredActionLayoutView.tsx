@@ -12,6 +12,7 @@ import { WiredActionChatView } from './WiredActionChatView';
 import { WiredActionCloseDiceView } from './WiredActionCloseDiceView';
 import { WiredActionFleeView } from './WiredActionFleeView';
 import { WiredActionFurniToFurniView } from './WiredActionFurniToFurniView';
+import { WiredActionMoveUserToFurniView } from './WiredActionMoveUserToFurniView';
 import { WiredActionGiveRewardView } from './WiredActionGiveRewardView';
 import { WiredActionGiveScoreToPredefinedTeamView } from './WiredActionGiveScoreToPredefinedTeamView';
 import { WiredActionGiveScoreView } from './WiredActionGiveScoreView';
@@ -106,6 +107,8 @@ export const WiredActionLayoutView = (code: number) =>
             return <WiredActionCloseDiceView />;
         case WiredActionLayoutCode.FURNI_TO_FURNI:
             return <WiredActionFurniToFurniView />;
+        case WiredActionLayoutCode.MOVE_USER_TO_FURNI:
+            return <WiredActionMoveUserToFurniView />;
         case WiredActionLayoutCode.TIMER_CONTROL:
             return <WiredActionTimerControlView />;
         case WiredActionLayoutCode.SET_HEIGHT:
