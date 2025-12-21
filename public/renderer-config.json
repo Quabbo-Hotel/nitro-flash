@@ -7,7 +7,7 @@
     "images.url": "${asset.url}/nitro-assets/images",
     "gamedata.url": "${asset.url}/nitro-assets/gamedata",
     "sounds.url": "${asset.url}/nitro-assets/sounds/%sample%.mp3",
-    "personalization.url": "${asset.url}/profile-customization",
+    "personalization.url": "${asset.url}/frames",
     "external.texts.url": [
         "${gamedata.url}/ExternalTexts.json",
         "${gamedata.url}/UITexts.json"

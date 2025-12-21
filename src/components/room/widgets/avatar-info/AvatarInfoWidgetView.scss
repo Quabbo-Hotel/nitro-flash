@@ -24,8 +24,8 @@
 
 .nitro-infostand-container {
     position: absolute;
-    right: 10px;
-    bottom: $toolbar-height + 10px;
+    right: 30px;
+    bottom: $toolbar-height + 35px;
     pointer-events: none;
     z-index: $infostand-zindex;
     color: $white;
@@ -188,4 +188,16 @@
 .stats-pet-position {
     position: relative;
     left: -29px;
+}
+
+.frame-infowidget-custom {
+    position: absolute;
+    height: calc(100% + 41px);
+    width: 230px;
+    left: -20px;
+    top: -21px;
+    border-image-slice: 142 114 146 113;
+    border-image-width: 142px 114px 146px 113px;
+    border-image-outset: 0px 0px 0px 0px;
+    border-image-repeat: repeat repeat;
 }

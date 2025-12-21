@@ -1,4 +1,4 @@
-import { RelationshipStatusInfoEvent, RelationshipStatusInfoMessageParser, RoomSessionFavoriteGroupUpdateEvent, RoomSessionUserBadgesEvent, RoomSessionUserFigureUpdateEvent, UserRelationshipsComposer } from '@nitrots/nitro-renderer';
+import { NitroConfiguration, RelationshipStatusInfoEvent, RelationshipStatusInfoMessageParser, RoomSessionFavoriteGroupUpdateEvent, RoomSessionUserBadgesEvent, RoomSessionUserFigureUpdateEvent, UserRelationshipsComposer } from '@nitrots/nitro-renderer';
 import { Dispatch, FC, FocusEvent, KeyboardEvent, SetStateAction, useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import { AvatarInfoUser, CloneObject, GetConfiguration, GetGroupInformation, GetSessionDataManager, GetUserProfile, LocalizeText, SendMessageComposer } from '../../../../../api';
@@ -7,24 +7,21 @@ import { useMessageEvent, useRoom, useRoomSessionManagerEvent } from '../../../.
 import { InfoStandWidgetUserRelationshipsView } from './InfoStandWidgetUserRelationshipsView';
 import { InfoStandWidgetUserTagsView } from './InfoStandWidgetUserTagsView';
 
-interface InfoStandWidgetUserViewProps
-{
+interface InfoStandWidgetUserViewProps {
     avatarInfo: AvatarInfoUser;
     setAvatarInfo: Dispatch<SetStateAction<AvatarInfoUser>>;
     onClose: () => void;
 }
 
-export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =>
-{
+export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props => {
     const { avatarInfo = null, setAvatarInfo = null, onClose = null } = props;
-    const [ motto, setMotto ] = useState<string>(null);
-    const [ isEditingMotto, setIsEditingMotto ] = useState(false);
-    const [ relationships, setRelationships ] = useState<RelationshipStatusInfoMessageParser>(null);
+    const [motto, setMotto] = useState<string>(null);
+    const [isEditingMotto, setIsEditingMotto] = useState(false);
+    const [relationships, setRelationships] = useState<RelationshipStatusInfoMessageParser>(null);
     const { roomSession = null } = useRoom();
 
-    const saveMotto = (motto: string) =>
-    {
-        if(!isEditingMotto || (motto.length > GetConfiguration<number>('motto.max.length', 38))) return;
+    const saveMotto = (motto: string) => {
+        if (!isEditingMotto || (motto.length > GetConfiguration<number>('motto.max.length', 38))) return;
 
         roomSession.sendMottoMessage(motto);
 
@@ -33,28 +30,24 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
 
     const onMottoBlur = (event: FocusEvent<HTMLInputElement>) => saveMotto(event.target.value);
 
-    const onMottoKeyDown = (event: KeyboardEvent<HTMLInputElement>) =>
-    {
+    const onMottoKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         event.stopPropagation();
 
-        switch(event.key)
-        {
+        switch (event.key) {
             case 'Enter':
                 saveMotto((event.target as HTMLInputElement).value);
                 return;
         }
     }
 
-    useRoomSessionManagerEvent<RoomSessionUserBadgesEvent>(RoomSessionUserBadgesEvent.RSUBE_BADGES, event =>
-    {
-        if(!avatarInfo || (avatarInfo.webID !== event.userId)) return;
+    useRoomSessionManagerEvent<RoomSessionUserBadgesEvent>(RoomSessionUserBadgesEvent.RSUBE_BADGES, event => {
+        if (!avatarInfo || (avatarInfo.webID !== event.userId)) return;
 
         const oldBadges = avatarInfo.badges.join('');
 
-        if(oldBadges === event.badges.join('')) return;
+        if (oldBadges === event.badges.join('')) return;
 
-        setAvatarInfo(prevValue =>
-        {
+        setAvatarInfo(prevValue => {
             const newValue = CloneObject(prevValue);
 
             newValue.badges = event.badges;
@@ -63,12 +56,10 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
         });
     });
 
-    useRoomSessionManagerEvent<RoomSessionUserFigureUpdateEvent>(RoomSessionUserFigureUpdateEvent.USER_FIGURE, event =>
-    {
-        if(!avatarInfo || (avatarInfo.roomIndex !== event.roomIndex)) return;
+    useRoomSessionManagerEvent<RoomSessionUserFigureUpdateEvent>(RoomSessionUserFigureUpdateEvent.USER_FIGURE, event => {
+        if (!avatarInfo || (avatarInfo.roomIndex !== event.roomIndex)) return;
 
-        setAvatarInfo(prevValue =>
-        {
+        setAvatarInfo(prevValue => {
             const newValue = CloneObject(prevValue);
 
             newValue.figure = event.figure;
@@ -79,12 +70,10 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
         });
     });
 
-    useRoomSessionManagerEvent<RoomSessionFavoriteGroupUpdateEvent>(RoomSessionFavoriteGroupUpdateEvent.FAVOURITE_GROUP_UPDATE, event =>
-    {
-        if(!avatarInfo || (avatarInfo.roomIndex !== event.roomIndex)) return;
+    useRoomSessionManagerEvent<RoomSessionFavoriteGroupUpdateEvent>(RoomSessionFavoriteGroupUpdateEvent.FAVOURITE_GROUP_UPDATE, event => {
+        if (!avatarInfo || (avatarInfo.roomIndex !== event.roomIndex)) return;
 
-        setAvatarInfo(prevValue =>
-        {
+        setAvatarInfo(prevValue => {
             const newValue = CloneObject(prevValue);
             const clearGroup = ((event.status === -1) || (event.habboGroupId <= 0));
 
@@ -96,120 +85,125 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
         });
     });
 
-    useMessageEvent<RelationshipStatusInfoEvent>(RelationshipStatusInfoEvent, event =>
-    {
+    useMessageEvent<RelationshipStatusInfoEvent>(RelationshipStatusInfoEvent, event => {
         const parser = event.getParser();
 
-        if(!avatarInfo || (avatarInfo.webID !== parser.userId)) return;
+        if (!avatarInfo || (avatarInfo.webID !== parser.userId)) return;
 
         setRelationships(parser);
     });
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         setIsEditingMotto(false);
         setMotto(avatarInfo.motto);
 
         SendMessageComposer(new UserRelationshipsComposer(avatarInfo.webID));
 
-        return () =>
-        {
+        return () => {
             setIsEditingMotto(false);
             setMotto(null);
             setRelationships(null);
         }
-    }, [ avatarInfo ]);
+    }, [avatarInfo]);
 
-    if(!avatarInfo) return null;
+    if (!avatarInfo) return null;
+
+    const frameName = "airplane";
+    const personalizationUrl = NitroConfiguration.getValue<string>('personalization.url');
 
     return (
+
         <Column className="nitro-infostand rounded">
-            <Column overflow="visible" className="container-fluid content-area" gap={ 1 }>
-                <Column gap={ 1 }>
+            <Column overflow="visible" className="container-fluid content-area" gap={1}>
+                <Column gap={1}>
+                    <div className='frame-infowidget-custom' style={{ borderImageSource: `url(${personalizationUrl}/${frameName}/infowidget.gif)` }}></div>
+
                     <Flex alignItems="center" justifyContent="between">
-                        <Flex alignItems="center" gap={ 1 }>
-                            <i className="icon icon-profile-house cursor-pointer" onClick={ event => GetUserProfile(avatarInfo.webID) }/>
-                            <Text gfbold variant="white" className="infostand-name" onClick={ event => GetUserProfile(avatarInfo.webID) }>{ avatarInfo.name }</Text>
+                        <Flex alignItems="center" gap={1}>
+                            <i className="icon icon-profile-house cursor-pointer" onClick={event => GetUserProfile(avatarInfo.webID)} />
+                            <Text gfbold variant="white" className="infostand-name" onClick={event => GetUserProfile(avatarInfo.webID)}>{avatarInfo.name}</Text>
                         </Flex>
                         <i onClick={onClose} className="infostand-close"></i>
                     </Flex>
                     <hr className="m-0" />
                 </Column>
-                <Column gap={ 1 }>
-                    <Flex gap={ 1 }>
-                        <Column fullWidth className="body-image infostand-thumb-bg" onClick={ event => GetUserProfile(avatarInfo.webID) }>
-                            <LayoutAvatarImageView figure={ avatarInfo.figure } direction={ 4 } />
+                <Column gap={1}>
+                    <Flex gap={1}>
+                        <Column fullWidth className="body-image infostand-thumb-bg" onClick={event => GetUserProfile(avatarInfo.webID)}>
+                            <LayoutAvatarImageView figure={avatarInfo.figure} direction={4} />
                         </Column>
-                        <Column grow alignItems="center" gap={ 0 }>
-                            <Flex gap={ 1 }>
+                        <Column grow alignItems="center" gap={0}>
+                            <Flex gap={1}>
                                 <Base className="badge-image">
-                                    { avatarInfo.badges[0] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[0] } showInfo={ true } /> }
+                                    {avatarInfo.badges[0] && <LayoutBadgeImageView badgeCode={avatarInfo.badges[0]} showInfo={true} />}
                                 </Base>
-                                <Base pointer={ ( avatarInfo.groupId > 0) } className="badge-image" onClick={ event => GetGroupInformation(avatarInfo.groupId) }>
-                                    { avatarInfo.groupId > 0 &&
-                                        <LayoutBadgeImageView badgeCode={ avatarInfo.groupBadgeId } isGroup={ true } showInfo={ true } customTitle={ avatarInfo.groupName } /> }
-                                </Base>
-                            </Flex>
-                            <Flex gap={ 1 }>
-                                <Base className="badge-image">
-                                    { avatarInfo.badges[1] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[1] } showInfo={ true } /> }
-                                </Base>
-                                <Base className="badge-image">
-                                    { avatarInfo.badges[2] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[2] } showInfo={ true } /> }
+                                <Base pointer={(avatarInfo.groupId > 0)} className="badge-image" onClick={event => GetGroupInformation(avatarInfo.groupId)}>
+                                    {avatarInfo.groupId > 0 &&
+                                        <LayoutBadgeImageView badgeCode={avatarInfo.groupBadgeId} isGroup={true} showInfo={true} customTitle={avatarInfo.groupName} />}
                                 </Base>
                             </Flex>
-                            <Flex gap={ 1 }>
+                            <Flex gap={1}>
                                 <Base className="badge-image">
-                                    { avatarInfo.badges[3] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[3] } showInfo={ true } /> }
+                                    {avatarInfo.badges[1] && <LayoutBadgeImageView badgeCode={avatarInfo.badges[1]} showInfo={true} />}
                                 </Base>
                                 <Base className="badge-image">
-                                    { avatarInfo.badges[4] && <LayoutBadgeImageView badgeCode={ avatarInfo.badges[4] } showInfo={ true } /> }
+                                    {avatarInfo.badges[2] && <LayoutBadgeImageView badgeCode={avatarInfo.badges[2]} showInfo={true} />}
+                                </Base>
+                            </Flex>
+                            <Flex gap={1}>
+                                <Base className="badge-image">
+                                    {avatarInfo.badges[3] && <LayoutBadgeImageView badgeCode={avatarInfo.badges[3]} showInfo={true} />}
+                                </Base>
+                                <Base className="badge-image">
+                                    {avatarInfo.badges[4] && <LayoutBadgeImageView badgeCode={avatarInfo.badges[4]} showInfo={true} />}
                                 </Base>
                             </Flex>
                         </Column>
                     </Flex>
                     <hr className="m-0" />
                 </Column>
-                <Column gap={ 1 }>
+                <Column gap={1}>
                     <Flex alignItems="center" className="infostand-thumb-bg py-1 px-2">
-                        { (avatarInfo.type !== AvatarInfoUser.OWN_USER) &&
+                        {(avatarInfo.type !== AvatarInfoUser.OWN_USER) &&
                             <Flex grow alignItems="center" className="motto-content">
-                                <Text fullWidth pointer wrap textBreak variant="white">{ motto }</Text>
-                            </Flex> }
-                        { avatarInfo.type === AvatarInfoUser.OWN_USER &&
-                            <Flex grow alignItems="center" gap={ 2 }>
+                                <Text fullWidth pointer wrap textBreak variant="white">{motto}</Text>
+                            </Flex>}
+                        {avatarInfo.type === AvatarInfoUser.OWN_USER &&
+                            <Flex grow alignItems="center" gap={2}>
                                 <FaPencilAlt className="small fa-icon" />
                                 <Flex grow alignItems="center" className="motto-content">
-                                    { !isEditingMotto &&
-                                        <Text fullWidth pointer wrap textBreak variant="white" onClick={ event => setIsEditingMotto(true) }>{ motto }&nbsp;</Text> }
-                                    { isEditingMotto &&
-                                        <input type="text" className="motto-input" maxLength={ GetConfiguration<number>('motto.max.length', 38) } value={ motto } onChange={ event => setMotto(event.target.value) } onBlur={ onMottoBlur } onKeyDown={ onMottoKeyDown } autoFocus={ true } /> }
+                                    {!isEditingMotto &&
+                                        <Text fullWidth pointer wrap textBreak variant="white" onClick={event => setIsEditingMotto(true)}>{motto}&nbsp;</Text>}
+                                    {isEditingMotto &&
+                                        <input type="text" className="motto-input" maxLength={GetConfiguration<number>('motto.max.length', 38)} value={motto} onChange={event => setMotto(event.target.value)} onBlur={onMottoBlur} onKeyDown={onMottoKeyDown} autoFocus={true} />}
                                 </Flex>
-                            </Flex> }
+                            </Flex>}
                     </Flex>
                     <hr className="m-0" />
                 </Column>
-                <Column gap={ 1 }>
+                <Column gap={1}>
                     <Text gfbold variant="white" wrap>
-                        { LocalizeText('infostand.text.achievement_score') + ' ' + avatarInfo.achievementScore }
+                        {LocalizeText('infostand.text.achievement_score') + ' ' + avatarInfo.achievementScore}
                     </Text>
-                    { (avatarInfo.carryItem > 0) &&
+                    {(avatarInfo.carryItem > 0) &&
                         <>
                             <hr className="m-0" />
                             <Text gfbold variant="white" wrap>
-                                { LocalizeText('infostand.text.handitem', [ 'item' ], [ LocalizeText('handitem' + avatarInfo.carryItem) ]) }
+                                {LocalizeText('infostand.text.handitem', ['item'], [LocalizeText('handitem' + avatarInfo.carryItem)])}
                             </Text>
-                        </> }
+                        </>}
                 </Column>
-                <Column gap={ 1 }>
-                    <InfoStandWidgetUserRelationshipsView relationships={ relationships } />
+                <Column gap={1}>
+                    <InfoStandWidgetUserRelationshipsView relationships={relationships} />
                 </Column>
-                { GetConfiguration('user.tags.enabled') &&
-                    <Column gap={ 1 } className="mt-1">
-                        <InfoStandWidgetUserTagsView tags={ GetSessionDataManager().tags } />
+                {GetConfiguration('user.tags.enabled') &&
+                    <Column gap={1} className="mt-1">
+                        <InfoStandWidgetUserTagsView tags={GetSessionDataManager().tags} />
                     </Column>
                 }
             </Column>
+
         </Column>
+
     );
 }

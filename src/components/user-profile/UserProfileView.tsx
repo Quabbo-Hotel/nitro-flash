@@ -83,12 +83,12 @@ export const UserProfileView: FC<{}> = props => {
 
     if (!userProfile) return null;
 
-    const profileName = "airplane";
+    const frameName = "airplane";
     const personalizationUrl = NitroConfiguration.getValue<string>('personalization.url');
 
     return (
         <NitroCardView uniqueKey="nitro-user-profile" theme="primary" className="user-profile">
-            <div className="background-profile-custom" style={ {backgroundImage: `url(${personalizationUrl}/${profileName}/profile.gif)`} }></div>
+            <div className="frame-profile-custom frame-general-custom" style={ {backgroundImage: `url(${personalizationUrl}/${frameName}/profile.gif)`} }></div>
             <NitroCardHeaderView headerText={LocalizeText('extendedprofile.caption')} onCloseClick={onClose} />
             <NitroCardContentView overflow="hidden">
                 <Grid fullHeight={false} gap={2}>

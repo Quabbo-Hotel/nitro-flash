@@ -1,16 +1,21 @@
-.background-profile-custom {
-    position: absolute;
+.frame-profile-custom {
     width: 667px;
     height: 605px;
     top: -27px;
     left: -25px;
+}
+
+.frame-general-custom {
+    position: absolute;
+    top: -25px;
     background-size: cover;
     background-position: center;
-    z-index: 10;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .user-profile {
-    z-index: 1;
+    z-index: 2;
     width: 617px;
     height: 555px;
     color: $black;
