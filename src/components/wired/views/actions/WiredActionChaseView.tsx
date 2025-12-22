@@ -7,6 +7,7 @@ import { WiredActionBaseView } from './WiredActionBaseView';
 export const WiredActionChaseView: FC<{}> = props =>
 {
     const [ neverMove, setNeverMove ] = useState(false);
+    const [ chaseOnTop, setChaseOnTop ] = useState(false);
     const { trigger = null, setIntParams = null } = useWired();
 
     useEffect(() =>
@@ -14,16 +15,18 @@ export const WiredActionChaseView: FC<{}> = props =>
         if (!trigger || !trigger.intData?.length)
         {
             setNeverMove(false);
+            setChaseOnTop(false);
             return;
         }
 
         setNeverMove(trigger.intData[0] === 1);
+        setChaseOnTop(trigger.intData[1] === 1);
     }, [ trigger ]);
 
     const save = () =>
     {
         if (!setIntParams) return;
-        setIntParams([ neverMove ? 1 : 0 ]);
+        setIntParams([ neverMove ? 1 : 0, chaseOnTop ? 1 : 0 ]);
     };
 
     return (
@@ -39,6 +42,14 @@ export const WiredActionChaseView: FC<{}> = props =>
                         checked={ neverMove }
                         onChange={ event => setNeverMove(event.target.checked) } />
                     <Text style={{textIndent:"10px"}}>Evitar que el furni se mueva</Text>
+                </Flex>
+                <Flex alignItems="center" gap={ 1 }>
+                    <input
+                        className="check-menu-wired"
+                        type="checkbox"
+                        checked={ chaseOnTop }
+                        onChange={ event => setChaseOnTop(event.target.checked) } />
+                    <Text style={{textIndent:"10px"}}>Cazar encima del furni</Text>
                 </Flex>
             </Column>
         </WiredActionBaseView>

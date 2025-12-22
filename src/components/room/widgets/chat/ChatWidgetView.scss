@@ -704,6 +704,207 @@
             border-image-outset: 3px 0px 0px 0px;
             
         }
+        &.bubble-42 { //vip corona
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_42.png');
+
+            border-image-slice: 26 15 9 35 fill;
+            border-image-width: 26px 15px 9px 35px;
+            border-image-outset: 12px 2px 3px 6px;
+
+        }
+        &.bubble-43 { //fantasma verde
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_43.gif');
+
+            border-image-slice: 35 26 24 33 fill;
+            border-image-width: 35px 26px 24px 33px;
+            border-image-outset: 20px 6px 18px 4px;
+
+        }
+        &.bubble-44 { //globo naranja
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_44.png');
+
+            border-image-slice: 35 26 24 33 fill;
+            border-image-width: 35px 26px 24px 33px;
+            border-image-outset: 20px 6px 18px 4px;
+
+        }
+        &.bubble-45 { //globo azul
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_45.png');
+
+            border-image-slice: 35 26 24 33 fill;
+            border-image-width: 35px 26px 24px 33px;
+            border-image-outset: 20px 6px 18px 4px;
+
+        }
+        &.bubble-46 { //bubble negra
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_46.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-47 { //bubble morado
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_47.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-48 { //bubble gris
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_48.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-49 { //bubble azulito
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_49.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-50 { //bubble rosa
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_50.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-51 { //bubble amarillo
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_51.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-52 { //bubble coral
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_52.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-53 { //bubble naranja
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_53.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-54 { //escudito
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_54.png');
+
+            border-image-slice: 16 19 17 36 fill;
+            border-image-width: 16px 19px 17px 36px;
+            border-image-outset: 6px 1px 6px 0px;
+
+        }
+        &.bubble-55 { //elegante
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_55.png');
+
+            border-image-slice: 18 19 5 31 fill;
+            border-image-width: 18px 19px 5px 31px;
+            border-image-outset: 2px 2px 0px 1px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-56 { //una cosa horrible naranja
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_56.png');
+
+            border-image-slice: 25 11 6 39 fill;
+            border-image-width: 25px 11px 6px 39px;
+            border-image-outset: 19px 4px 0px 0px;
+
+        }
+        &.bubble-57 { //negro onepiece
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_57.png');
+
+            border-image-slice: 12 25 9 34 fill;
+            border-image-width: 12px 25px 9px 34px;
+            border-image-outset: 7px 8px 1px 4px;
+
+            .chat-content {
+                color: #ffff;
+            }
+        }
+        &.bubble-58 { //puerta oeste
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_58.png');
+
+            border-image-slice: 14 15 11 35 fill;
+            border-image-width: 14px 15px 11px 35px;
+            border-image-outset: 4px 5px 4px 1px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-59 { //pinwino
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_59.png');
+
+            border-image-slice: 21 19 6 33 fill;
+            border-image-width: 21px 19px 6px 33px;
+            border-image-outset: 5px 1px 1px 6px;
+
+        }
+        &.bubble-60 { //calaveras
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_60.png');
+
+            border-image-slice: 13 23 17 33 fill;
+            border-image-width: 13px 23px 17px 33px;
+            border-image-outset: 5px 15px 4px 3px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-61 { //bubble verde (ferxxo)
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_61.png');
+
+            border-image-slice: 7 21 10 27 fill;
+            border-image-width: 7px 21px 10px 27px;
+            border-image-outset: 2px 5px 3px 1px;
+
+        }
+        &.bubble-62 { //naruto 1
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_62.png');
+
+            border-image-slice: 12 5 13 37 fill;
+            border-image-width: 12px 5px 13px 37px;
+            border-image-outset: 3px 2px 1px 9px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-63 { //harrypotter griff
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_63.png');
+
+            border-image-slice: 22 21 17 42 fill;
+            border-image-width: 22px 21px 17px 42px;
+            border-image-outset: 17px 10px 2px 5px;
+
+        }
+
+
 
         .user-container {
             z-index: 3;

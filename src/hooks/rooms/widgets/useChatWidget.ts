@@ -194,20 +194,30 @@ const useChatWidgetState = () =>
         const formattedText = RoomChatFormatter(text);
         const color = (avatarColor && (('#' + (avatarColor.toString(16).padStart(6, '0'))) || null));
 
-        const chatMessage = new ChatBubbleMessage(
-            userData.roomIndex,
-            RoomObjectCategory.UNIT,
-            roomSession.roomId,
-            text,
-            formattedText,
-            username,
-            new NitroPoint(bubbleLocation.x, bubbleLocation.y),
-            chatType,
-            styleId,
-            imageUrl,
-            color);
-
-        setChatMessages(prevValue => [ ...prevValue, chatMessage ]);
+        setChatMessages(prevValue => {
+            const lastMessage = prevValue[prevValue.length - 1];
+            if (lastMessage && lastMessage.username === username && lastMessage.text === text) {
+                // Increment count of the last message and update location
+                lastMessage.count++;
+                lastMessage.location = new NitroPoint(bubbleLocation.x, bubbleLocation.y);
+                return [...prevValue];
+            } else {
+                // Create new message
+                const chatMessage = new ChatBubbleMessage(
+                    userData.roomIndex,
+                    RoomObjectCategory.UNIT,
+                    roomSession.roomId,
+                    text,
+                    formattedText,
+                    username,
+                    new NitroPoint(bubbleLocation.x, bubbleLocation.y),
+                    chatType,
+                    styleId,
+                    imageUrl,
+                    color);
+                return [...prevValue, chatMessage];
+            }
+        });
         addChatEntry({ id: -1, webId: userData.webID, entityId: userData.roomIndex, name: username, imageUrl, style: styleId, chatType: chatType, entityType: userData.type, message: formattedText, timestamp: ChatHistoryCurrentDate(), type: ChatEntryType.TYPE_CHAT, roomId: roomSession.roomId, color });
     });
 

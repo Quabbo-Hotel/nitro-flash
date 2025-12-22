@@ -9,12 +9,13 @@ export interface WiredSelectorBaseViewProps
 {
     hasSpecialInput: boolean;
     requiresFurni: number;
+    isNeighborWired?: boolean;
     save: () => void;
 }
 
 export const WiredSelectorBaseView: FC<PropsWithChildren<WiredSelectorBaseViewProps>> = props =>
 {
-    const { requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE, save = null, hasSpecialInput = false, children = null } = props;
+    const { requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE, save = null, hasSpecialInput = false, children = null, isNeighborWired = false } = props;
     const { trigger = null,
         isFiltered = 0,
         setIsFiltered = null,
@@ -34,7 +35,7 @@ export const WiredSelectorBaseView: FC<PropsWithChildren<WiredSelectorBaseViewPr
     ]);
 
     return (
-        <WiredBaseView wiredType="selector" requiresFurni={requiresFurni} save={save} hasSpecialInput={hasSpecialInput}>
+        <WiredBaseView isNeighbor={isNeighborWired} wiredType="selector" requiresFurni={requiresFurni} save={save} hasSpecialInput={hasSpecialInput}>
             {children}
             <Text bold>{LocalizeText('wiredfurni.params.select.options')}</Text>
             <div>

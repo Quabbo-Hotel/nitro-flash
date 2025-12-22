@@ -52,17 +52,11 @@ export const ChatWidgetMessageView: FC<ChatWidgetMessageViewProps> = props =>
         chat.height = height;
         chat.elementRef = element;
 
-        let left = chat.left;
-        let top = chat.top;
+        const left = (chat.location.x - (width / 2));
+        const top = (element.parentElement.offsetHeight - height);
 
-        if (!left && !top)
-        {
-            left = (chat.location.x - (width / 2));
-            top = (element.parentElement.offsetHeight - height);
-
-            chat.left = left;
-            chat.top = top;
-        }
+        chat.left = left;
+        chat.top = top;
 
         setIsReady(true);
 
@@ -71,7 +65,7 @@ export const ChatWidgetMessageView: FC<ChatWidgetMessageViewProps> = props =>
             chat.elementRef = null;
             setIsReady(false);
         }
-    }, [chat]);
+    }, [chat.location.x, chat.location.y, chat.count]);
 
     useEffect(() =>
     {
@@ -102,7 +96,7 @@ export const ChatWidgetMessageView: FC<ChatWidgetMessageViewProps> = props =>
                                 style={{ textDecoration: 'underline', color: '#0d47a1' }}
                                 onClick={e => e.stopPropagation()}
                             >
-                                {` ${chat.formattedText ?? prntLink} `}
+                                {`${chat.formattedText ?? prntLink} ${chat.count > 1 ? `(x${chat.count})` : ''}`}
                             </a>
                         ) : isTetrioInviteLink(chat.formattedText) && chat.username === 'g6re' ? (
                             <a
@@ -139,11 +133,11 @@ export const ChatWidgetMessageView: FC<ChatWidgetMessageViewProps> = props =>
                                 />
                                 <div>
                                     <strong>¡Invitación para jugar TETR.IO!</strong><br />
-                                    Haz clic para unirte a la partida 🎮
+                                    Haz clic para unirte a la partida 🎮 {chat.count > 1 ? `(x${chat.count})` : ''}
                                 </div>
                             </a>
                         ) : (
-                            <span className="message" dangerouslySetInnerHTML={{ __html: `${chat.formattedText}` }} />
+                            <span className="message" dangerouslySetInnerHTML={{ __html: `${chat.formattedText} ${chat.count > 1 ? `(x${chat.count})` : ''}` }} />
                         )
                     }
 

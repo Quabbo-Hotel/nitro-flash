@@ -446,7 +446,7 @@ export const WiredSelectorUsersNeighbor: FC<{}> = () =>
 
     // --- RENDER
     return (
-        <WiredSelectorBaseView hasSpecialInput={true} requiresFurni={1} save={save}>
+        <WiredSelectorBaseView isNeighborWired={true} hasSpecialInput={true} requiresFurni={1} save={save}>
             <div>
                 <div className='global-neighbor'>
                     <button

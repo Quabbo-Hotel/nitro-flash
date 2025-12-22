@@ -20,12 +20,14 @@ export interface WiredBaseViewProps {
     requiresFurni: number;
     hasSpecialInput: boolean;
     allowFurniSelectionIfNone?: boolean;
+    isNeighbor: boolean;
     save: () => void;
     validate?: () => boolean;
+
 }
 
 export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props => {
-    const { wiredType = '', requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE, save = null, validate = null, children = null, hasSpecialInput = false, allowFurniSelectionIfNone = false } = props;
+    const { wiredType = '', requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE, save = null, validate = null, children = null, hasSpecialInput = false, allowFurniSelectionIfNone = false, isNeighbor = false } = props;
     const [wiredName, setWiredName] = useState<string>(null);
     const [wiredDescription, setWiredDescription] = useState<string>(null);
     const [needsSave, setNeedsSave] = useState<boolean>(false);
@@ -178,7 +180,12 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props =>
     }, [trigger, hasSpecialInput, requiresFurni, setIntParams, setStringParam, setFurniIds, setAllowsFurni, setPreferredSelectionColor, setAllowYellowSelection, setDestFurniIds, allowFurniSelectionIfNone]);
 
     return (
-        <NitroCardView uniqueKey="nitro-wired" className="nitro-wired" theme="wired">
+        <NitroCardView
+            uniqueKey="nitro-wired"
+            className="nitro-wired"
+            theme="wired"
+            style={{ width: isNeighbor ? "300px" : "240px" }}
+        >
             <NitroCardHeaderView style={{ backgroundColor: "transparent" }} isWired={true} headerText={LocalizeText('wiredfurni.title')} onCloseClick={onClose}>
                 <Flex className="wired-menu" ref={menuRef}>
                     <Flex className='container-btn-wired-menu '>
@@ -186,7 +193,7 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props =>
                     </Flex>
                     {menuOpen &&
                         <div className="wired-menu-dropdown">
-                            <div className=' grid-menu-wired grid-menu-wired-top'  onClick={handleCopyClipboard}>
+                            <div className=' grid-menu-wired grid-menu-wired-top' onClick={handleCopyClipboard}>
                                 <div></div>
                                 <button type="button" className="wired-menu-item " disabled={!trigger} >
                                     Copiar configuración
@@ -201,10 +208,10 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = props =>
                             </div>
 
                             <label className="grid-menu-wired wired-menu-item grid-menu-wired-center" onChange={handleAutoPasteToggle}>
-                                <Flex style={{width:"20px", height:"14px"}} center>
-                                    <input className="check-menu-wired" type="checkbox" checked={autoPasteEnabled}  />
+                                <Flex style={{ width: "20px", height: "14px" }} center>
+                                    <input className="check-menu-wired" type="checkbox" checked={autoPasteEnabled} />
                                 </Flex>
-                                <span style={{textIndent:"5px"}}>Copiar en otro Wired</span>
+                                <span style={{ textIndent: "5px" }}>Copiar en otro Wired</span>
                             </label>
 
                             <Flex center gap={1}>
