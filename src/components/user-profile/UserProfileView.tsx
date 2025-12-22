@@ -86,7 +86,7 @@ export const UserProfileView: FC<{}> = props => {
     if (!userProfile) return null;
 
     return (
-        <NitroCardView uniqueKey="nitro-user-profile" theme="primary" className="user-profile">
+        <NitroCardView overflow={ "visible" } uniqueKey="nitro-user-profile" theme="primary" className="user-profile">
             {profileFrameUrl &&
                 <div className="frame-profile-custom frame-general-custom" style={{ backgroundImage: `url(${profileFrameUrl})` }}></div>}
             <NitroCardHeaderView headerText={LocalizeText('extendedprofile.caption')} onCloseClick={onClose} />

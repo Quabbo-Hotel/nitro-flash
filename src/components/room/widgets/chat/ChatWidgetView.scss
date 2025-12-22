@@ -688,15 +688,15 @@
             }
         }
 
-        &.bubble-40 {
+        &.bubble-40 { //airplane
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_40.png');
 
-            border-image-slice: 18 6 6 29 fill;
-            border-image-width: 18px 6px 6px 29px;
-            border-image-outset: 3px 0px 0px 0px;
+            border-image-slice: 15 11 12 14 fill;
+            border-image-width: 15px 11px 12px 14px;
+            border-image-outset: 3px 4px 1px 2px;
             
         }
-        &.bubble-41 {
+        &.bubble-41 { //builder
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_41.png');
 
             border-image-slice: 18 6 6 29 fill;
@@ -934,14 +934,6 @@
             top: 10px;
             background: url('@/assets/images/chat/chatbubbles/bubble_38_extra.png');
         }
-    }
-
-    &.bubble-40 {
-        background-image: url('@/assets/images/chat/chatbubbles/bubble_40.png');
-    }
-
-    &.bubble-41 {
-        background-image: url('@/assets/images/chat/chatbubbles/bubble_41.png');
     }
 
 }
