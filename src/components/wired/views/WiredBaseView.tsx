@@ -20,7 +20,7 @@ export interface WiredBaseViewProps {
     requiresFurni: number;
     hasSpecialInput: boolean;
     allowFurniSelectionIfNone?: boolean;
-    isNeighbor: boolean;
+    isNeighbor?: boolean;
     save: () => void;
     validate?: () => boolean;
 

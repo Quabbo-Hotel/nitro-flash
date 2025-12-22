@@ -11,10 +11,11 @@ export interface WiredActionBaseViewProps {
     requiresFurni: number;
     save: () => void;
     allowFurniSelectionIfNone?: boolean;
+    isSignal?: boolean;
 }
 
 export const WiredActionBaseView: FC<PropsWithChildren<WiredActionBaseViewProps>> = props => {
-    const { requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE, save = null, hasSpecialInput = false, allowFurniSelectionIfNone = false, children = null } = props;
+    const { requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE, save = null, hasSpecialInput = false, allowFurniSelectionIfNone = false, isSignal = false, children = null } = props;
     const { trigger = null,
         actionDelay = 0,
         setActionDelay = null,
@@ -58,7 +59,7 @@ export const WiredActionBaseView: FC<PropsWithChildren<WiredActionBaseViewProps>
             <hr className="m-0 bg-dark" />
             {furniOptions === 1 && (
                 <Column>
-                    <Text center bold>{LocalizeText('select.furni.source.actions')}</Text>
+                    <Text center bold>{LocalizeText(isSignal ? 'Antenas que recibirán la señal' : 'select.furni.source.actions')}</Text>
                     <div className='align-advancedoptionsone'>
                         <div className="button-group">
                             <Flex center className={` placeholder-adv-options ${furniType === 0 ? 'placeholder-adv-options-selected ' : 'placeholder-adv-options'}`}>

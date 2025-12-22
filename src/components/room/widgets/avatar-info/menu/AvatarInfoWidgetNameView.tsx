@@ -29,7 +29,7 @@ export const AvatarInfoWidgetNameView: FC<AvatarInfoWidgetNameViewProps> = props
 
     const borderUrl = useFrameAsset(nameInfo?.avatarFrame, 'border');
     const nameUrl = useFrameAsset(nameInfo?.avatarFrame, 'username');
-    const borderStyle = borderUrl ? { borderImageSource: `url("${borderUrl}")` } : undefined;
+    const borderStyle = (!isVariable && borderUrl) ? { borderImageSource: `url("${borderUrl}")` } : undefined;
     const nameStyle = nameUrl ? { backgroundImage: `url("${nameUrl}")` } : undefined;
 
     return (

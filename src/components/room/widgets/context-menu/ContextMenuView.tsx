@@ -111,15 +111,18 @@ export const ContextMenuView: FC<ContextMenuViewProps> = props =>
     const getStyle = useMemo(() =>
     {
         let newStyle: CSSProperties = {};
+        const shouldOffsetForFrame = (!isVariable && classNames.includes('name-only'));
+        const baseX = (pos.x !== null) ? pos.x : 0;
+        const baseY = (pos.y !== null) ? pos.y : 0;
 
-        newStyle.left = (pos.x || 0);
-        newStyle.top = (pos.y + 30 || 0) ;
+        newStyle.left = baseX;
+        newStyle.top = shouldOffsetForFrame ? (baseY + 30) : baseY;
         newStyle.opacity = opacity;
 
         if(Object.keys(style).length) newStyle = { ...newStyle, ...style };
 
         return newStyle;
-    }, [ pos, opacity, style ]);
+    }, [ pos, opacity, style, isVariable, classNames ]);
 
     useEffect(() =>
     {

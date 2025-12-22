@@ -21,13 +21,13 @@ export const WiredTriggerAvatarEnterRoomView: FC<{}> = props =>
     return (
         <WiredTriggerBaseView requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_NONE } hasSpecialInput={ true } save={ save }>
             <Column gap={ 1 }>
-                <Text gfbold>{ LocalizeText('wiredfurni.params.picktriggerer') }</Text>
+                <Text style={{ marginLeft:"5px" }}>{ LocalizeText('wiredfurni.params.picktriggerer') }</Text>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="avatarMode" id="avatarMode0" checked={ (avatarMode === 0) } onChange={ event => setAvatarMode(0) } />
+                    <input className="form-check-radio-wired" type="radio" name="avatarMode" id="avatarMode0" checked={ (avatarMode === 0) } onChange={ event => setAvatarMode(0) } />
                     <Text>{ LocalizeText('wiredfurni.params.anyavatar') }</Text>
                 </Flex>
                 <Flex alignItems="center" gap={ 1 }>
-                    <input className="form-check-input" type="radio" name="avatarMode" id="avatarMode1" checked={ (avatarMode === 1) } onChange={ event => setAvatarMode(1) } />
+                    <input className="form-check-radio-wired" type="radio" name="avatarMode" id="avatarMode1" checked={ (avatarMode === 1) } onChange={ event => setAvatarMode(1) } />
                     <Text>{ LocalizeText('wiredfurni.params.certainavatar') }</Text>
                 </Flex>
                 { (avatarMode === 1) &&

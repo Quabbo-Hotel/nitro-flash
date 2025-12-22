@@ -27,12 +27,12 @@ export const WiredTriggerKeyboardActionView: FC<{}> = props =>
             save={save}>
 
             <Column gap={1}>
-                <Text bold>{LocalizeText('wiredfurni.params.picktriggerer')}</Text>
+                <Text style={{ marginLeft:"5px" }}>{LocalizeText('wiredfurni.params.picktriggerer')}</Text>
 
                 {[...Array(8)].map((_, index) => (
                     <Flex key={index} alignItems="center" gap={1}>
                         <input
-                            className="form-check-input"
+                            className="form-check-radio-wired"
                             type="radio"
                             name="avatarMode"
                             id={`avatarMode${index}`}

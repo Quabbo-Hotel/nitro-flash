@@ -895,7 +895,7 @@
             }
 
         }
-        &.bubble-63 { //harrypotter griff
+        &.bubble-63 { //harrypotter gri
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_63.png');
 
             border-image-slice: 22 21 17 42 fill;
@@ -903,6 +903,112 @@
             border-image-outset: 17px 10px 2px 5px;
 
         }
+        &.bubble-64 { //harrypotter sly
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_64.png');
+
+            border-image-slice: 22 21 17 42 fill;
+            border-image-width: 22px 21px 17px 42px;
+            border-image-outset: 17px 10px 2px 5px;
+
+        }
+        &.bubble-65 { //harrypotter rav
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_65.png');
+
+            border-image-slice: 22 21 17 42 fill;
+            border-image-width: 22px 21px 17px 42px;
+            border-image-outset: 17px 10px 2px 5px;
+
+        }
+        &.bubble-66 { //harrypotter haf
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_66.png');
+
+            border-image-slice: 22 21 17 42 fill;
+            border-image-width: 22px 21px 17px 42px;
+            border-image-outset: 17px 10px 2px 5px;
+
+        }
+        &.bubble-67 { //H arcoiris
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_67.png');
+
+            border-image-slice: 13 14 12 37 fill;
+            border-image-width: 13px 14px 12px 37px;
+            border-image-outset: 6px 0px 2px 3px;
+
+        }
+        &.bubble-68 { //H oscura
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_68.png');
+
+            border-image-slice: 17 12 15 38 fill;
+            border-image-width: 17px 12px 15px 38px;
+            border-image-outset: 6px 0px 2px 5px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-69 { //RIP
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_69.png');
+
+            border-image-slice: 25 11 6 39 fill;
+            border-image-width: 25px 11px 6px 39px;
+            border-image-outset: 10px 0px 0px 0px;
+
+        }
+        &.bubble-70 { //gato arcoiris
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_70.png');
+
+            border-image-slice: 27 15 5 42 fill;
+            border-image-width: 27px 15px 5px 42px;
+            border-image-outset: 9px 3px 0px 7px;
+
+        }
+        &.bubble-71 { //maru
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_71.png');
+
+            border-image-slice: 29 15 5 35 fill;
+            border-image-width: 29px 15px 5px 35px;
+            border-image-outset: 13px 0px 0px 0px;
+
+        }
+        &.bubble-72 { //espacio
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_72.png');
+
+            border-image-slice: 33 25 14 39 fill;
+            border-image-width: 33px 25px 14px 39px;
+            border-image-outset: 18px 13px 8px 5px;
+
+        }
+        &.bubble-73 { //kuromi
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_73.png');
+
+            border-image-slice: 29 16 5 34 fill;
+            border-image-width: 29px 16px 5px 34px;
+            border-image-outset: 13px 5px 0px 0px;
+
+            .chat-content {
+                color: #ffff;
+            }
+
+        }
+        &.bubble-74 { //hellokitty
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_74.png');
+
+            border-image-slice: 29 16 5 34 fill;
+            border-image-width: 29px 16px 5px 34px;
+            border-image-outset: 13px 5px 0px 0px;
+
+        }
+        &.bubble-75 { //mymelody
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_75.png');
+
+            border-image-slice: 29 16 5 34 fill;
+            border-image-width: 29px 16px 5px 34px;
+            border-image-outset: 13px 5px 0px 0px;
+
+        }
+
+
 
 
 

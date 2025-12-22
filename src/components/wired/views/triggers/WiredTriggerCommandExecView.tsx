@@ -63,7 +63,7 @@ export const WiredTriggerCommandExecView: FC<{}> = props =>
 
                 <Flex alignItems="center" gap={1}>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         name="userMode"
                         id="userMode0"
@@ -74,7 +74,7 @@ export const WiredTriggerCommandExecView: FC<{}> = props =>
 
                 <Flex alignItems="center" gap={1}>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         name="userMode"
                         id="userMode1"
@@ -98,7 +98,7 @@ export const WiredTriggerCommandExecView: FC<{}> = props =>
                 
                 <Flex alignItems="center" gap={1}>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         name="actionTarget"
                         id="actionTarget0"
@@ -109,7 +109,7 @@ export const WiredTriggerCommandExecView: FC<{}> = props =>
 
                 <Flex alignItems="center" gap={1}>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         name="actionTarget"
                         id="actionTarget1"
@@ -125,7 +125,7 @@ export const WiredTriggerCommandExecView: FC<{}> = props =>
                 
                 <Flex alignItems="center" gap={1}>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         name="distanceMode"
                         id="distanceMode0"
@@ -136,7 +136,7 @@ export const WiredTriggerCommandExecView: FC<{}> = props =>
 
                 <Flex alignItems="center" gap={1}>
                     <input
-                        className="form-check-input"
+                        className="form-check-radio-wired"
                         type="radio"
                         name="distanceMode"
                         id="distanceMode1"
