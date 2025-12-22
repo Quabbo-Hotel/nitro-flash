@@ -9,7 +9,7 @@ import { ChatInputStyleSelectorView } from './ChatInputStyleSelectorView';
 export const ChatInputView: FC<{}> = props =>
 {
     const [ chatValue, setChatValue ] = useState<string>('');
-    const { chatStyleId = 0, updateChatStyleId = null } = useSessionInfo();
+    const { chatStyleId = 0, unlockedChatStyleIds = [], updateChatStyleId = null } = useSessionInfo();
     const { selectedUsername = '', floodBlocked = false, floodBlockedSeconds = 0, setIsTyping = null, setIsIdle = null, sendChat = null } = useChatInputWidget();
     const { roomSession = null } = useRoom();
     const inputRef = useRef<HTMLInputElement>();
@@ -167,9 +167,9 @@ export const ChatInputView: FC<{}> = props =>
 
     const chatStyleIds = useMemo(() =>
     {
-        let styleIds: number[] = [];
-
-        const styles = GetConfiguration<{ styleId: number, minRank: number, isSystemStyle: boolean, isHcOnly: boolean, isAmbassadorOnly: boolean }[]>('chat.styles');
+        const styleIds: number[] = [];
+        const styles = GetConfiguration<{ styleId: number, minRank: number, isSystemStyle: boolean, isHcOnly: boolean, isAmbassadorOnly: boolean }[]>('chat.styles') || [];
+        const disabled = GetConfiguration<number[]>('chat.styles.disabled') || [];
 
         for(const style of styles)
         {
@@ -192,7 +192,7 @@ export const ChatInputView: FC<{}> = props =>
                 }
             }
 
-            if(GetConfiguration<number[]>('chat.styles.disabled').indexOf(style.styleId) >= 0) continue;
+            if(disabled.indexOf(style.styleId) >= 0) continue;
 
             if(style.isHcOnly && (GetClubMemberLevel() >= HabboClubLevelEnum.CLUB))
             {
@@ -211,8 +211,15 @@ export const ChatInputView: FC<{}> = props =>
             if(!style.isHcOnly && !style.isAmbassadorOnly) styleIds.push(style.styleId);
         }
 
-        return styleIds;
-    }, []);
+        const merged = new Set<number>(styleIds);
+
+        for(const styleId of unlockedChatStyleIds)
+        {
+            merged.add(styleId);
+        }
+
+        return Array.from(merged);
+    }, [ unlockedChatStyleIds ]);
 
     useEffect(() =>
     {

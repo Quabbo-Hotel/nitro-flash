@@ -12,6 +12,7 @@ const useSessionInfoState = () =>
     const [ chatStyleId, setChatStyleId ] = useState<number>(0);
     const [ userRespectRemaining, setUserRespectRemaining ] = useState<number>(0);
     const [ petRespectRemaining, setPetRespectRemaining ] = useState<number>(0);
+    const [ unlockedChatStyleIds, setUnlockedChatStyleIds ] = useState<number[]>([]);
     const [ screenSize, setScreenSize ] = useLocalStorage('nitro.screensize', { width: window.innerWidth, height: window.innerHeight });
 
     const updateChatStyleId = (styleId: number) =>
@@ -57,6 +58,7 @@ const useSessionInfoState = () =>
         const parser = event.getParser();
 
         setChatStyleId(parser.chatType);
+        setUnlockedChatStyleIds(parser.chatStyles || []);
     });
 
     useEffect(() =>
@@ -87,7 +89,7 @@ const useSessionInfoState = () =>
         }
     }, [ setScreenSize ]);
 
-    return { userInfo, userFigure, chatStyleId, userRespectRemaining, petRespectRemaining, respectUser, respectPet, updateChatStyleId };
+    return { userInfo, userFigure, chatStyleId, unlockedChatStyleIds, userRespectRemaining, petRespectRemaining, respectUser, respectPet, updateChatStyleId };
 }
 
 export const useSessionInfo = () => useBetween(useSessionInfoState);

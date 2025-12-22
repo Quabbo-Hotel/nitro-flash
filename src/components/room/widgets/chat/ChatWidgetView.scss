@@ -74,6 +74,7 @@
         }
 
         &.type-0 {
+
             // normal
             .message {
                 font-weight: 400;
@@ -81,6 +82,7 @@
         }
 
         &.type-1 {
+
             // whisper
             .message {
                 font-family: ubuntuItalics;
@@ -89,6 +91,7 @@
         }
 
         &.type-2 {
+
             // shout
             .message {
                 font-family: ubuntuBold;
@@ -685,6 +688,23 @@
             }
         }
 
+        &.bubble-40 {
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_40.png');
+
+            border-image-slice: 18 6 6 29 fill;
+            border-image-width: 18px 6px 6px 29px;
+            border-image-outset: 3px 0px 0px 0px;
+            
+        }
+        &.bubble-41 {
+            border-image-source: url('@/assets/images/chat/chatbubbles/bubble_41.png');
+
+            border-image-slice: 18 6 6 29 fill;
+            border-image-width: 18px 6px 6px 29px;
+            border-image-outset: 3px 0px 0px 0px;
+            
+        }
+
         .user-container {
             z-index: 3;
             display: flex;
@@ -915,6 +935,15 @@
             background: url('@/assets/images/chat/chatbubbles/bubble_38_extra.png');
         }
     }
+
+    &.bubble-40 {
+        background-image: url('@/assets/images/chat/chatbubbles/bubble_40.png');
+    }
+
+    &.bubble-41 {
+        background-image: url('@/assets/images/chat/chatbubbles/bubble_41.png');
+    }
+
 }
 
 .username {

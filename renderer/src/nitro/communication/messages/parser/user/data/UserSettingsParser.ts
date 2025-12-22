@@ -13,6 +13,7 @@ export class UserSettingsParser implements IMessageParser
     private _chatType: number;
     private _wiredAnimations: boolean;
     private _mouseWheelZoom: boolean;
+    private _chatStyles: number[];
 
     public flush(): boolean
     {
@@ -27,6 +28,7 @@ export class UserSettingsParser implements IMessageParser
         this._chatType = 0;
         this._wiredAnimations = true;
         this._mouseWheelZoom = false;
+        this._chatStyles = [];
 
         return true;
     }
@@ -46,6 +48,13 @@ export class UserSettingsParser implements IMessageParser
         this._chatType = wrapper.readInt();
         this._wiredAnimations = wrapper.readBoolean();
         this._mouseWheelZoom = wrapper.readBoolean();
+        const unlockedCount = wrapper.readInt();
+        this._chatStyles = [];
+
+        for(let i = 0; i < unlockedCount; i++)
+        {
+            this._chatStyles.push(wrapper.readInt());
+        }
 
         return true;
     }
@@ -103,5 +112,10 @@ export class UserSettingsParser implements IMessageParser
     public get mouseWheelZoom(): boolean
     {
         return this._mouseWheelZoom;
+    }
+
+    public get chatStyles(): number[]
+    {
+        return this._chatStyles;
     }
 }
