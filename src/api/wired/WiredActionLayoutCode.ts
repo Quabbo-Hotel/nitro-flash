@@ -42,4 +42,6 @@ export class WiredActionLayoutCode
     public static LIMIT_USER_VISION: number = 41;
     public static SPOTLIGHT_USER_VISION: number = 42;
     public static MOVE_USER_TO_FURNI: number = 43;
+    public static ROTATE_USER: number = 44;
+    public static SHOW_MESSAGE_ROOM: number = 45;
 }

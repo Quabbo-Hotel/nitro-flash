@@ -26,6 +26,7 @@ import { WiredActionMuteUserView } from './WiredActionMuteUserView';
 import { WiredActionRelativeMovesView } from './WiredActionRelativeMovesView';
 import { WiredResetSubstractPointsView } from './WiredActionResetSubstractPointsView';
 import { WiredActionResetView } from './WiredActionResetView';
+import { WiredActionRotateUserView } from './WiredActionRotateUserView';
 import { WiredActionSendSignal } from './WiredActionSendSignalView';
 import { WiredActionSetAddPointsView } from './WiredActionSetAddPointsView';
 import { WiredActionSetFurniStateToView } from './WiredActionSetFurniStateToView';
@@ -40,6 +41,7 @@ import { WiredActionRemoveVariableView } from './WiredActionRemoveVariableView';
 import { WiredActionChangeValueVariableView } from './WiredActionChangeValueVariableView';
 import { WiredActionLimitUserVisionView } from './WiredActionLimitUserVisionView';
 import { WiredActionSpotlightUserVisionView } from './WiredActionSpotlightUserVisionView';
+import { WiredActionShowMessageRoomView } from './WiredActionShowMessageRoomView';
 
 export const WiredActionLayoutView = (code: number) =>
 {
@@ -65,6 +67,8 @@ export const WiredActionLayoutView = (code: number) =>
             return <WiredActionChaseView />;
         case WiredActionLayoutCode.CHAT:
             return <WiredActionChatView />;
+        case WiredActionLayoutCode.SHOW_MESSAGE_ROOM:
+            return <WiredActionShowMessageRoomView />;
         case WiredActionLayoutCode.FLEE:
             return <WiredActionFleeView />;
         case WiredActionLayoutCode.GIVE_REWARD:
@@ -115,6 +119,8 @@ export const WiredActionLayoutView = (code: number) =>
             return <WiredActionSetHeightView />;
         case WiredActionLayoutCode.SEND_SIGNAL:
             return <WiredActionSendSignal />;
+        case WiredActionLayoutCode.ROTATE_USER:
+            return <WiredActionRotateUserView />;
         case WiredActionLayoutCode.SPEED_USER:
             return <WiredActionSpeedUserView />;
         case WiredActionLayoutCode.LIMIT_USER_VISION:
