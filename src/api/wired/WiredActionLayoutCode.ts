@@ -44,4 +44,5 @@ export class WiredActionLayoutCode
     public static MOVE_USER_TO_FURNI: number = 43;
     public static ROTATE_USER: number = 44;
     public static SHOW_MESSAGE_ROOM: number = 45;
+    public static TELEPORT_ROOM: number = 46;
 }

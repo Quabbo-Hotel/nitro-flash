@@ -42,11 +42,10 @@ import { WiredActionChangeValueVariableView } from './WiredActionChangeValueVari
 import { WiredActionLimitUserVisionView } from './WiredActionLimitUserVisionView';
 import { WiredActionSpotlightUserVisionView } from './WiredActionSpotlightUserVisionView';
 import { WiredActionShowMessageRoomView } from './WiredActionShowMessageRoomView';
+import { WiredActionForwardRoomView } from './WiredActionForwardRoomView';
 
-export const WiredActionLayoutView = (code: number) =>
-{
-    switch (code)
-    {
+export const WiredActionLayoutView = (code: number) => {
+    switch (code) {
         case WiredActionLayoutCode.BOT_CHANGE_FIGURE:
             return <WiredActionBotChangeFigureView />;
         case WiredActionLayoutCode.BOT_FOLLOW_AVATAR:
@@ -67,6 +66,8 @@ export const WiredActionLayoutView = (code: number) =>
             return <WiredActionChaseView />;
         case WiredActionLayoutCode.CHAT:
             return <WiredActionChatView />;
+        case WiredActionLayoutCode.TELEPORT_ROOM:
+            return <WiredActionForwardRoomView />;
         case WiredActionLayoutCode.SHOW_MESSAGE_ROOM:
             return <WiredActionShowMessageRoomView />;
         case WiredActionLayoutCode.FLEE:
