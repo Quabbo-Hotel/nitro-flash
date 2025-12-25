@@ -75,10 +75,10 @@ export class OutgoingHeader
     public static FURNITURE_WALL_MULTISTATE = 210;
     public static FURNITURE_WALL_UPDATE = 168;
     public static GAMES_INIT = 2914;
-    public static GAMES_LIST = 741;
+    public static GAMES_LIST = 2399;
     public static ACCEPTGAMEINVITE = 3802;
     public static GAMEUNLOADEDMESSAGE = 3207;
-    public static GETGAMEACHIEVEMENTSMESSAGE = 2399;
+    public static GETGAMEACHIEVEMENTSMESSAGE = 741;
     public static GETGAMESTATUSMESSAGE = 3171;
     public static GETUSERGAMEACHIEVEMENTSMESSAGE = 389;
     public static JOINQUEUEMESSAGE = 1458;

@@ -1072,7 +1072,7 @@ export class RoomObjectEventHandler extends Disposable implements IRoomCanvasMou
                 event.object.model.setValue(RoomObjectVariable.SESSION_CURRENT_USER_ID, this._roomEngine.sessionDataManager.userId);
                 return;
             case RoomObjectDataRequestEvent.RODRE_URL_PREFIX:
-                event.object.model.setValue(RoomObjectVariable.SESSION_URL_PREFIX, NitroConfiguration.getValue('url.prefix'));
+                event.object.model.setValue(RoomObjectVariable.SESSION_URL_PREFIX, NitroConfiguration.getValue('adada'));
                 return;
         }
     }

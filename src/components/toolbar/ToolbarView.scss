@@ -100,12 +100,25 @@
         }
     }
 
-    #toolbar-chat-input-container {
+    &.nitro-toolbar--battleball {
+        justify-content: flex-end;
+        pointer-events: none;
 
-        @include media-breakpoint-down(sm) {
-            width: 0px;
-            height: 0px;
+        .navigation-item {
+            pointer-events: all;
         }
+    }
+}
+
+#toolbar-chat-input-container {
+
+    &.battleball-chat-only {
+        pointer-events: all;
+    }
+
+    @include media-breakpoint-down(sm) {
+        width: 0px;
+        height: 0px;
     }
 }
 

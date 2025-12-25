@@ -5,6 +5,8 @@ import { Base, TransitionAnimation, TransitionAnimationTypes } from '../../commo
 import { useRoomSessionManagerEvent } from '../../hooks';
 import { AchievementsView } from '../achievements/AchievementsView';
 import { AvatarEditorView } from '../avatar-editor/AvatarEditorView';
+import { BattleBallHudView } from '../battleball/BattleBallHudView';
+import { BattleBallResultsView } from '../battleball/BattleBallResultsView';
 import { CameraWidgetView } from '../camera/CameraWidgetView';
 import { CampaignView } from '../campaign/CampaignView';
 import { CatalogView } from '../catalog/CatalogView';
@@ -86,6 +88,8 @@ export const MainView: FC<{}> = props =>
                 <HotelView />
             </TransitionAnimation>
             <ToolbarView isInRoom={ !landingViewVisible } />
+            <BattleBallHudView />
+            <BattleBallResultsView />
             <ModToolsView />
             <RoomView />
             <ChatHistoryView />

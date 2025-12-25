@@ -1,7 +1,7 @@
 import { Game2AccountGameStatusMessageEvent, Game2AccountGameStatusMessageParser, GameConfigurationData, GameListMessageEvent, GameStatusMessageEvent, GetGameListMessageComposer, LoadGameUrlEvent } from '@nitrots/nitro-renderer';
 import { useEffect, useState } from 'react';
 import { useBetween } from 'use-between';
-import { SendMessageComposer, VisitDesktop } from '../../api';
+import { SendMessageComposer } from '../../api';
 import { useMessageEvent } from '../events';
 
 const useGameCenterState = () => 
@@ -57,18 +57,17 @@ const useGameCenterState = () =>
         }
     });
 
-    useEffect(()=>
+    useEffect(() =>
     {
         if(isVisible) 
         {
             SendMessageComposer(new GetGameListMessageComposer());
-            VisitDesktop();
         }
         else 
         {
             // dispose or wtv
         }
-    },[ isVisible ]);
+    }, [ isVisible ]);
 
     return {
         isVisible, setIsVisible,

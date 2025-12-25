@@ -1,5 +1,5 @@
 {
-    "socket.url": "wss://ws.hobbu.net:2096",
+    "socket.url": "ws://localhost:2096",
     "comet.http.uploadHost": "https://comet.hobbu.net",
     "asset.url": "https://assets.hobbu.net",
     "image.library.url": "${asset.url}/swf/c_images/",

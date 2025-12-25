@@ -2,11 +2,24 @@ import { Game2GetAccountGameStatusMessageComposer, GetGameStatusMessageComposer,
 import { useEffect } from 'react';
 import { ColorUtils, LocalizeText, SendMessageComposer } from '../../../api';
 import { Base, Button, Flex, LayoutItemCountView, Text } from '../../../common';
-import { useGameCenter } from '../../../hooks';
+import { useBattleBall, useGameCenter } from '../../../hooks';
+
+const connectionStateCopy: Record<string, string> = {
+    idle: 'Conecta para unirte',
+    connecting: 'Conectando…',
+    authenticating: 'Validando…',
+    ready: 'Listo',
+    error: 'Error al conectar',
+    closed: 'Desconectado'
+};
 
 export const GameView = () => 
 {
     const { selectedGame, accountStatus } = useGameCenter();
+    const { joinBattleBallQueue, connectionState: battleConnectionState, phase: battlePhase, players: battlePlayers, maxPlayers: battleMaxPlayers } = useBattleBall();
+    const isBattleBallGame = (selectedGame && (selectedGame.gameNameId === 'battleball'));
+    const canPlayCurrentGame = (!accountStatus || accountStatus.hasUnlimitedGames || (accountStatus.freeGamesLeft > 0));
+    const remainingGameTokens = (!accountStatus || accountStatus.hasUnlimitedGames) ? null : accountStatus.freeGamesLeft;
 
     useEffect(()=>
     {
@@ -34,20 +47,40 @@ export const GameView = () =>
 
     const onPlay = () => 
     {
+        if(isBattleBallGame)
+        {
+            joinBattleBallQueue();
+            return;
+        }
+
         SendMessageComposer(new JoinQueueMessageComposer(selectedGame.gameId));
+    }
+
+    const getBattleBallCta = () =>
+    {
+        if(!isBattleBallGame) return LocalizeText('gamecenter.play_now');
+
+        if(battlePhase === 'queue') return 'En cola…';
+        if(battlePhase === 'countdown') return 'Preparando arena';
+
+        return 'Unirme a la cola';
     }
 
     return <Flex className="game-view py-4" fullHeight style={ { backgroundColor: getBgColour(), backgroundImage: getBgImage(), color: getColor() } }>
         <Flex className="w-75" column alignItems="center" gap={ 2 }>
             <Text bold>{ LocalizeText(`gamecenter.${ selectedGame.gameNameId }.description_title`) }</Text>
             <img src={ selectedGame.assetUrl + selectedGame.gameNameId + '_logo.png' }/>
-            { (accountStatus.hasUnlimitedGames || accountStatus.freeGamesLeft > 0) && <>
+            { canPlayCurrentGame && <>
                 <Button variant="light" position="relative" className="px-4" onClick={ onPlay }>
-                    { LocalizeText('gamecenter.play_now') }
-                    { !accountStatus.hasUnlimitedGames && 
-                    <LayoutItemCountView className="me-n1 mt-n1" count={ accountStatus.freeGamesLeft }/> }
+                    { getBattleBallCta() }
+                    { (remainingGameTokens !== null) &&
+                    <LayoutItemCountView className="me-n1 mt-n1" count={ remainingGameTokens }/> }
                 </Button>
             </> }
+            { isBattleBallGame &&
+                <Text className="battleball-status-pill">
+                    { battleConnectionState === 'ready' ? `Cola: ${ battlePlayers.length } / ${ battleMaxPlayers }` : (connectionStateCopy[battleConnectionState] || connectionStateCopy.idle) }
+                </Text> }
             <Text bold className="w-50" center>{ LocalizeText(`gamecenter.${ selectedGame.gameNameId }.description_content`) }</Text>
         </Flex>
         <Base className="w-25">

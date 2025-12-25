@@ -1,0 +1,128 @@
+.battleball-results {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 6, 18, 0.75);
+  backdrop-filter: blur(10px);
+  z-index: 40;
+  animation: battleball-results-fade 200ms ease-out;
+}
+
+.battleball-results__panel {
+  width: min(760px, calc(100% - 32px));
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 55%),
+    linear-gradient(135deg, #070c1a 0%, #0f2742 40%, #13395c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 25px 65px rgba(2, 4, 12, 0.55);
+  color: #f6f7ff;
+}
+
+.battleball-results__subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.battleball-results__mvp {
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.battleball-results__mvp-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.battleball-results__mvp-score {
+  font-size: 1rem;
+  color: #fff4b3;
+}
+
+.battleball-results__teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.battleball-results__team {
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+
+.battleball-results__team-label {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.battleball-results__team-score {
+  font-size: 1.4rem;
+  font-family: Goldfish-Bold, Ubuntu, sans-serif;
+}
+
+.battleball-results__team.is-winner {
+  border-color: rgba(255, 240, 166, 0.8);
+  transform: translateY(-3px);
+  background: rgba(255, 240, 166, 0.08);
+}
+
+.battleball-results__players {
+  margin-top: 0.5rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.25);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.battleball-results__player {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.battleball-results__player:last-child {
+  border-bottom: none;
+}
+
+.battleball-results__player-team {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.battleball-results__empty {
+  padding: 1.25rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+@media (max-width: 640px) {
+  .battleball-results__panel {
+    padding: 1.5rem;
+  }
+
+  .battleball-results__teams {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@keyframes battleball-results-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

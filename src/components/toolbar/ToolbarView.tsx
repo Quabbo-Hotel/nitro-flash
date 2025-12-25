@@ -3,7 +3,7 @@ import { KeyboardInputMessageComposer } from '@nitrots/nitro-renderer/src/nitro/
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { CreateLinkEvent, GetConfiguration, GetRoomEngine, GetSessionDataManager, LocalizeText, MessengerIconState, OpenMessengerChat, SendMessageComposer, VisitDesktop } from '../../api';
 import { Base, Flex, LayoutAvatarImageView, LayoutItemCountView, TransitionAnimation, TransitionAnimationTypes } from '../../common';
-import { useAchievements, useFriends, useInventoryUnseenTracker, useMessageEvent, useMessenger, useRoom, useRoomEngineEvent, useSessionInfo } from '../../hooks';
+import { useAchievements, useBattleBall, useFriends, useInventoryUnseenTracker, useMessageEvent, useMessenger, useRoom, useRoomEngineEvent, useSessionInfo } from '../../hooks';
 import { ToolbarMeView } from './ToolbarMeView';
 
 const KEYBOARD_TRIGGER_TYPES = new Set<string>(['wf_trg_mobi_ssortants']);
@@ -15,15 +15,19 @@ const isKeyboardTriggerType = (type?: string) =>
     return KEYBOARD_TRIGGER_TYPES.has(type.toLowerCase());
 };
 
-export const ToolbarView: FC<{ isInRoom: boolean }> = props => 
+interface ToolbarViewProps
 {
-    const { isInRoom } = props;
-    const [isMeExpanded, setMeExpanded] = useState(false);
-    const [leftSideCollapsed, setLeftSideCollapsed] = useState(true);
-    const [rightSideCollapsed, setRightSideCollapsed] = useState(true);
-    const [useGuideTool, setUseGuideTool] = useState(false);
-    const [canUseWiredMonitor, setCanUseWiredMonitor] = useState(false);
-    const [canSendKeyboardInput, setCanSendKeyboardInput] = useState(false);
+    isInRoom: boolean;
+}
+
+export const ToolbarView: FC<ToolbarViewProps> = ({ isInRoom }) =>
+{
+    const [ isMeExpanded, setMeExpanded ] = useState(false);
+    const [ leftSideCollapsed, setLeftSideCollapsed ] = useState(true);
+    const [ rightSideCollapsed, setRightSideCollapsed ] = useState(true);
+    const [ useGuideTool, setUseGuideTool ] = useState(false);
+    const [ canUseWiredMonitor, setCanUseWiredMonitor ] = useState(false);
+    const [ canSendKeyboardInput, setCanSendKeyboardInput ] = useState(false);
     const keyboardTriggerIdsRef = useRef<Set<number>>(new Set());
 
     const { userFigure = null } = useSessionInfo();
@@ -32,6 +36,9 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
     const { requests = [] } = useFriends();
     const { iconState = MessengerIconState.HIDDEN } = useMessenger();
     const { roomSession = null } = useRoom();
+    const { phase: battleBallPhase } = useBattleBall();
+    const isBattleBallRunning = (battleBallPhase === 'running');
+    const showFullToolbar = !isBattleBallRunning;
     const isMod = GetSessionDataManager().isModerator;
 
     const refreshKeyboardTriggerState = useCallback(() =>
@@ -60,15 +67,13 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
         {
             const roomObject = roomEngine.getRoomObjectByIndex(roomId, index, RoomObjectCategory.FLOOR);
 
-            if(roomObject && isKeyboardTriggerType(roomObject.type))
-            {
-                trackedIds.add(roomObject.id);
-            }
+            if(roomObject && isKeyboardTriggerType(roomObject.type)) trackedIds.add(roomObject.id);
         }
 
         keyboardTriggerIdsRef.current = trackedIds;
+
         const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
-        setCanSendKeyboardInput(trackedIds.size > 0 || enabledFromWindow);
+        setCanSendKeyboardInput((trackedIds.size > 0) || enabledFromWindow);
     }, [ roomSession ]);
 
     useEffect(() =>
@@ -83,19 +88,19 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
         refreshKeyboardTriggerState();
     }, [ roomSession, refreshKeyboardTriggerState ]);
 
-    // Permiso para usar la guía
-    useMessageEvent<PerkAllowancesMessageEvent>(PerkAllowancesMessageEvent, event => 
+    useMessageEvent<PerkAllowancesMessageEvent>(PerkAllowancesMessageEvent, event =>
     {
         const parser = event.getParser();
+
         setUseGuideTool(parser.isAllowed(PerkEnum.USE_GUIDE_TOOL));
     });
 
-    // Animación ícono al toolbar
-    useRoomEngineEvent<NitroToolbarAnimateIconEvent>(NitroToolbarAnimateIconEvent.ANIMATE_ICON, event => 
+    useRoomEngineEvent<NitroToolbarAnimateIconEvent>(NitroToolbarAnimateIconEvent.ANIMATE_ICON, event =>
     {
         const animationIconToToolbar = (iconName: string, image: HTMLImageElement, x: number, y: number) =>
         {
             const target = (document.body.getElementsByClassName(iconName)[0] as HTMLElement);
+
             if(!target) return;
 
             image.className = 'toolbar-icon-animation';
@@ -113,17 +118,16 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
             const height = 20;
             const motionName = `ToolbarBouncing_${iconName}`;
 
-            if(!Motions.getMotionByTag(motionName))
-            {
-                Motions.runMotion(new Queue(new Wait((wait + 8)), new DropBounce(target, 400, 12))).tag = motionName;
-            }
+            if(!Motions.getMotionByTag(motionName)) Motions.runMotion(new Queue(new Wait((wait + 8)), new DropBounce(target, 400, 12))).tag = motionName;
 
             const motion = new Queue(
                 new EaseOut(new JumpBy(image, wait, ((targetBounds.x - imageBounds.x) + height), (targetBounds.y - imageBounds.y), 100, 1), 1),
                 new Dispose(image)
             );
+
             Motions.runMotion(motion);
         };
+
         animationIconToToolbar('icon-inventory', event.image, event.x, event.y);
     });
 
@@ -163,40 +167,35 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
             return;
         }
 
-        if(event.type === RoomEngineObjectEvent.REMOVED)
+        if(!keyboardTriggerIdsRef.current.size) return;
+
+        keyboardTriggerIdsRef.current.delete(event.objectId);
+
+        if(!keyboardTriggerIdsRef.current.size)
         {
-            if(!keyboardTriggerIdsRef.current.size) return;
+            const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
 
-            keyboardTriggerIdsRef.current.delete(event.objectId);
-
-            if(!keyboardTriggerIdsRef.current.size)
-            {
-                const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
-                setCanSendKeyboardInput(enabledFromWindow);
-            }
+            setCanSendKeyboardInput(!!enabledFromWindow);
         }
     });
 
-    // ------------------------------
-    //   LÓGICA DEL WIRED MONITOR
-    // ------------------------------
     useMessageEvent<RoomRightsEvent>(RoomRightsEvent, event =>
     {
         if(!roomSession) return;
+
         const controllerLevel = event.getParser().controllerLevel;
+
         setCanUseWiredMonitor((controllerLevel >= RoomControllerLevel.GUEST) || roomSession.isRoomOwner || isMod);
     });
 
-    useMessageEvent<RoomRightsClearEvent>(RoomRightsClearEvent, _ =>
+    useMessageEvent<RoomRightsClearEvent>(RoomRightsClearEvent, () =>
     {
         if(!roomSession) return;
+
         setCanUseWiredMonitor(roomSession.isRoomOwner || isMod);
     });
 
-    useMessageEvent<RoomRightsOwnerEvent>(RoomRightsOwnerEvent, _ =>
-    {
-        setCanUseWiredMonitor(true);
-    });
+    useMessageEvent<RoomRightsOwnerEvent>(RoomRightsOwnerEvent, () => setCanUseWiredMonitor(true));
 
     useEffect(() =>
     {
@@ -205,38 +204,37 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
             setCanUseWiredMonitor(false);
             return;
         }
-        setCanUseWiredMonitor(roomSession.isRoomOwner || isMod || (roomSession.controllerLevel >= RoomControllerLevel.GUEST));
-    }, [roomSession, isMod]);
 
-    // Actualizar estado de canSendKeyboardInput si el servidor activa walk/vim keys
+        setCanUseWiredMonitor(roomSession.isRoomOwner || isMod || (roomSession.controllerLevel >= RoomControllerLevel.GUEST));
+    }, [ roomSession, isMod ]);
+
     useMessageEvent<PlayerWalkKeysEvent>(PlayerWalkKeysEvent, event =>
     {
         const parser = event.getParser();
-
         const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
+
         setCanSendKeyboardInput((keyboardTriggerIdsRef.current.size > 0) || parser.isEnabled || enabledFromWindow);
     });
 
     useMessageEvent<PlayerVimKeysEvent>(PlayerVimKeysEvent, event =>
     {
         const parser = event.getParser();
-
         const enabledFromWindow = ((window as any).walkKeysEnabled || (window as any).vimKeysEnabled);
+
         setCanSendKeyboardInput((keyboardTriggerIdsRef.current.size > 0) || parser.isEnabled || enabledFromWindow);
     });
-    // ------------------------------
 
-    // Controles del teclado
-    useEffect(() => 
+    useEffect(() =>
     {
         if(!canSendKeyboardInput || !roomSession) return;
 
         const handleKeyDown = (event: KeyboardEvent) =>
         {
             let command = '';
-            if ((window as any).vimKeysEnabled)
+
+            if((window as any).vimKeysEnabled)
             {
-                switch (event.key.toLowerCase())
+                switch(event.key.toLowerCase())
                 {
                     case 'h': command = 'h'; break;
                     case 'j': command = 'j'; break;
@@ -248,157 +246,100 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
             }
             else
             {
-                const keys = ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","w","W","s","S","a","A","d","D"," ","Alt","Control","Shift"];
-                if(keys.includes(event.key))
-                {
-                    command = event.key === " " ? "space" : event.key.toLowerCase();
-                }
+                const keys = [ 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 's', 'a', 'd', ' ', 'alt', 'control', 'shift' ];
+
+                if(keys.includes(event.key.toLowerCase())) command = (event.key === ' ') ? 'space' : event.key.toLowerCase();
                 else return;
             }
+
             SendMessageComposer(new KeyboardInputMessageComposer(command));
         };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [ canSendKeyboardInput, roomSession ]);
 
-    // Render del toolbar CON LA NUEVA LÓGICA DE COLAPSO
     return (
         <>
-            <TransitionAnimation type={TransitionAnimationTypes.FADE_IN} inProp={isMeExpanded} timeout={300}>
-                <ToolbarMeView useGuideTool={useGuideTool} unseenAchievementCount={getTotalUnseen} setMeExpanded={setMeExpanded} />
-            </TransitionAnimation>
+            <Flex alignItems="center" justifyContent="center" id="toolbar-chat-input-container" className={isBattleBallRunning ? 'battleball-chat-only' : ''} />
+            { isBattleBallRunning && <Base id="toolbar-friend-bar-container" className="d-none" /> }
 
-            <Flex alignItems="center" justifyContent="center" id="toolbar-chat-input-container" />
+            { isBattleBallRunning && (
+                <Flex alignItems="center" justifyContent="flex-end" gap={2} className="nitro-toolbar nitro-toolbar--battleball py-1 px-3">
+                    { isInRoom && (
+                        <Base pointer className="navigation-item icon icon-camera" title={LocalizeText('camera.interface.title')} onClick={() => CreateLinkEvent('camera/toggle')} />
+                    ) }
+                </Flex>
+            ) }
 
-            <Flex alignItems="center" justifyContent="between" gap={2} className="nitro-toolbar py-1 px-3">
-                <button 
-                    className={leftSideCollapsed ? 'toolbar-left-collapse' : 'toolbar-left-collapse-active'} 
-                    onClick={() => setLeftSideCollapsed((collapsed) => !collapsed)}
-                />
-                
-                <Flex gap={2} alignItems="center" className="toolbar-left-side">
-                    <Flex alignItems="center" gap={2}>
-                        {leftSideCollapsed && (
-                            <Flex gap={2}>
-                                {isInRoom && (
-                                    <Base 
-                                        pointer 
-                                        className="navigation-item icon icon-habbo" 
-                                        title={LocalizeText('toolbar.icon.tooltip.exitroom.hotelview')} 
-                                        onClick={() => VisitDesktop()} 
-                                    />
-                                )}
-                                {!isInRoom && (
-                                    <Base 
-                                        pointer 
-                                        className="navigation-item icon icon-house" 
-                                        title={LocalizeText('toolbar.icon.tooltip.exitroom.home')} 
-                                        onClick={() => CreateLinkEvent('navigator/goto/home')} 
-                                    />
-                                )}
-                                <Base 
-                                    pointer 
-                                    className="navigation-item icon icon-rooms" 
-                                    title={LocalizeText('toolbar.icon.label.navigator')} 
-                                    onClick={() => CreateLinkEvent('navigator/toggle')} 
-                                />
-                                {GetConfiguration('game.center.enabled') && (
-                                    <Base 
-                                        pointer 
-                                        className="navigation-item icon icon-game" 
-                                        title={LocalizeText('toolbar.icon.label.games')} 
-                                        onClick={() => CreateLinkEvent('games/toggle')} 
-                                    />
-                                )}
+            { showFullToolbar && (
+                <>
+                    <TransitionAnimation type={TransitionAnimationTypes.FADE_IN} inProp={isMeExpanded} timeout={300}>
+                        <ToolbarMeView useGuideTool={useGuideTool} unseenAchievementCount={getTotalUnseen} setMeExpanded={setMeExpanded} />
+                    </TransitionAnimation>
+
+                    <Flex alignItems="center" justifyContent="between" gap={2} className="nitro-toolbar py-1 px-3">
+                        <button className={leftSideCollapsed ? 'toolbar-left-collapse' : 'toolbar-left-collapse-active'} onClick={() => setLeftSideCollapsed(value => !value)} />
+
+                        <Flex gap={2} alignItems="center" className="toolbar-left-side">
+                            <Flex alignItems="center" gap={2}>
+                                { leftSideCollapsed && (
+                                    <Flex gap={2}>
+                                        { isInRoom && (
+                                            <Base pointer className="navigation-item icon icon-habbo" title={LocalizeText('toolbar.icon.tooltip.exitroom.hotelview')} onClick={() => VisitDesktop()} />
+                                        ) }
+                                        { !isInRoom && (
+                                            <Base pointer className="navigation-item icon icon-house" title={LocalizeText('toolbar.icon.tooltip.exitroom.home')} onClick={() => CreateLinkEvent('navigator/goto/home')} />
+                                        ) }
+                                        <Base pointer className="navigation-item icon icon-rooms" title={LocalizeText('toolbar.icon.label.navigator')} onClick={() => CreateLinkEvent('navigator/toggle')} />
+                                        { GetConfiguration('game.center.enabled') && (
+                                            <Base pointer className="navigation-item icon icon-game" title={LocalizeText('toolbar.icon.label.games')} onClick={() => CreateLinkEvent('games/toggle')} />
+                                        ) }
+                                    </Flex>
+                                ) }
+
+                                <Base pointer className="navigation-item icon icon-catalog" title={LocalizeText('tooltip.shop')} onClick={() => CreateLinkEvent('catalog/toggle')} />
+                                <Base pointer className="navigation-item icon icon-inventory" title={LocalizeText('toolbar.icon.label.inventory')} onClick={() => CreateLinkEvent('inventory/toggle')}>
+                                    { (getFullCount > 0) && <LayoutItemCountView count={getFullCount} /> }
+                                </Base>
+
+                                <Flex center pointer className={`navigation-item item-avatar ${isMeExpanded ? 'active ' : ''}`} title={LocalizeText('toolbar.icon.label.memenu')} onClick={() => setMeExpanded(value => !value)}>
+                                    <LayoutAvatarImageView figure={userFigure} direction={2} position="absolute" />
+                                    { (getTotalUnseen > 0) && <LayoutItemCountView count={getTotalUnseen} /> }
+                                </Flex>
+
+                                { isInRoom && (
+                                    <Base pointer className="navigation-item icon icon-camera" title={LocalizeText('camera.interface.title')} onClick={() => CreateLinkEvent('camera/toggle')} />
+                                ) }
+
+                                { (canUseWiredMonitor && isInRoom) && (
+                                    <Base pointer className="navigation-item icon icon-wired-monitor" onClick={() => CreateLinkEvent('wired-monitor/toggle')} />
+                                ) }
+
+                                { isMod && (
+                                    <Base pointer className="navigation-item icon icon-modtools" onClick={() => CreateLinkEvent('mod-tools/toggle')} />
+                                ) }
                             </Flex>
-                        )}
-
-                        <Base 
-                            pointer 
-                            className="navigation-item icon icon-catalog" 
-                            title={LocalizeText('tooltip.shop')} 
-                            onClick={() => CreateLinkEvent('catalog/toggle')} 
-                        />
-                        <Base 
-                            pointer 
-                            className="navigation-item icon icon-inventory" 
-                            title={LocalizeText('toolbar.icon.label.inventory')} 
-                            onClick={() => CreateLinkEvent('inventory/toggle')}
-                        >
-                            {(getFullCount > 0) && <LayoutItemCountView count={getFullCount} />}
-                        </Base>
-
-                        <Flex 
-                            center 
-                            pointer 
-                            className={'navigation-item item-avatar ' + (isMeExpanded ? 'active ' : '')} 
-                            title={LocalizeText('toolbar.icon.label.memenu')} 
-                            onClick={() => setMeExpanded(!isMeExpanded)}
-                        >
-                            <LayoutAvatarImageView figure={userFigure} direction={2} position="absolute" />
-                            {(getTotalUnseen > 0) && <LayoutItemCountView count={getTotalUnseen} />}
                         </Flex>
 
-                        {isInRoom && (
-                            <Base 
-                                pointer 
-                                className="navigation-item icon icon-camera" 
-                                title={LocalizeText('camera.interface.title')} 
-                                onClick={() => CreateLinkEvent('camera/toggle')} 
-                            />
-                        )}
+                        <Flex alignItems="center" gap={2} className={rightSideCollapsed ? 'toolbar-right-side' : ''}>
+                            <Flex gap={2} className={((iconState === MessengerIconState.SHOW) || (iconState === MessengerIconState.UNREAD)) ? '' : 'margin-friends'}>
+                                <Base pointer className="navigation-item icon icon-friendall" title={LocalizeText('friend.bar.friends.title')} onClick={() => CreateLinkEvent('friends/toggle')}>
+                                    { (requests.length > 0) && <LayoutItemCountView count={requests.length} /> }
+                                </Base>
+                                <Base pointer className="navigation-item icon icon-friendsearch" title={LocalizeText('friendlist.tip.search')} onClick={() => CreateLinkEvent('friends/search')} />
+                                { ((iconState === MessengerIconState.SHOW) || (iconState === MessengerIconState.UNREAD)) && (
+                                    <Base pointer className={`navigation-item icon icon-message ${(iconState === MessengerIconState.UNREAD) && 'is-unseen'}`} onClick={() => OpenMessengerChat()} />
+                                ) }
+                            </Flex>
+                            <Base id="toolbar-friend-bar-container" className={rightSideCollapsed ? 'd-none d-lg-block' : 'd-none'} />
+                        </Flex>
 
-                        {/* ICONO DEL WIRED MONITOR - NUEVO */}
-                        {canUseWiredMonitor && isInRoom && (
-                            <Base 
-                                pointer 
-                                className="navigation-item icon icon-wired-monitor" 
-                                onClick={() => CreateLinkEvent('wired-monitor/toggle')} 
-                            />
-                        )}
-
-                        {isMod && (
-                            <Base 
-                                pointer 
-                                className="navigation-item icon icon-modtools" 
-                                onClick={() => CreateLinkEvent('mod-tools/toggle')} 
-                            />
-                        )}
+                        <button className={rightSideCollapsed ? 'toolbar-right-collapse' : 'toolbar-right-collapse-active'} onClick={() => setRightSideCollapsed(value => !value)} />
                     </Flex>
-                </Flex>
-
-                <Flex alignItems="center" gap={2} className={rightSideCollapsed ? 'toolbar-right-side' : ''}>
-                    <Flex gap={2} className={((iconState === MessengerIconState.SHOW) || (iconState === MessengerIconState.UNREAD)) ? '' : 'margin-friends'}>
-                        <Base 
-                            pointer 
-                            className="navigation-item icon icon-friendall" 
-                            title={LocalizeText('friend.bar.friends.title')} 
-                            onClick={() => CreateLinkEvent('friends/toggle')}
-                        >
-                            {(requests.length > 0) && <LayoutItemCountView count={requests.length} />}
-                        </Base>
-                        <Base 
-                            pointer 
-                            className="navigation-item icon icon-friendsearch" 
-                            title={LocalizeText('friendlist.tip.search')} 
-                            onClick={() => CreateLinkEvent('friends/search')}
-                        />
-                        {((iconState === MessengerIconState.SHOW) || (iconState === MessengerIconState.UNREAD)) && (
-                            <Base 
-                                pointer 
-                                className={`navigation-item icon icon-message ${(iconState === MessengerIconState.UNREAD) && 'is-unseen'}`} 
-                                onClick={() => OpenMessengerChat()} 
-                            />
-                        )}
-                    </Flex>
-                    <Base id="toolbar-friend-bar-container" className={rightSideCollapsed ? 'd-none d-lg-block' : 'd-none'} />
-                </Flex>
-
-                <button 
-                    className={rightSideCollapsed ? 'toolbar-right-collapse' : 'toolbar-right-collapse-active'} 
-                    onClick={() => setRightSideCollapsed((collapsed) => !collapsed)}
-                />
-            </Flex>
+                </>
+            ) }
         </>
     );
 };

@@ -1,0 +1,89 @@
+.battleball-hud {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: min(320px, calc(100% - 48px));
+  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(16, 25, 45, 0.95), rgba(12, 15, 26, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px rgba(4, 6, 15, 0.45);
+  backdrop-filter: blur(12px);
+  color: #f5f7ff;
+  z-index: 15;
+  pointer-events: none;
+  animation: battleball-hud-fade 250ms ease-out;
+}
+
+.battleball-hud__header {
+  gap: 1rem;
+}
+
+.battleball-hud__subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.battleball-hud__timer {
+  font-size: 2rem;
+  font-family: Goldfish-Bold, Ubuntu, sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.battleball-hud__bar {
+  padding: 0.35rem 0;
+}
+
+.battleball-hud__bar-head {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.battleball-hud__bar-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  margin-top: 0.35rem;
+}
+
+.battleball-hud__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 300ms ease-in-out;
+}
+
+.battleball-hud__bar.is-leading .battleball-hud__bar-fill {
+  box-shadow: 0 0 12px currentColor;
+}
+
+.battleball-hud__footer {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 768px) {
+  .battleball-hud {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    top: 12px;
+    padding: 1rem 1.25rem;
+  }
+
+  .battleball-hud__timer {
+    font-size: 1.6rem;
+  }
+}
+
+@keyframes battleball-hud-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

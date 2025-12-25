@@ -1,14 +1,55 @@
-.game-center-stage {
-    width: 100%;
-    height: calc(100% - 55px);
-    background-color: black;
-    position: absolute;
-    inset: 0;
+
+.game-center-wrapper {
+    top: 1rem;
+    right: 1rem;
+    width: min(960px, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    padding: 1.25rem 1.5rem;
+    border-radius: 24px;
+    background: rgba(4, 9, 18, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    z-index: 5;
 }
+
+.game-center-head {
+    width: 100%;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.game-center-body {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.game-center-placeholder {
+    width: 100%;
+    text-align: center;
+    background: rgba(8, 12, 24, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+    color: #f4f8ff;
+}
+
+.game-center-placeholder__copy {
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.4;
+}
+
 .game-center-main {
-    width: 1280px;
-    height: calc(100% - 55px);
+    flex: 1 1 520px;
+    min-width: 320px;
+    max-width: 620px;
     background: #93d4f3;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
 
     .game-view {
         background-position: bottom center;
@@ -40,5 +81,176 @@
                 }
             }
         }
+    }
+}
+
+.battleball-stage {
+    flex: 1 1 360px;
+    min-width: 320px;
+    max-width: 460px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    background: radial-gradient(circle at top right, rgba(71, 153, 255, 0.35), transparent 45%),
+        linear-gradient(145deg, #051423 0%, #093453 60%, #0e5b7f 100%);
+    color: #ebf6ff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
+    isolation: isolate;
+}
+
+.battleball-stage:before {
+    content: '';
+    position: absolute;
+    inset: -30% 10% auto;
+    height: 180px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), transparent 70%);
+    transform: rotate(-8deg);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.battleball-stage__subtitle {
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.battleball-stage__chip {
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.battleball-stage__chip--idle {
+    background: rgba(255, 255, 255, 0.08);
+    color: #cfe4ff;
+}
+
+.battleball-stage__chip--ready {
+    background: rgba(59, 214, 166, 0.2);
+    color: #4be3a7;
+}
+
+.battleball-stage__chip--connecting,
+.battleball-stage__chip--authenticating {
+    background: rgba(255, 206, 84, 0.2);
+    color: #ffce54;
+    animation: battleballPulse 1.6s ease-in-out infinite;
+}
+
+.battleball-stage__chip--error,
+.battleball-stage__chip--closed {
+    background: rgba(255, 105, 97, 0.2);
+    color: #ff857f;
+}
+
+.battleball-stage__summary {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.battleball-stage__summary-title {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    opacity: 0.8;
+}
+
+.battleball-stage__players {
+    background: rgba(3, 9, 18, 0.35);
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.battleball-stage__player-grid {
+    flex-wrap: wrap;
+}
+
+.battleball-stage__player {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-width: 150px;
+}
+
+.battleball-stage__player-role {
+    opacity: 0.7;
+    font-size: 0.8rem;
+}
+
+.battleball-stage__empty {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(255, 255, 255, 0.09);
+}
+
+.battleball-status-pill {
+    background: rgba(0, 0, 0, 0.35);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    margin-top: 0.75rem;
+    display: inline-block;
+}
+
+@keyframes battleballPulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.game-center-stage:not(iframe) {
+    flex: 1 1 360px;
+    min-width: 320px;
+    min-height: 320px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    background: #02070f;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.game-center-stage iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+
+@media (max-width: 1024px) {
+    .game-center-wrapper {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: min(720px, calc(100vw - 2rem));
+    }
+
+    .game-center-main,
+    .battleball-stage,
+    .game-center-stage:not(iframe) {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .game-center-wrapper {
+        top: 0.5rem;
+        width: calc(100vw - 1rem);
+        padding: 1rem;
+    }
+
+    .battleball-stage {
+        padding: 1.1rem;
     }
 }
